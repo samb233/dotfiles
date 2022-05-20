@@ -1,2 +1,1 @@
-# dotfiles
-dotfiles backup
+# KDE 配置备份
