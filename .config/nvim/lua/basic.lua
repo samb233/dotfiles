@@ -45,7 +45,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 
 -- 搜索不要高亮
--- vim.o.hlsearch = false
+vim.o.hlsearch = false
 
 -- 边输入边搜索
 vim.o.incsearch = true
@@ -55,7 +55,7 @@ vim.o.autoread = true
 vim.bo.autoread = true
 
 -- 禁止折行
-vim.wo.wrap = false
+-- vim.wo.wrap = false
 
 -- 光标在行首尾时<Left><Right>可以跳到下一行
 -- vim.o.whichwrap = "<,>,[,]"

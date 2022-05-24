@@ -1,28 +1,30 @@
-local status, catppuccin = pcall(require, "catppuccin")
-if not status then
-	vim.notify("没有找到 catppuccin")
-	return
-end
+local colorscheme = "sonokai"
 
-catppuccin.setup({
-	transparent_background = false,
-	term_colors = true,
-	styles = {
-		comments = "italic",
-		functions = "italic,bold",
-		keywords = "italic",
-		strings = "NONE",
-		variables = "NONE",
-	},
-
-	integrations = {
-		nvimtree = {
-			enabled = true,
-			show_root = false,
-			transparent_panel = false,
-		},
-	},
-})
+-- local status, catppuccin = pcall(require, "catppuccin")
+-- if not status then
+-- 	vim.notify("没有找到 catppuccin")
+-- 	return
+-- end
+--
+-- catppuccin.setup({
+-- 	transparent_background = false,
+-- 	term_colors = true,
+-- 	styles = {
+-- 		comments = "italic",
+-- 		functions = "italic,bold",
+-- 		keywords = "italic",
+-- 		strings = "NONE",
+-- 		variables = "NONE",
+-- 	},
+--
+-- 	integrations = {
+-- 		nvimtree = {
+-- 			enabled = true,
+-- 			show_root = false,
+-- 			transparent_panel = false,
+-- 		},
+-- 	},
+-- })
 
 -- local status, ayu = pcall(require, "ayu")
 -- if not status then
@@ -33,8 +35,6 @@ catppuccin.setup({
 -- ayu.setup({
 -- 	mirage = true,
 -- })
---
-local colorscheme = "catppuccin"
 
 local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
 if not status_ok then

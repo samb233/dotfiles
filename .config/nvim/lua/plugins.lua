@@ -23,6 +23,9 @@ packer.startup({
 		use("tiagovla/tokyodark.nvim")
 		use("aditya-azad/candle-grey")
 		use("Shatur/neovim-ayu")
+		use("sainnhe/sonokai")
+		use("shaunsingh/nord.nvim")
+		use("rebelot/kanagawa.nvim")
 		-- lualine
 		use({ "nvim-lualine/lualine.nvim", requires = { "kyazdani42/nvim-web-devicons" } })
 		use("arkav/lualine-lsp-progress")
@@ -35,6 +38,12 @@ packer.startup({
 
 		--terminal
 		use("numToStr/FTerm.nvim")
+
+		-- git
+		use({
+			"lewis6991/gitsigns.nvim",
+			-- tag = 'release' -- To use the latest release
+		})
 
 		--------------------- LSP --------------------
 		-- lspconfig

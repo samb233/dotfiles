@@ -16,6 +16,7 @@ require("plugin-settings.bufferline")
 require("plugin-settings.lualine")
 require("plugin-settings.indent-blankline")
 require("plugin-settings.comment")
+require("plugin-settings.gitsigns")
 
 -- 主题设置
 require("colorscheme")

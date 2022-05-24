@@ -82,6 +82,9 @@ map("n", "<leader>fg", ":Telescope live_grep<CR>", opt)
 -- nvim-tree
 map("n", "<leader>n", ":NvimTreeToggle<CR>", opt)
 
+-- 重启Lsp Server
+map("n", "<leader>lr", ":LspRestart<CR>", opt)
+
 -- 插件快捷键
 local pluginKeys = {}
 

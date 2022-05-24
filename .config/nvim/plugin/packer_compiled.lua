@@ -70,15 +70,24 @@ time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
   ["Comment.nvim"] = {
-    config = { "\27LJ\2\n5\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\fComment\frequire\0" },
     loaded = true,
     path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/Comment.nvim",
     url = "https://hub.fastgit.xyz/numToStr/Comment.nvim"
+  },
+  ["FTerm.nvim"] = {
+    loaded = true,
+    path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/FTerm.nvim",
+    url = "https://hub.fastgit.xyz/numToStr/FTerm.nvim"
   },
   ["bufferline.nvim"] = {
     loaded = true,
     path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/bufferline.nvim",
     url = "https://hub.fastgit.xyz/akinsho/bufferline.nvim"
+  },
+  ["candle-grey"] = {
+    loaded = true,
+    path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/candle-grey",
+    url = "https://hub.fastgit.xyz/aditya-azad/candle-grey"
   },
   catppuccin = {
     loaded = true,
@@ -140,6 +149,11 @@ _G.packer_plugins = {
     path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/lualine.nvim",
     url = "https://hub.fastgit.xyz/nvim-lualine/lualine.nvim"
   },
+  ["neovim-ayu"] = {
+    loaded = true,
+    path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/neovim-ayu",
+    url = "https://hub.fastgit.xyz/Shatur/neovim-ayu"
+  },
   ["null-ls.nvim"] = {
     loaded = true,
     path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/null-ls.nvim",
@@ -195,6 +209,11 @@ _G.packer_plugins = {
     path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/telescope.nvim",
     url = "https://hub.fastgit.xyz/nvim-telescope/telescope.nvim"
   },
+  ["tokyodark.nvim"] = {
+    loaded = true,
+    path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/tokyodark.nvim",
+    url = "https://hub.fastgit.xyz/tiagovla/tokyodark.nvim"
+  },
   ["vim-bbye"] = {
     loaded = true,
     path = "/home/jiesamb/.local/share/nvim/site/pack/packer/start/vim-bbye",
@@ -208,10 +227,6 @@ _G.packer_plugins = {
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: Comment.nvim
-time([[Config for Comment.nvim]], true)
-try_loadstring("\27LJ\2\n5\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\fComment\frequire\0", "config", "Comment.nvim")
-time([[Config for Comment.nvim]], false)
 if should_profile then save_profiles() end
 
 end)
