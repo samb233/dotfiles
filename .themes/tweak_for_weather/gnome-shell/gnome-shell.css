@@ -1,0 +1,8 @@
+.weather-button .weather-forecast-time {
+  color: #afafaf;
+  font-feature-settings: "tnum";
+  font-size: 7pt;
+  font-weight: normal;
+  padding-top: 0.2em;
+  padding-bottom: 0.4em;
+}
