@@ -36,9 +36,10 @@ map("n", "<C-Up>", ":resize -2<CR>", opt)
 map("n", "s=", "<C-w>=", opt)
 
 -- Terminal相关
+map("n", "<leader>t", '<CMD>lua require("FTerm").toggle()<CR>', opt)
+map("t", "<leader>t", '<C-\\><C-n><CMD>lua require("FTerm").toggle()<CR>', opt)
 -- map("n", "<leader>t", ":sp | terminal<CR>", opt)
-vim.keymap.set("n", "<leader>t", '<CMD>lua require("FTerm").toggle()<CR>')
-map("n", "<leader>vt", ":vsp | terminal<CR>", opt)
+-- map("n", "<leader>vt", ":vsp | terminal<CR>", opt)
 map("t", "<Esc>", "<C-\\><C-n>", opt)
 map("t", "<A-h>", [[ <C-\><C-N><C-w>h ]], opt)
 map("t", "<A-j>", [[ <C-\><C-N><C-w>j ]], opt)

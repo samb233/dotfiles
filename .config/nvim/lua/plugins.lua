@@ -19,13 +19,8 @@ packer.startup({
 		use("windwp/nvim-autopairs")
 
 		-- 主题
-		use({ "catppuccin/nvim", as = "catppuccin" })
-		use("tiagovla/tokyodark.nvim")
-		use("aditya-azad/candle-grey")
-		use("Shatur/neovim-ayu")
-		use("sainnhe/sonokai")
-		use("shaunsingh/nord.nvim")
 		use("rebelot/kanagawa.nvim")
+		use("marko-cerovac/material.nvim")
 		-- lualine
 		use({ "nvim-lualine/lualine.nvim", requires = { "kyazdani42/nvim-web-devicons" } })
 		use("arkav/lualine-lsp-progress")
@@ -77,7 +72,7 @@ packer.startup({
 
 		-- 自定义源
 		git = {
-			default_url_format = "https://hub.fastgit.xyz/%s",
+			-- default_url_format = "https://hub.fastgit.xyz/%s",
 			-- default_url_format = "https://mirror.ghproxy.com/https://github.com/%s",
 			-- default_url_format = "https://gitcode.net/mirrors/%s",
 			-- default_url_format = "https://gitclone.com/github.com/%s",
