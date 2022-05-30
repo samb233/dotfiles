@@ -4,7 +4,7 @@
 
 毫无疑问ArchLinux，原因如下：
 1. AUR能嫖各路软件，包括各种国内麻烦软件。
-2. 
+2. 在我看来，使用相对较新的软件包并不会带来不稳定，反而能解决不少历史遗留问题。
 
 ## 桌面环境选择
 
@@ -92,10 +92,22 @@ iwctl连上网，pacman -Sy更新源，archinstall，选一选，只要知道每
    ```
 4. 重启
 
+### Mutter性能优化
+
+如果使用的是高分屏，则gnome各种动画的帧数会非常低，使用(aur)mutter-dynamic-buffering这个包来替代Mutter能大大提升帧数，另外也同样适用于1080p屏幕窗口开的非常多的情况
+
 ## 软件
 
 - 终端模拟器：kitty
 - 编辑器：neovim，(aur)visual-studio-code-bin
+- 音乐播放器：(flatpak)tauon，deadbeef-git，rhythmbox+(aur)rhythmbox-plugin-alternative-toolbar 
+- 浏览器：chromium，firefox
+- 邮件客户端：mailspring
+- 科学上网：clash for windows，v2raya
+- office：(aur)wps、(aur)only-office
+- 视频录制：obs-studio
+- 视频剪辑：(flatpak)kdenlive
+- 手机交互：gsconnect
 - 
 
 ## 桌面美化
