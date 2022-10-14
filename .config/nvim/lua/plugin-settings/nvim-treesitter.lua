@@ -5,6 +5,9 @@ if not status then
 end
 
 treesitter.setup({
+	autotag = {
+		enable = true,
+	},
 	-- 安装 language parser
 	-- :TSInstallInfo 命令查看支持的语言
 	ensure_installed = { "json", "html", "css", "vim", "lua", "go", "rust", "c" },

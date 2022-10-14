@@ -1,58 +1,61 @@
 local cmp = require("cmp")
 
 cmp.setup({
-  -- 指定 snippet 引擎
-  snippet = {
-    expand = function(args)
-      -- For `vsnip` users.
-      vim.fn["vsnip#anonymous"](args.body)
+	-- 指定 snippet 引擎
+	snippet = {
+		expand = function(args)
+			-- For `vsnip` users.
+			vim.fn["vsnip#anonymous"](args.body)
 
-      -- For `luasnip` users.
-      -- require('luasnip').lsp_expand(args.body)
+			-- For `luasnip` users.
+			-- require('luasnip').lsp_expand(args.body)
 
-      -- For `ultisnips` users.
-      -- vim.fn["UltiSnips#Anon"](args.body)
+			-- For `ultisnips` users.
+			-- vim.fn["UltiSnips#Anon"](args.body)
 
-      -- For `snippy` users.
-      -- require'snippy'.expand_snippet(args.body)
+			-- For `snippy` users.
+			-- require'snippy'.expand_snippet(args.body)
+		end,
+	},
+	-- 补全源
+	sources = cmp.config.sources({
+		{ name = "nvim_lsp" },
+		-- For vsnip users.
+		{ name = "vsnip" },
 
-    end,
-  },
-  -- 补全源
-  sources = cmp.config.sources({
-    { name = "nvim_lsp" },
-    -- For vsnip users.
-    { name = "vsnip" },
+		-- For luasnip users.
+		-- { name = 'luasnip' },
 
-    -- For luasnip users.
-    -- { name = 'luasnip' },
+		--For ultisnips users.
+		-- { name = 'ultisnips' },
 
-    --For ultisnips users.
-    -- { name = 'ultisnips' },
+		-- -- For snippy users.
+		-- { name = 'snippy' },
+	}, { { name = "buffer" }, { name = "path" } }),
 
-    -- -- For snippy users.
-    -- { name = 'snippy' },
-  }, { { name = "buffer" }, { name = "path" } }),
+	-- 快捷键设置
+	mapping = require("keybindings").cmp(cmp),
 
-  -- 快捷键设置
-  mapping = require("keybindings").cmp(cmp),
-
-  -- 使用lspkind-nvim显示类型图标
-  formatting = require('lsp.ui').formatting
+	-- 使用lspkind-nvim显示类型图标
+	formatting = require("lsp.ui").formatting,
 })
 
 -- / 查找模式使用 buffer 源
 cmp.setup.cmdline("/", {
-  sources = {
-    { name = "buffer" },
-  },
+	sources = {
+		{ name = "buffer" },
+	},
 })
 
 -- : 命令行模式中使用 path 和 cmdline 源.
 cmp.setup.cmdline(":", {
-  sources = cmp.config.sources({
-    { name = "path" },
-  }, {
-    { name = "cmdline" },
-  }),
+	sources = cmp.config.sources({
+		{ name = "path" },
+	}, {
+		{ name = "cmdline" },
+	}),
+})
+
+cmp.setup({
+	preselect = cmp.PreselectMode.None,
 })

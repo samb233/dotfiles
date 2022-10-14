@@ -17,6 +17,7 @@ packer.startup({
 
 		-- autopairs
 		use("windwp/nvim-autopairs")
+		use("windwp/nvim-ts-autotag")
 
 		-- 主题
 		use("rebelot/kanagawa.nvim")
@@ -47,7 +48,8 @@ packer.startup({
 		-- ui
 		use("onsails/lspkind-nvim")
 
-		use("tami5/lspsaga.nvim")
+		-- use("tami5/lspsaga.nvim")
+		use("glepnir/lspsaga.nvim")
 
 		-- 补全引擎
 		use("hrsh7th/nvim-cmp")
