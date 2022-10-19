@@ -22,28 +22,48 @@ end
 material.setup({
 
 	contrast = {
+		terminal = false, -- Enable contrast for the built-in terminal
 		sidebars = false, -- Enable contrast for sidebar-like windows ( for example Nvim-Tree )
 		floating_windows = false, -- Enable contrast for floating windows
-		line_numbers = false, -- Enable contrast background for line numbers
-		sign_column = false, -- Enable contrast background for the sign column
 		cursor_line = false, -- Enable darker background for the cursor line
 		non_current_windows = false, -- Enable darker background for non-current windows
-		popup_menu = false, -- Enable lighter background for the popup menu
+		filetypes = {}, -- Specify which filetypes get the contrasted (darker) background
+		-- sign_column = false, -- Enable contrast background for the sign column
+		-- line_numbers = false, -- Enable contrast background for line numbers
+		-- popup_menu = false, -- Enable lighter background for the popup menu
 	},
 
-	italics = {
-		comments = true, -- Enable italic comments
-		keywords = false, -- Enable italic keywords
-		functions = false, -- Enable italic functions
-		strings = false, -- Enable italic strings
-		variables = false, -- Enable italic variables
+	styles = { -- Give comments style such as bold, italic, underline etc.
+		comments = { italic = true },
+		strings = { --[[ bold = true ]]
+		},
+		keywords = {
+			--[[ underline = true ]]
+		},
+		functions = { --[[ bold = true, undercurl = true ]]
+		},
+		variables = {},
+		operators = {},
+		types = {},
 	},
 
-	contrast_filetypes = { -- Specify which filetypes get the contrasted (darker) background
-		--"terminal", -- Darker terminal background
-		-- "packer", -- Darker packer background
-		"qf", -- Darker qf list background
-		"folded",
+	plugins = { -- Uncomment the plugins that you use to highlight them
+		-- Available plugins:
+		-- "dap",
+		-- "dashboard",
+		-- "gitsigns",
+		-- "hop",
+		-- "indent-blankline",
+		-- "lspsaga",
+		-- "mini",
+		-- "neogit",
+		"nvim-cmp",
+		-- "nvim-navic",
+		"nvim-tree",
+		-- "sneak",
+		"telescope",
+		-- "trouble",
+		-- "which-key",
 	},
 
 	high_visibility = {
@@ -67,6 +87,10 @@ material.setup({
 		-- highlight folded
 		Folded = { bg = "#222222" },
 	}, -- Overwrite highlights with your own
+
+	custom_colors = function(colors)
+		colors.editor.fg_dark = "#B0BEC5"
+	end, -- If you want to everride the default colors, set this to a function
 })
 
 local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
