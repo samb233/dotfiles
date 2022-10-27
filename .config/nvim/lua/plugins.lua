@@ -43,7 +43,8 @@ packer.startup({
 
 		--------------------- LSP --------------------
 		-- lspconfig
-		use({ "neovim/nvim-lspconfig", "williamboman/nvim-lsp-installer" })
+		use({ "neovim/nvim-lspconfig", "williamboman/mason.nvim" })
+		use({ "williamboman/mason-lspconfig.nvim" })
 
 		-- ui
 		use("onsails/lspkind-nvim")
