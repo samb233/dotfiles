@@ -51,10 +51,10 @@ material.setup({
 		-- Available plugins:
 		-- "dap",
 		-- "dashboard",
-		-- "gitsigns",
+		"gitsigns",
 		-- "hop",
 		-- "indent-blankline",
-		-- "lspsaga",
+		"lspsaga",
 		-- "mini",
 		-- "neogit",
 		"nvim-cmp",
@@ -90,6 +90,9 @@ material.setup({
 
 	custom_colors = function(colors)
 		colors.editor.fg_dark = "#B0BEC5"
+		colors.backgrounds.non_current_windows = "NONE"
+		colors.backgrounds.floating_windows = "NONE"
+		colors.backgrounds.sidebars = "NONE"
 	end, -- If you want to everride the default colors, set this to a function
 })
 
