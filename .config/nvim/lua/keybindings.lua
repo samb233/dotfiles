@@ -146,8 +146,9 @@ pluginKeys.mapLSP = function(mapbuf)
 	-- go xx
 	--[[
 	mapbuf("n", "gd", "<cmd>Lspsaga preview_definition<CR>", opt)
-  --]]
 	mapbuf("n", "gd", "<cmd>lua vim.lsp.buf.definition()<CR>", opt)
+  --]]
+	mapbuf("n", "gd", "<cmd>lua require'telescope.builtin'.lsp_definitions({ initial_mode = 'normal', })<CR>", opt)
 
 	--[[
   Lspsaga 替换 gh
@@ -169,7 +170,7 @@ pluginKeys.mapLSP = function(mapbuf)
 	mapbuf("n", "gp", "<cmd>Lspsaga show_line_diagnostics<CR>", opt)
 	mapbuf("n", "gj", "<cmd>Lspsaga diagnostic_jump_next<cr>", opt)
 	mapbuf("n", "gk", "<cmd>Lspsaga diagnostic_jump_prev<cr>", opt)
-	mapbuf("n", "<leader>f", "<cmd>lua vim.lsp.buf.formatting()<CR>", opt)
+	mapbuf("n", "<leader>f", "<cmd>lua vim.lsp.buf.format()<CR>", opt)
 	-- 未用
 	mapbuf("n", "gD", "<cmd>lua vim.lsp.buf.declaration()<CR>", opt)
 	-- mapbuf("n", "gi", "<cmd>lua vim.lsp.buf.implementation()<CR>", opt)
