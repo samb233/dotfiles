@@ -17,6 +17,7 @@ require("plugin-settings.lualine")
 require("plugin-settings.indent-blankline")
 require("plugin-settings.comment")
 require("plugin-settings.gitsigns")
+require("plugin-settings.nvim-treesitter-context")
 
 -- 主题设置
 require("colorscheme")

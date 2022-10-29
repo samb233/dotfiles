@@ -9,6 +9,7 @@ packer.startup({
 
 		-- treesitter （新增）
 		use({ "nvim-treesitter/nvim-treesitter", run = ":TSUpdate" })
+		use("nvim-treesitter/nvim-treesitter-context")
 		-- telescope
 		use({ "nvim-telescope/telescope.nvim", requires = { "nvim-lua/plenary.nvim" } })
 
