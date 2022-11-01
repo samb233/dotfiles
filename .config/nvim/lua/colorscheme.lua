@@ -86,6 +86,7 @@ material.setup({
 	custom_highlights = {
 		-- highlight folded
 		Folded = { bg = "#222222" },
+		TreesitterContextBottom = { bg = "#3E4556" },
 	}, -- Overwrite highlights with your own
 
 	custom_colors = function(colors)

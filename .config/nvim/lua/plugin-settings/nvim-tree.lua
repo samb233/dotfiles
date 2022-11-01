@@ -18,10 +18,10 @@ nvim_tree.setup({
 		update_cwd = true,
 	},
 	-- 隐藏 .文件 和 node_modules 文件夹
-	filters = {
-		dotfiles = true,
-		custom = { "node_modules" },
-	},
+	-- filters = {
+	-- 	dotfiles = true,
+	-- 	custom = { "node_modules" },
+	-- },
 	view = {
 		-- 宽度
 		width = 40,
