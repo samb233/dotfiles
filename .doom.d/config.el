@@ -3,7 +3,8 @@
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
-
+;; open at maximaized
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Jie Samb"
@@ -11,10 +12,9 @@
 
 
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 13.0 ))
+(setq doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font" :size 13.0 ))
 (setq doom-variable-pitch-font (font-spec :family "Sarasa Term SC" :size 13.0))
 
-;; open at maximaized
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; mousewheel settings
 ;; scroll one line at a time (less "jumpy" than defaults)
@@ -119,6 +119,8 @@
 ;; (setq company-idle-delay 0)
 ;; (setq company-minimum-prefix-length 1)
 
+
+;; lsp-mode settings
 ;; Go - lsp-mode
 ;; Set up before-save hooks to format buffer and add/delete imports.
 (defun lsp-go-install-save-hooks ()
@@ -129,19 +131,37 @@
 ;; Start LSP Mode
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
 ;;
+;; lsp-mode keybinding
+(evil-define-key 'normal lsp-mode-map
+  (kbd "g h") 'lsp-ui-doc-toggle
+  (kbd "<leader>rn") 'lsp-rename)
 
 
 ;; some keybindings
 (evil-define-key 'insert 'global
   (kbd "C-v") 'yank)
 
+(evil-define-key 'visual 'global
+  (kbd "J") 'drag-stuff-down
+  (kbd "K") 'drag-stuff-up)
 
-;; lsp-mode keybinding
-(evil-define-key 'normal lsp-mode-map
-  (kbd "g h") 'lsp-ui-doc-toggle
-  (kbd "<leader>rn") 'lsp-rename)
+;; :q should kill the current buffer rather than quitting emacs entirely
+(evil-ex-define-cmd "q" 'kill-this-buffer)
+;; Need to type out :quit to close emacs
+(evil-ex-define-cmd "quit" 'evil-quit)
+
+
 
 ;; markdown
+(custom-set-faces
+ '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.7))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.6))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.5))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.4))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.3))))
+ '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.2)))))
+
 
 
 ;; settings to minimap
@@ -168,7 +188,7 @@
 (evil-define-key 'normal dired-mode-map
   (kbd "h") 'dired-up-directory
   (kbd "l") 'dired-open-file ; use dired-find-file instead of dired-open.
-)
+  )
 ;; Get file icons in dired
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 ;; With dired-open plugin, you can launch external programs for certain extensions
@@ -176,14 +196,28 @@
                               ("jpg" . "eog")
                               ("png" . "eog")
                               ("mkv" . "mpv")
-                              ("mp4" . "mpv")))
+                              ("mp4" . "mpv")
+                              ("doc" . "wps")
+                              ("xls" . "wps")
+                              ("ppt" . "wps")
+                              ("docx" . "wps")
+                              ("xlsx" . "wps")
+                              ("pptx" . "wps")
+                              ))
+
 
 ;; settings for shfmt
 ;; fix zsh shfmt format
 (use-package sh-script
   :config
-   (set-formatter! 'shfmt
+  (set-formatter! 'shfmt
     '("shfmt" "-ci"
       ("-i" "%d" (unless indent-tabs-mode tab-width))
       ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
+  )
+
+
+;; customize eshell
+(after! eshell
+  (eshell-git-prompt-use-theme 'powerline)
   )

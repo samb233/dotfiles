@@ -52,3 +52,4 @@
 (package! sis)
 (package! all-the-icons-dired)
 (package! dired-open)
+(package! eshell-git-prompt)
