@@ -29,7 +29,7 @@
         (dolist (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font (frame-parameter nil 'font)
                             charset
-                            (font-spec :family "Sarasa Mono SC")))) ;; 14 16 20 22 28
+                            (font-spec :family "Noto Sans Mono CJK SC")))) ;; 14 16 20 22 28
     ))
 
 (defun +my|init-font(frame)
