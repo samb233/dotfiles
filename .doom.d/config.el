@@ -51,6 +51,8 @@
 (setq doom-modeline-buffer-encoding t)
 ;; (setq doom-modeline-major-mode-icon t)
 
+;; open company tab on go mode
+(add-hook 'after-init-hook 'company-tng-mode)
 
 ;; mousewheel settings
 ;; scroll one line at a time (less "jumpy" than defaults)
