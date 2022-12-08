@@ -221,6 +221,7 @@
   :config
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
   ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  ;; (setq dirvish-reuse-session nil) ; disable session reuse
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-attributes
@@ -235,6 +236,7 @@
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
           ))
+  (setq dirvish-side-display-alist `((side . right) (slot . -1)))
   :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
   (
    :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
