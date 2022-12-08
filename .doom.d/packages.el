@@ -53,3 +53,4 @@
 (package! all-the-icons-dired)
 (package! dired-open)
 (package! eshell-git-prompt)
+(package! dirvish)

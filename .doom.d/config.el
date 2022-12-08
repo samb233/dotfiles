@@ -214,19 +214,62 @@
 (setq treemacs-follow-mode t)
 
 
-;; settings for dired
+;; settings for dirvish and dired
+(use-package dirvish
+  :init
+  (dirvish-override-dired-mode)
+  :config
+  ;; (dirvish-peek-mode) ; Preview files in minibuffer
+  ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  (setq dirvish-mode-line-format
+        '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-attributes
+        '(file-time file-size collapse subtree-state vc-state git-msg))
+  (setq delete-by-moving-to-trash t)
+  (setq dired-listing-switches
+        "-l --almost-all --human-readable --group-directories-first --no-group")
+  (setq dirvish-open-with-programs
+        `((,dirvish-audio-exts . ("mpv" "%f"))
+          (,dirvish-video-exts . ("mpv" "%f"))
+          (("doc" "docx") . ("wps" "%f"))
+          (("ppt" "pptx") . ("wpp" "%f"))
+          (("xls" "xlsx") . ("et" "%f"))
+          ))
+  :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
+  (
+   :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+   ("f"   . dirvish-file-info-menu)
+   ("y"   . dirvish-yank-menu)
+   ("^"   . dirvish-history-last)
+   ("H"   . dirvish-history-jump) ; remapped `describe-mode'
+   ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
+   ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+   ("M-f" . dirvish-history-go-forward)
+   ("M-b" . dirvish-history-go-backward)
+   ("M-l" . dirvish-ls-switches-menu)
+   ("M-m" . dirvish-mark-menu)
+   ("M-t" . dirvish-layout-toggle)
+   ("M-s" . dirvish-setup-menu)
+   ("M-e" . dirvish-emerge-menu)
+   ("M-j" . dirvish-fd-jump)))
+
 (map! :leader
-      (:prefix ("d" . "dired")
-       :desc "Open dired" "d" #'dired
-       :desc "Dired jump to current" "j" #'dired-jump)
+      (:prefix ("d" . "dirvish")
+       :desc "Open dirvish" "v" #'dirvish
+       :desc "Quit dirvish" "q" #'dirvish-quit
+       :desc "Toggle dirvish-side" "s" #'dirvish-side
+       :desc "Fd in dirvish" "f" #'dirvish-fd
+       )
       )
 
 (evil-define-key 'normal dired-mode-map
   (kbd "h") 'dired-up-directory
-  (kbd "l") 'dired-open-file ; use dired-find-file instead of dired-open.
+  (kbd "l") 'dired-find-file ; use dired-find-file instead of dired-open.
   )
 ;; Get file icons in dired
 (add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
+
+
 ;; With dired-open plugin, you can launch external programs for certain extensions
 (setq dired-open-extensions '(("gif" . "eog")
                               ("jpg" . "eog")
@@ -240,7 +283,6 @@
                               ("xlsx" . "et")
                               ("pptx" . "wpp")
                               ))
-
 
 ;; settings for shfmt
 ;; fix zsh shfmt format
