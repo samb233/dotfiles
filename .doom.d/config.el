@@ -15,8 +15,12 @@
 
 
 ;; set fonts
+;; (setq doom-font (font-spec :family "Sarasa Term SC" :size 14.0 ))
+;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Term SC"))
+;; (setq doom-unicode-font (font-spec :family "Sarasa Term SC" ))
+
+;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Mono SC"))
 ;; (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 13.0 ))
-;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Term SC" :size 13.0))
 (setq doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font" ))
 
 (defun +my/better-font()
@@ -40,6 +44,12 @@
 (if (and (fboundp 'daemonp) (daemonp))
     (add-hook 'after-make-frame-functions #'+my|init-font)
   (+my/better-font))
+
+
+;; doom-modeline settings
+;; (setq doom-modeline-modal nil)
+(setq doom-modeline-buffer-encoding t)
+(setq doom-modeline-major-mode-icon t)
 
 
 ;; mousewheel settings
@@ -178,15 +188,15 @@
 
 
 
-;; markdown
+;; markdown font size settings
 (custom-set-faces
  '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.7))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.6))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.5))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.4))))
- '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.3))))
- '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.2)))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.5))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.4))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.3))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.1))))
+ '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
 
 
 
@@ -224,11 +234,11 @@
                               ("mkv" . "mpv")
                               ("mp4" . "mpv")
                               ("doc" . "wps")
-                              ("xls" . "wps")
-                              ("ppt" . "wps")
+                              ("xls" . "et")
+                              ("ppt" . "wpp")
                               ("docx" . "wps")
-                              ("xlsx" . "wps")
-                              ("pptx" . "wps")
+                              ("xlsx" . "et")
+                              ("pptx" . "wpp")
                               ))
 
 
