@@ -239,6 +239,8 @@
           (("xls" "xlsx") . ("et" "%f"))
           ))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
+  (setq dirvish-side-width 40)
+  (setq dirvish-side-auto-close t)
   :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
   (
    :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
