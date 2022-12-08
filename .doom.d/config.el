@@ -47,9 +47,9 @@
 
 
 ;; doom-modeline settings
-;; (setq doom-modeline-modal nil)
+(setq doom-modeline-modal nil)
 (setq doom-modeline-buffer-encoding t)
-(setq doom-modeline-major-mode-icon t)
+;; (setq doom-modeline-major-mode-icon t)
 
 
 ;; mousewheel settings
