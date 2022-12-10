@@ -159,16 +159,23 @@
 
 
 ;; lsp-mode settings
-;; Go - lsp-mode
-;; Set up before-save hooks to format buffer and add/delete imports.
-(defun lsp-go-install-save-hooks ()
+(setq lsp-headerline-breadcrumb-enable t)
+
+(defun lsp-save-hooks ()
   (add-hook 'before-save-hook #'lsp-format-buffer t t)
   (add-hook 'before-save-hook #'lsp-organize-imports t t))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
-;; Start LSP Mode
-;; (add-hook 'go-mode-hook #'lsp-deferred)
-;;
+;; Go lsp-mode setting
+;; Set up before-save hooks to format buffer and add/delete imports.
+(add-hook 'go-mode-hook #'lsp-save-hooks)
+(add-hook 'go-mode-hook #'lsp-deferred)
+
+
+;; Rust lsp-mode setting
+(setq lsp-rust-server 'rust-analyzer)
+(setq rustic-lsp-server 'rust-analyzer)
+
+
 ;; lsp-mode keybinding
 (evil-define-key 'normal lsp-mode-map
   (kbd "g h") 'lsp-ui-doc-toggle
