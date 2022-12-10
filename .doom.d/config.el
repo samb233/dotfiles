@@ -223,12 +223,8 @@
       (:prefix ("t" . "toggle")
        :desc "Toggle minimap-mode" "m" #'minimap-mode))
 
-
-;; settings for treemacs
-(setq treemacs-position 'right)
-(setq treemacs-filewatch-mode t)
-(setq treemacs-file-event-delay 1000)
-(setq treemacs-follow-mode t)
+;; settings for neotree
+(setq neo-window-position 'right)
 
 
 ;; settings for dirvish and dired
@@ -276,12 +272,13 @@
    ("M-j" . dirvish-fd-jump)))
 
 (map! :leader
-      (:prefix ("d" . "dirvish")
+      (:prefix ("v" . "dirvish and vertico")
        :desc "Open dirvish" "v" #'dirvish
        :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
        ;; buggy, don't use :desc "Fd in dirvish" "f" #'dirvish-fd
        :desc "Jump using fd" "j" #'dirvish-fd-jump
+       :desc "Project searching by vertico" "p" #'+vertico/project-search
        )
       )
 
