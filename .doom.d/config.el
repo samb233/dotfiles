@@ -177,9 +177,15 @@
 
 
 ;; lsp-mode keybinding
-(evil-define-key 'normal lsp-mode-map
-  (kbd "g h") 'lsp-ui-doc-toggle
-  (kbd "<leader>rn") 'lsp-rename)
+(map! :leader
+      (:prefix ("l" . "LSP")
+       :desc "LSP rename" "r" #'lsp-rename
+       :desc "LSP find definitions" "f" #'lsp-ui-peek-find-definitions
+       :desc "LSP find reference" "F" #'lsp-ui-peek-find-references
+       :desc "LSP ui doc toggle" "h" #'lsp-ui-doc-toggle
+       )
+      )
+
 
 
 ;; some keybindings
