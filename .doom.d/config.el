@@ -153,10 +153,12 @@
   )
 
 
-;; Company mode
-;; (setq company-idle-delay 0)
-;; (setq company-minimum-prefix-length 1)
-
+;; setting keybinds for vertico project search
+(map! :leader
+      (:prefix ("p" . "Project")
+       :desc "Vertico search in project" "v" #'+vertico/project-search
+       )
+      )
 
 ;; lsp-mode settings
 (setq lsp-headerline-breadcrumb-enable t)
@@ -278,7 +280,8 @@
        :desc "Open dirvish" "v" #'dirvish
        :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
-       :desc "Fd in dirvish" "f" #'dirvish-fd
+       ;; buggy, don't use :desc "Fd in dirvish" "f" #'dirvish-fd
+       :desc "Jump using fd" "j" #'dirvish-fd-jump
        )
       )
 
