@@ -295,7 +295,7 @@
        ;; buggy, don't use :desc "Fd in dirvish" "f" #'dirvish-fd
        :desc "Jump using fd" "j" #'dirvish-fd-jump
        :desc "Project searching by vertico" "p" #'+vertico/project-search
-       :desc "Neotree toggle" #'neotree-toggle
+       :desc "Neotree toggle" "n" #'neotree-toggle
        )
       )
 
