@@ -182,7 +182,7 @@
        :desc "LSP rename" "r" #'lsp-rename
        :desc "LSP find definitions" "f" #'lsp-ui-peek-find-definitions
        :desc "LSP find reference" "F" #'lsp-ui-peek-find-references
-       :desc "LSP ui doc toggle" "h" #'lsp-ui-doc-toggle
+       :desc "LSP ui doc toggle" "h" #'lsp-ui-doc-glance
        )
       )
 
