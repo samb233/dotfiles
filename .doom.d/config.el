@@ -225,7 +225,23 @@
 
 ;; settings for neotree
 (setq neo-window-position 'right)
+(setq neo-window-width 40)
+(setq doom-themes-neotree-file-icons 'all-the-icons)
+(defun neo-open-file-hide (full-path &optional arg)
+  "Open a file node and hides tree."
+  (neo-global--select-mru-window arg)
+  (find-file full-path)
+  (neotree-hide))
 
+(defun neotree-enter-hide (&optional arg)
+  "Enters file and hides neotree directly"
+  (interactive "P")
+  (neo-buffer--execute arg 'neo-open-file-hide 'neo-open-dir))
+
+(add-hook
+ 'neotree-mode-hook
+ (lambda ()
+   (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter-hide)))
 
 ;; settings for dirvish and dired
 (use-package dirvish
@@ -279,6 +295,7 @@
        ;; buggy, don't use :desc "Fd in dirvish" "f" #'dirvish-fd
        :desc "Jump using fd" "j" #'dirvish-fd-jump
        :desc "Project searching by vertico" "p" #'+vertico/project-search
+       :desc "Neotree toggle" #'neotree-toggle
        )
       )
 
