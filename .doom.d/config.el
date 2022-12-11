@@ -256,8 +256,8 @@
   (setq dirvish-attributes
         '(file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
-  (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group")
+  ;; (setq dired-listing-switches
+  ;;       "-l --almost-all --human-readable --group-directories-first --no-group")
   (setq dirvish-open-with-programs
         `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
@@ -293,10 +293,17 @@
        :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
        ;; buggy, don't use :desc "Fd in dirvish" "f" #'dirvish-fd
-       :desc "Jump using fd" "j" #'dirvish-fd-jump
+       ;; buggy, too. don't use :desc "Jump using fd" "j" #'dirvish-fd-jump
+       :desc "Fuzzy find file in dir" "f" #'affe-find
+       :desc "Fuzzy find file in $Home" "h" (cmd!! #'affe-find "~/")
        :desc "Project searching by vertico" "p" #'+vertico/project-search
        :desc "Neotree toggle" "n" #'neotree-toggle
        )
+      )
+
+(map! :leader
+      :desc "Fuzzy find file in dir" "f z" #'affe-find
+      :desc "Fuzzy find file in $Home" "f h" (cmd!! #'affe-find "~/")
       )
 
 (evil-define-key 'normal dired-mode-map
