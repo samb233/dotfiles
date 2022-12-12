@@ -256,8 +256,8 @@
   (setq dirvish-attributes
         '(file-time file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
-  ;; (setq dired-listing-switches
-  ;;       "-l --almost-all --human-readable --group-directories-first --no-group")
+  (setq dired-listing-switches
+        "-l --almost-all --human-readable --group-directories-first --no-group")
   (setq dirvish-open-with-programs
         `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
@@ -277,6 +277,7 @@
    ("H"   . dirvish-history-jump) ; remapped `describe-mode'
    ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
    ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
+   ("F"   . dirvish-fd)
    ("TAB" . dirvish-subtree-toggle)
    ("M-f" . dirvish-history-go-forward)
    ("M-b" . dirvish-history-go-backward)
@@ -287,13 +288,18 @@
    ("M-e" . dirvish-emerge-menu)
    ("M-j" . dirvish-fd-jump)))
 
+(evil-define-key 'normal dirvish-mode-map
+  (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
+  )
+
+
 (map! :leader
       (:prefix ("v" . "dirvish and vertico")
        :desc "Open dirvish" "v" #'dirvish
        :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
-       ;; buggy, don't use :desc "Fd in dirvish" "f" #'dirvish-fd
-       ;; buggy, too. don't use :desc "Jump using fd" "j" #'dirvish-fd-jump
+       :desc "Fd in dirvish" "F" #'dirvish-fd
+       :desc "Jump using fd" "j" #'dirvish-fd-jump
        :desc "Fuzzy find file in dir" "f" #'affe-find
        :desc "Fuzzy find file in $Home" "h" (cmd!! #'affe-find "~/")
        :desc "Project searching by vertico" "p" #'+vertico/project-search
