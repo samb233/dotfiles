@@ -274,6 +274,22 @@
 (use-package dirvish
   :init
   (dirvish-override-dired-mode)
+  :custom
+  (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+   '(("h" "~/"                          "Home")
+     ("c" "~/Codes/"                    "Codes")
+     ("t" "~/Codes/Try/"                "Try")
+     ("p" "~/Codes/Projects/"           "Projects")
+     ("r" "~/Codes/Reading/"            "Reading")
+     ("d" "~/Documents/"                "Documents")
+     ("w" "~/工作/"                      "工作")
+     ("d" "~/Downloads/"                "Downloads")
+     ("P" "~/Pictures/"                 "Pictures")
+     ("v" "~/Videos/"                   "Videos")
+     ("s" "~/Shared/"                   "Shared")
+     ("M" "/mnt/"                       "Drives")
+     ("T" "~/.local/share/Trash/files/" "TrashCan")
+     ))
   :config
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
   ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
@@ -281,8 +297,8 @@
   ;; (setq dirvish--debouncing-delay 2)
   ;; (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-use-mode-line nil)
-  ;; (setq dirvish-mode-line-format
-  ;;       '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-mode-line-format
+        '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-header-line-height '46)
   ;; (setq dirvish-mode-line-height '46)
   (setq dirvish-attributes
@@ -292,14 +308,16 @@
         "-l --almost-all --human-readable --group-directories-first --no-group")
   (setq dirvish-fd-default-dir "/home/jiesamb/")
   (setq dirvish-open-with-programs
-        `((,dirvish-audio-exts . ("mpv" "%f"))
+        `(
+          (,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
+          (,dirvish-image-exts . ("eog" "%f"))
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
-          (("jpg" "jpeg" "png" "webp") . ("eog" "%f"))
           ))
-  (setq dirvish-header-line-format '(:left (path) :right (free-space)))
+  ;; (setq dirvish-header-line-format '(:left (path) :right (free-space)))
+  (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
   (setq dirvish-path-separators (list "  ~" "  " "/"))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-side-width 40)
@@ -329,6 +347,8 @@
 
 (evil-define-key 'normal dirvish-mode-map
   (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
+  (kbd "s") 'dirvish-quicksort
+  (kbd "a") 'dirvish-quick-access
   (kbd "F") 'dirvish-fd
   )
 
