@@ -216,6 +216,25 @@
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
 
 
+;; Org mode font config
+(after! org
+  (defun samb/org-colors-doom-one ()
+    "Enable Doom One colors for Org headers."
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.5 "#51afef" ultra-bold)
+           (org-level-2 1.4 "#c678dd" extra-bold)
+           (org-level-3 1.3 "#98be65" bold)
+           (org-level-4 1.2 "#da8548" semi-bold)
+           (org-level-5 1.1 "#5699af" normal)
+           (org-level-6 1.0 "#a9a1e1" normal)
+           (org-level-7 1.0 "#46d9ff" normal)
+           (org-level-8 1.0 "#ff6c6b" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+  (samb/org-colors-doom-one))
+
 
 ;; settings to minimap
 (setq minimap-window-location 'right)
@@ -244,6 +263,12 @@
    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter-hide)))
 
 ;; settings for dirvish and dired
+
+(defun dirvish-fd-hide-detail()
+  (setq dired-hide-details-mode t)
+  )
+
+
 (use-package dirvish
   :init
   (dirvish-override-dired-mode)
@@ -251,6 +276,8 @@
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
   ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   ;; (setq dirvish-reuse-session nil) ; disable session reuse
+  ;; (setq dirvish--debouncing-delay 2)
+  ;; (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-mode-line-format
         '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-attributes
@@ -258,6 +285,7 @@
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group")
+  (setq dirvish-fd-default-dir "/home/jiesamb/")
   (setq dirvish-open-with-programs
         `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
@@ -265,19 +293,25 @@
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
           ))
+  (setq dirvish-header-line-height '45)
+  (setq dirvish-header-line-format '(:left (path) :right (free-space)))
+  (setq dirvish-path-separators (list "  ~" "  " "/"))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-side-width 40)
   (setq dirvish-side-auto-close t)
+  :hook (dirvish-fd . dirvish-fd-hide-detail)
   :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
   (
    :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
+   ("<mouse-1>" . dirvish-subtree-toggle-or-open)     ; left click for expand/collapse dir or open file
+   ("<mouse-2>" . dired-mouse-find-file-other-window) ; middle click for opening file / entering dir in other window
+   ("<mouse-3>" . dired-mouse-find-file)              ; right click for opening file / entering dir
    ("f"   . dirvish-file-info-menu)
    ("y"   . dirvish-yank-menu)
    ("^"   . dirvish-history-last)
    ("H"   . dirvish-history-jump) ; remapped `describe-mode'
    ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
    ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-   ("F"   . dirvish-fd)
    ("TAB" . dirvish-subtree-toggle)
    ("M-f" . dirvish-history-go-forward)
    ("M-b" . dirvish-history-go-backward)
@@ -290,8 +324,8 @@
 
 (evil-define-key 'normal dirvish-mode-map
   (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
+  (kbd "F") 'dirvish-fd
   )
-
 
 (map! :leader
       (:prefix ("v" . "dirvish and vertico")
