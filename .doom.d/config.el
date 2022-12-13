@@ -7,6 +7,7 @@
 (prefer-coding-system 'utf-8-unix)
 
 ;; open at maximaized
+;; (pushnew! initial-frame-alist '(width . 160) '(height . 40))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
@@ -14,6 +15,7 @@
       user-mail-address "samb233@hotmail.com")
 
 
+(setq scroll-margin 9)
 ;; set fonts
 ;; (setq doom-font (font-spec :family "Sarasa Term SC" :size 14.0 ))
 ;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Term SC"))
@@ -275,13 +277,16 @@
   :config
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
   ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-  ;; (setq dirvish-reuse-session nil) ; disable session reuse
+  (setq dirvish-reuse-session nil) ; disable session reuse
   ;; (setq dirvish--debouncing-delay 2)
   ;; (setq dirvish-async-listing-threshold 10000)
-  (setq dirvish-mode-line-format
-        '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-use-mode-line nil)
+  ;; (setq dirvish-mode-line-format
+  ;;       '(:left (sort symlink) :right (omit yank index)))
+  (setq dirvish-header-line-height '46)
+  ;; (setq dirvish-mode-line-height '46)
   (setq dirvish-attributes
-        '(file-time file-size collapse subtree-state vc-state git-msg))
+        '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group")
@@ -292,8 +297,8 @@
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
+          (("jpg" "jpeg" "png" "webp") . ("eog" "%f"))
           ))
-  (setq dirvish-header-line-height '45)
   (setq dirvish-header-line-format '(:left (path) :right (free-space)))
   (setq dirvish-path-separators (list "  ~" "  " "/"))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
@@ -334,16 +339,14 @@
        :desc "Toggle dirvish-side" "s" #'dirvish-side
        :desc "Fd in dirvish" "F" #'dirvish-fd
        :desc "Jump using fd" "j" #'dirvish-fd-jump
-       :desc "Fuzzy find file in dir" "f" #'affe-find
-       :desc "Fuzzy find file in $Home" "h" (cmd!! #'affe-find "~/")
+       :desc "Fd find file in dir" "f" #'+vertico/consult-fd
        :desc "Project searching by vertico" "p" #'+vertico/project-search
        :desc "Neotree toggle" "n" #'neotree-toggle
        )
       )
 
 (map! :leader
-      :desc "Fuzzy find file in dir" "f z" #'affe-find
-      :desc "Fuzzy find file in $Home" "f h" (cmd!! #'affe-find "~/")
+      :desc "Fuzzy find file in dir" "f z" #'+vertico/consult-fd
       )
 
 (evil-define-key 'normal dired-mode-map
@@ -351,7 +354,6 @@
   (kbd "l") 'dired-find-file ; use dired-find-file instead of dired-open.
   )
 ;; Get file icons in dired
-(add-hook 'dired-mode-hook 'all-the-icons-dired-mode)
 
 
 ;; With dired-open plugin, you can launch external programs for certain extensions
