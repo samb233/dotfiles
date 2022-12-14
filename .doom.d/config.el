@@ -14,7 +14,6 @@
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
-
 (setq scroll-margin 9)
 ;; set fonts
 ;; (setq doom-font (font-spec :family "Sarasa Term SC" :size 14.0 ))
@@ -264,13 +263,6 @@
  (lambda ()
    (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter-hide)))
 
-;; settings for dirvish and dired
-
-(defun dirvish-fd-hide-detail()
-  (setq dired-hide-details-mode t)
-  )
-
-
 (use-package dirvish
   :init
   (dirvish-override-dired-mode)
@@ -291,14 +283,14 @@
      ("T" "~/.local/share/Trash/files/" "TrashCan")
      ))
   :config
-  ;; (dirvish-peek-mode) ; Preview files in minibuffer
-  ;; (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+  (dirvish-peek-mode) ; Preview files in minibuffer
+  (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   (setq dirvish-reuse-session nil) ; disable session reuse
   ;; (setq dirvish--debouncing-delay 2)
-  ;; (setq dirvish-async-listing-threshold 10000)
+  (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-use-mode-line nil)
-  (setq dirvish-mode-line-format
-        '(:left (sort symlink) :right (omit yank index)))
+  ;; (setq dirvish-mode-line-format
+  ;;       '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-header-line-height '46)
   ;; (setq dirvish-mode-line-height '46)
   (setq dirvish-attributes
@@ -322,7 +314,8 @@
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-side-width 40)
   (setq dirvish-side-auto-close t)
-  :hook (dirvish-fd . dirvish-fd-hide-detail)
+  :hook
+  (dired-mode . dired-omit-mode)
   :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
   (
    :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
@@ -344,6 +337,7 @@
    ("M-s" . dirvish-setup-menu)
    ("M-e" . dirvish-emerge-menu)
    ("M-j" . dirvish-fd-jump)))
+
 
 (evil-define-key 'normal dirvish-mode-map
   (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
