@@ -7,14 +7,19 @@
 (prefer-coding-system 'utf-8-unix)
 
 ;; open at maximaized
-;; (pushnew! initial-frame-alist '(width . 160) '(height . 40))
+;; (pushnew! default-frame-alist '(width . 160) '(height . 40) '(alpha-background . 80))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (add-to-list 'default-frame-alist '(alpha-background . 80))
+(add-to-list 'default-frame-alist (cons 'alpha 85))
+;; (set-frame-parameter nil 'alpha '(85 . 100))
+
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
 (setq scroll-margin 9)
+
 ;; set fonts
 ;; (setq doom-font (font-spec :family "Sarasa Term SC" :size 14.0 ))
 ;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Term SC"))
@@ -50,6 +55,7 @@
 ;; doom-modeline settings
 (setq doom-modeline-modal nil)
 (setq doom-modeline-buffer-encoding t)
+(setq doom-modeline-vcs-max-length 20)
 ;; (setq doom-modeline-major-mode-icon t)
 
 ;; open company tab on go mode
@@ -89,7 +95,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-one)
+(setq doom-theme 'doom-tomorrow-night)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -182,9 +188,9 @@
 ;; lsp-mode keybinding
 (map! :leader
       (:prefix ("l" . "LSP")
-       :desc "LSP rename" "r" #'lsp-rename
+       :desc "LSP rename" "n" #'lsp-rename
        :desc "LSP find definitions" "f" #'lsp-ui-peek-find-definitions
-       :desc "LSP find reference" "F" #'lsp-ui-peek-find-references
+       :desc "LSP find reference" "r" #'lsp-find-references
        :desc "LSP ui doc toggle" "h" #'lsp-ui-doc-glance
        )
       )
@@ -209,32 +215,48 @@
 ;; markdown font size settings
 (custom-set-faces
  '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.5))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.4))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.3))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.2))))
- '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.1))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
 
 
 ;; Org mode font config
 (after! org
-  (defun samb/org-colors-doom-one ()
+  (defun org-colors-doom-one ()
     "Enable Doom One colors for Org headers."
     (interactive)
     (dolist
         (face
-         '((org-level-1 1.5 "#51afef" ultra-bold)
-           (org-level-2 1.4 "#c678dd" extra-bold)
-           (org-level-3 1.3 "#98be65" bold)
-           (org-level-4 1.2 "#da8548" semi-bold)
-           (org-level-5 1.1 "#5699af" normal)
+         '((org-level-1 1.3 "#51afef" ultra-bold)
+           (org-level-2 1.2 "#c678dd" extra-bold)
+           (org-level-3 1.1 "#98be65" bold)
+           (org-level-4 1.0 "#da8548" semi-bold)
+           (org-level-5 1.0 "#5699af" normal)
            (org-level-6 1.0 "#a9a1e1" normal)
            (org-level-7 1.0 "#46d9ff" normal)
            (org-level-8 1.0 "#ff6c6b" normal)))
       (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
     (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-  (samb/org-colors-doom-one))
+
+  (defun org-colors-tomorrow-night ()
+    "Enable Tomorrow Night colors for Org headers."
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.3 "#81a2be" ultra-bold)
+           (org-level-2 1.2 "#b294bb" extra-bold)
+           (org-level-3 1.1 "#b5bd68" bold)
+           (org-level-4 1.0 "#e6c547" semi-bold)
+           (org-level-5 1.0 "#cc6666" normal)
+           (org-level-6 1.0 "#70c0ba" normal)
+           (org-level-7 1.0 "#b77ee0" normal)
+           (org-level-8 1.0 "#9ec400" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+  (org-colors-tomorrow-night))
 
 
 ;; settings to minimap
@@ -283,7 +305,7 @@
      ("T" "~/.local/share/Trash/files/" "TrashCan")
      ))
   :config
-  (dirvish-peek-mode) ; Preview files in minibuffer
+  ;; (dirvish-peek-mode) ; Preview files in minibuffer
   (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
   (setq dirvish-reuse-session nil) ; disable session reuse
   ;; (setq dirvish--debouncing-delay 2)
@@ -319,9 +341,6 @@
   :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
   (
    :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-   ("<mouse-1>" . dirvish-subtree-toggle-or-open)     ; left click for expand/collapse dir or open file
-   ("<mouse-2>" . dired-mouse-find-file-other-window) ; middle click for opening file / entering dir in other window
-   ("<mouse-3>" . dired-mouse-find-file)              ; right click for opening file / entering dir
    ("f"   . dirvish-file-info-menu)
    ("y"   . dirvish-yank-menu)
    ("^"   . dirvish-history-last)
@@ -344,6 +363,8 @@
   (kbd "s") 'dirvish-quicksort
   (kbd "a") 'dirvish-quick-access
   (kbd "F") 'dirvish-fd
+  (kbd "y") 'dirvish-yank-menu
+  (kbd "f") 'dirvish-file-info-menu
   )
 
 (map! :leader
@@ -399,3 +420,7 @@
 (after! eshell
   (eshell-git-prompt-use-theme 'powerline)
   )
+
+
+;; magit settings
+(setq auto-revert-check-vc-info t)
