@@ -9,9 +9,8 @@
 ;; open at maximaized
 ;; (pushnew! default-frame-alist '(width . 160) '(height . 40) '(alpha-background . 80))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-;; (add-to-list 'default-frame-alist '(alpha-background . 80))
-(add-to-list 'default-frame-alist (cons 'alpha 85))
-;; (set-frame-parameter nil 'alpha '(85 . 100))
+;; (add-to-list 'default-frame-alist '(alpha-background . 85))
+(add-to-list 'default-frame-alist (cons 'alpha 90))
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
@@ -34,7 +33,7 @@
   ;; english font
   (if (display-graphic-p)
       (progn
-        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "JetBrainsMono Nerd Font" 17)) ;; 11 13 17 19 23
+        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "JetBrainsMono Nerd Font" 34)) ;; 11 13 17 19 23
         ;; chinese font
         (dolist (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font (frame-parameter nil 'font)
@@ -56,6 +55,8 @@
 (setq doom-modeline-modal nil)
 (setq doom-modeline-buffer-encoding t)
 (setq doom-modeline-vcs-max-length 20)
+(setq doom-modeline-height 66)
+;; (setq doom-modeline-buffer-modification-icon nil)
 ;; (setq doom-modeline-major-mode-icon t)
 
 ;; open company tab on go mode
@@ -329,6 +330,7 @@
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
+          (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
           ))
   ;; (setq dirvish-header-line-format '(:left (path) :right (free-space)))
   (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
@@ -359,6 +361,7 @@
 
 
 (evil-define-key 'normal dirvish-mode-map
+  (kbd "e") 'dired-create-empty-file
   (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
   (kbd "s") 'dirvish-quicksort
   (kbd "a") 'dirvish-quick-access
