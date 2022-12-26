@@ -53,3 +53,4 @@
 (package! dired-open)
 (package! eshell-git-prompt)
 (package! dirvish)
+(package! affe)

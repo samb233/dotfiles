@@ -33,7 +33,7 @@
   ;; english font
   (if (display-graphic-p)
       (progn
-        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "JetBrainsMono Nerd Font" 34)) ;; 11 13 17 19 23
+        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "JetBrainsMono Nerd Font" 17)) ;; 11 13 17 19 23
         ;; chinese font
         (dolist (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font (frame-parameter nil 'font)
@@ -55,8 +55,8 @@
 (setq doom-modeline-modal nil)
 (setq doom-modeline-buffer-encoding t)
 (setq doom-modeline-vcs-max-length 20)
-(setq doom-modeline-height 66)
-;; (setq doom-modeline-buffer-modification-icon nil)
+;; (setq doom-modeline-height 56)
+(setq doom-modeline-buffer-modification-icon nil)
 ;; (setq doom-modeline-major-mode-icon t)
 
 ;; open company tab on go mode
@@ -65,7 +65,7 @@
 ;; mousewheel settings
 ;; scroll one line at a time (less "jumpy" than defaults)
 
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 3))) ;; one line at a time
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 5))) ;; one line at a time
 
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 
@@ -376,10 +376,14 @@
        :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
        :desc "Fd in dirvish" "F" #'dirvish-fd
-       :desc "Jump using fd" "j" #'dirvish-fd-jump
+       :desc "Jump using fd" "J" #'dirvish-fd-jump
+       :desc "Jump recent dir" "j" #'consult-dir
        :desc "Fd find file in dir" "f" #'+vertico/consult-fd
        :desc "Project searching by vertico" "p" #'+vertico/project-search
        :desc "Neotree toggle" "n" #'neotree-toggle
+       :desc "fuZzy finder" "z" #'affe-find
+       :desc "fuzzy Grep" "g" #'affe-grep
+       :desc "fuzzy find Home" "h" (cmd!! #'affe-find "~/")
        )
       )
 
