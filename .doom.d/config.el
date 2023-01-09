@@ -55,8 +55,10 @@
 (setq doom-modeline-modal nil)
 (setq doom-modeline-buffer-encoding t)
 (setq doom-modeline-vcs-max-length 20)
-;; (setq doom-modeline-height 56)
+(setq doom-modeline-height 28)
 (setq doom-modeline-buffer-modification-icon nil)
+(setq doom-modeline-buffer-state-icon nil)
+;; (setq doom-modeline-bar-width 7)
 ;; (setq doom-modeline-major-mode-icon t)
 
 ;; open company tab on go mode
@@ -138,6 +140,9 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+;;
+;;
+
 
 ;; smart input source switch
 (use-package sis
@@ -157,7 +162,7 @@
   ;; enable the /context/ mode for all buffers
   (sis-global-context-mode t)
   ;; enable the /inline english/ mode for all buffers
-  (sis-global-inline-mode t)
+  (sis-global-inline-mode nil)
   )
 
 
@@ -226,22 +231,6 @@
 
 ;; Org mode font config
 (after! org
-  (defun org-colors-doom-one ()
-    "Enable Doom One colors for Org headers."
-    (interactive)
-    (dolist
-        (face
-         '((org-level-1 1.3 "#51afef" ultra-bold)
-           (org-level-2 1.2 "#c678dd" extra-bold)
-           (org-level-3 1.1 "#98be65" bold)
-           (org-level-4 1.0 "#da8548" semi-bold)
-           (org-level-5 1.0 "#5699af" normal)
-           (org-level-6 1.0 "#a9a1e1" normal)
-           (org-level-7 1.0 "#46d9ff" normal)
-           (org-level-8 1.0 "#ff6c6b" normal)))
-      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-
   (defun org-colors-tomorrow-night ()
     "Enable Tomorrow Night colors for Org headers."
     (interactive)
@@ -257,34 +246,23 @@
            (org-level-8 1.0 "#9ec400" normal)))
       (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
     (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-  (org-colors-tomorrow-night))
 
+  (org-colors-tomorrow-night)
+  (setq org-src-preserve-indentation nil)
 
-;; settings to minimap
-(setq minimap-window-location 'right)
-(map! :leader
-      (:prefix ("t" . "toggle")
-       :desc "Toggle minimap-mode" "m" #'minimap-mode))
-
-;; settings for neotree
-(setq neo-window-position 'right)
-(setq neo-window-width 40)
-(setq doom-themes-neotree-file-icons 'all-the-icons)
-(defun neo-open-file-hide (full-path &optional arg)
-  "Open a file node and hides tree."
-  (neo-global--select-mru-window arg)
-  (find-file full-path)
-  (neotree-hide))
-
-(defun neotree-enter-hide (&optional arg)
-  "Enters file and hides neotree directly"
-  (interactive "P")
-  (neo-buffer--execute arg 'neo-open-file-hide 'neo-open-dir))
-
-(add-hook
- 'neotree-mode-hook
- (lambda ()
-   (define-key evil-normal-state-local-map (kbd "RET") 'neotree-enter-hide)))
+  (defun yank-with-indent ()
+    (interactive)
+    (let ((indent
+           (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
+      (message indent)
+      (yank)
+      (save-excursion
+        (save-restriction
+          (narrow-to-region (mark t) (point))
+          (pop-to-mark-command)
+          (replace-string "\n" (concat "\n" indent))
+          (widen)))))
+  )
 
 (use-package dirvish
   :init
@@ -308,7 +286,7 @@
   :config
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
   (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-  (setq dirvish-reuse-session nil) ; disable session reuse
+  ;; (setq dirvish-reuse-session nil) ; disable session reuse
   ;; (setq dirvish--debouncing-delay 2)
   (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-use-mode-line nil)
@@ -330,6 +308,7 @@
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
+          (("pdf") . ("evince" "%f"))
           (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
           ))
   ;; (setq dirvish-header-line-format '(:left (path) :right (free-space)))
@@ -425,7 +404,7 @@
 
 ;; customize eshell
 (after! eshell
-  (eshell-git-prompt-use-theme 'powerline)
+  (eshell-git-prompt-use-theme 'multiline2)
   )
 
 
