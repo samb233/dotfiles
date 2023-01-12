@@ -17,27 +17,27 @@ local propNative = mp.get_property_native
 -- Set options
 local options = require "mp.options"
 local opt = {
-    filter01B = "", filter01C = "", filter01D = "", filter01G = false,
-    filter02B = "", filter02C = "", filter02D = "", filter02G = false,
-    filter03B = "", filter03C = "", filter03D = "", filter03G = false,
-    filter04B = "", filter04C = "", filter04D = "", filter04G = false,
-    filter05B = "", filter05C = "", filter05D = "", filter05G = false,
-    filter06B = "", filter06C = "", filter06D = "", filter06G = false,
-    filter07B = "", filter07C = "", filter07D = "", filter07G = false,
-    filter08B = "", filter08C = "", filter08D = "", filter08G = false,
-    filter09B = "", filter09C = "", filter09D = "", filter09G = false,
-    filter10B = "", filter10C = "", filter10D = "", filter10G = false,
+    filter01B = "", filter01D = "", filter01G = false,
+    filter02B = "", filter02D = "", filter02G = false,
+    filter03B = "", filter03D = "", filter03G = false,
+    filter04B = "", filter04D = "", filter04G = false,
+    filter05B = "", filter05D = "", filter05G = false,
+    filter06B = "", filter06D = "", filter06G = false,
+    filter07B = "", filter07D = "", filter07G = false,
+    filter08B = "", filter08D = "", filter08G = false,
+    filter09B = "", filter09D = "", filter09G = false,
+    filter10B = "", filter10D = "", filter10G = false,
 
-    shader01B = "", shader01C = "", shader01D = "", shader01G = false,
-    shader02B = "", shader02C = "", shader02D = "", shader02G = false,
-    shader03B = "", shader03C = "", shader03D = "", shader03G = false,
-    shader04B = "", shader04C = "", shader04D = "", shader04G = false,
-    shader05B = "", shader05C = "", shader05D = "", shader05G = false,
-    shader06B = "", shader06C = "", shader06D = "", shader06G = false,
-    shader07B = "", shader07C = "", shader07D = "", shader07G = false,
-    shader08B = "", shader08C = "", shader08D = "", shader08G = false,
-    shader09B = "", shader09C = "", shader09D = "", shader09G = false,
-    shader10B = "", shader10C = "", shader10D = "", shader10G = false,
+    shader01B = "", shader01D = "", shader01G = false,
+    shader02B = "", shader02D = "", shader02G = false,
+    shader03B = "", shader03D = "", shader03G = false,
+    shader04B = "", shader04D = "", shader04G = false,
+    shader05B = "", shader05D = "", shader05G = false,
+    shader06B = "", shader06D = "", shader06G = false,
+    shader07B = "", shader07D = "", shader07G = false,
+    shader08B = "", shader08D = "", shader08G = false,
+    shader09B = "", shader09D = "", shader09G = false,
+    shader10B = "", shader10D = "", shader10G = false,
 }
 options.read_options(opt)
 
@@ -53,10 +53,47 @@ local function round(num, numDecimalPlaces)
     return tonumber(string.format("%." .. (numDecimalPlaces or 0) .. "f", num))
 end
 
+-- 播放列表子菜单
+local function inspectPlaylist()
+    local playlistDisable = false
+    if propNative("playlist/count") == nil or  propNative("playlist/count") < 1 then playlistDisable = true end
+    return playlistDisable
+end
+
+local function checkplaylist(playlistNum)
+    local playlistState, playlistCur = false, propNative("playlist-pos")
+    if (playlistNum == playlistCur) then playlistState = true end
+    return playlistState
+end
+
+local function playlistMenu()
+    local playlistCount = propNative("playlist/count")
+    local playlistMenuVal = {}
+
+    if playlistCount ~= nil and not (playlistCount == 0) then
+        for playlistNum=0, (playlistCount - 1), 1 do
+            local playlistTitle = propNative("playlist/" .. playlistNum .. "/title")
+            local playlistFilename = propNative("playlist/" .. playlistNum .. "/filename")
+            if playlistFilename:match("://") then table.insert(playlistMenuVal, {COMMAND, "不支持串流文件", "", "", "", true})
+            else
+                local playlistFilename = playlistFilename:gsub("\\", "/")
+                local playlistFilename = playlistFilename:gsub("^.*/", "")
+                if string.len(playlistFilename) > 80 then playlistFilename = string.sub(playlistFilename, 1, 80) .. "..." end
+                if not (playlistTitle) then playlistTitle = playlistFilename end
+
+                local playlistCommand = "set playlist-pos " .. playlistNum
+                table.insert(playlistMenuVal, {RADIO, playlistTitle, "", playlistCommand, function() return checkplaylist(playlistNum) end, false})
+            end
+        end
+    end
+
+    return playlistMenuVal
+end
+
 -- 版本（Edition）子菜单
 local function inspectEdition()
     local editionDisable = false
-    if (propNative("edition-list/count") ~= nil and propNative("edition-list/count") < 1) then editionDisable = true end
+    if propNative("edition-list/count") == nil or propNative("edition-list/count") < 1 then editionDisable = true end
     return editionDisable
 end
 
@@ -70,16 +107,14 @@ local function editionMenu()
     local editionCount = propNative("edition-list/count")
     local editionMenuVal = {}
 
-    if not (editionCount == 0) then
+    if editionCount ~= nil and not (editionCount == 0) then
         for editionNum=0, (editionCount - 1), 1 do
             local editionTitle = propNative("edition-list/" .. editionNum .. "/title")
-            if not (editionTitle) then editionTitle = "Edition " .. (editionNum + 1) end
+            if not (editionTitle) then editionTitle = "Edition " .. string.format("%02.f", editionNum + 1) end
 
             local editionCommand = "set edition " .. editionNum
             table.insert(editionMenuVal, {RADIO, editionTitle, "", editionCommand, function() return checkEdition(editionNum) end, false})
         end
-    else
-        table.insert(editionMenuVal, {COMMAND, "No Editions", "", "", "", true})
     end
 
     return editionMenuVal
@@ -88,7 +123,7 @@ end
 -- 章节子菜单
 local function inspectChapter()
     local chapterDisable = false
-    if (propNative("chapter-list/count") ~= nil and propNative("chapter-list/count") < 1) then chapterDisable = true end
+    if propNative("chapter-list/count") == nil or propNative("chapter-list/count") < 1 then chapterDisable = true end
     return chapterDisable
 end
 
@@ -106,10 +141,15 @@ local function chapterMenu()
         {COMMAND, "上一章节", "", "add chapter -1", "", false, true},
         {COMMAND, "下一章节", "", "add chapter 1", "", false, true},
     }
-    if not (chapterCount == 0) then
+    if chapterCount ~= nil and not (chapterCount == 0) then
         for chapterNum=0, (chapterCount - 1), 1 do
             local chapterTitle = propNative("chapter-list/" .. chapterNum .. "/title")
-            if not (chapterTitle) then chapterTitle = "章节 " .. (chapterNum + 1) end
+            local chapterTime = propNative("chapter-list/" .. chapterNum .. "/time")
+            if chapterTitle == "" then chapterTitle = "章节 " .. string.format("%02.f", chapterNum + 1) end
+            if chapterTime < 0 then chapterTime = 0
+            else chapterTime = math.floor(chapterTime) end
+            chapterTime = string.format("[%02d:%02d:%02d]", math.floor(chapterTime/60/60), math.floor(chapterTime/60)%60, chapterTime%60)
+            chapterTitle = chapterTime ..'   '.. chapterTitle
 
             local chapterCommand = "set chapter " .. chapterNum
             if (chapterNum == 0) then table.insert(chapterMenuVal, {SEP}) end
@@ -149,6 +189,36 @@ local function checkTrack(trackNum)
     return trackState
 end
 
+-- Convert ISO 639-1/639-2 codes to be full length language names. The full length names
+-- are obtained by using the property accessor with the iso639_1/_2 tables stored in
+-- the contextmenu_gui_lang.lua file (require "langcodes" above).
+local function getLang(trackLang)
+    trackLang = string.upper(trackLang)
+    if (string.len(trackLang) == 2) then trackLang = langcodes.iso639_1(trackLang)
+    elseif (string.len(trackLang) == 3) then trackLang = langcodes.iso639_2(trackLang) end
+    return trackLang
+end
+
+local function noneCheck(checkType)
+    local checkVal, trackID = false, propNative(checkType)
+    if (type(trackID) == "boolean") then
+        if (trackID == false) then checkVal = true end
+    end
+    return checkVal
+end
+
+local function esc_for_title(string)
+    string = string:gsub('^%-', '')
+    :gsub('^%_', '')
+    :gsub('^%.', '')
+    :gsub('^.*%].', '')
+    :gsub('^.*%).', '')
+    :gsub('%.%w+$', '')
+    :gsub('^.*%s', '')
+    :gsub('^.*%.', '')
+    return string
+end
+
 -- 视频轨子菜单
 local function inspectVidTrack()
     local vidTrackDisable, vidTracks = false, trackCount("video")
@@ -164,7 +234,29 @@ local function vidTrackMenu()
             local vidTrackNum = vidTrackCount[i]
             local vidTrackID = propNative("track-list/" .. vidTrackNum .. "/id")
             local vidTrackTitle = propNative("track-list/" .. vidTrackNum .. "/title")
-            if not (vidTrackTitle) then vidTrackTitle = "视频轨 " .. i end
+            local vidTrackCodec = propNative("track-list/" .. vidTrackNum .. "/codec"):upper()
+            local vidTrackImage = propNative("track-list/" .. vidTrackNum .. "/image")
+            local vidTrackwh = propNative("track-list/" .. vidTrackNum .. "/demux-w") .. "x" .. propNative("track-list/" .. vidTrackNum .. "/demux-h") 
+            local vidTrackFps = string.format("%.3f", propNative("track-list/" .. vidTrackNum .. "/demux-fps"))
+            local vidTrackDefault = propNative("track-list/" .. vidTrackNum .. "/default")
+            local vidTrackForced = propNative("track-list/" .. vidTrackNum .. "/forced")
+            local vidTrackExternal = propNative("track-list/" .. vidTrackNum .. "/external")
+            local filename = propNative("filename/no-ext")
+
+            if vidTrackTitle then vidTrackTitle = vidTrackTitle:gsub(filename, '') end
+            if vidTrackExternal then vidTrackTitle = esc_for_title(vidTrackTitle) end
+            if vidTrackCodec:match("MPEG2") then vidTrackCodec = "MPEG2"
+            elseif vidTrackCodec:match("DVVIDEO") then vidTrackCodec = "DV"
+            end
+
+            if vidTrackTitle and not vidTrackImage then vidTrackTitle = vidTrackTitle .. "[" .. vidTrackCodec .. "]" .. "," .. vidTrackwh .. "," .. vidTrackFps .. " FPS"
+            elseif vidTrackTitle then vidTrackTitle = vidTrackTitle .. "[" .. vidTrackCodec .. "]" .. "," .. vidTrackwh
+            elseif vidTrackImage then vidTrackTitle = "[" .. vidTrackCodec .. "]" .. "," .. vidTrackwh
+            elseif vidTrackFps then vidTrackTitle = "[" .. vidTrackCodec .. "]" .. "," .. vidTrackwh .. "," .. vidTrackFps .. " FPS"
+            else vidTrackTitle = "视频轨 " .. i end
+            if vidTrackForced then  vidTrackTitle = vidTrackTitle .. "（强制）" end
+            if vidTrackDefault then  vidTrackTitle = vidTrackTitle .. "（默认）" end
+            if vidTrackExternal then  vidTrackTitle = vidTrackTitle .. "（外挂）" end
 
             local vidTrackCommand = "set vid " .. vidTrackID
             table.insert(vidTrackMenuVal, {RADIO, vidTrackTitle, "", vidTrackCommand, function() return checkTrack(vidTrackNum) end, false, true})
@@ -176,25 +268,13 @@ local function vidTrackMenu()
     return vidTrackMenuVal
 end
 
--- Convert ISO 639-1/639-2 codes to be full length language names. The full length names
--- are obtained by using the property accessor with the iso639_1/_2 tables stored in
--- the contextmenu_gui_lang.lua file (require "langcodes" above).
-function getLang(trackLang)
-    trackLang = string.upper(trackLang)
-    if (string.len(trackLang) == 2) then trackLang = langcodes.iso639_1(trackLang)
-    elseif (string.len(trackLang) == 3) then trackLang = langcodes.iso639_2(trackLang) end
-    return trackLang
-end
-
-function noneCheck(checkType)
-    local checkVal, trackID = false, propNative(checkType)
-    if (type(trackID) == "boolean") then
-        if (trackID == false) then checkVal = true end
-    end
-    return checkVal
-end
-
 -- 音频轨子菜单
+local function inspectAudTrack()
+    local audTrackDisable, audTracks = false, trackCount("audio")
+    if (#audTracks < 1) then audTrackDisable = true end
+    return audTrackDisable
+end
+
 local function audTrackMenu()
     local audTrackMenuVal, audTrackCount = {}, trackCount("audio")
 
@@ -208,12 +288,28 @@ local function audTrackMenu()
             local audTrackID = propNative("track-list/" .. audTrackNum .. "/id")
             local audTrackTitle = propNative("track-list/" .. audTrackNum .. "/title")
             local audTrackLang = propNative("track-list/" .. audTrackNum .. "/lang")
+            local audTrackCodec = propNative("track-list/" .. audTrackNum .. "/codec"):upper()
+            -- local audTrackBitrate = propNative("track-list/" .. audTrackNum .. "/demux-bitrate")/1000  -- 此属性似乎不可用
+            local audTrackSamplerate = string.format("%.1f", propNative("track-list/" .. audTrackNum .. "/demux-samplerate")/1000)
+            local audTrackChannels = propNative("track-list/" .. audTrackNum .. "/demux-channel-count")
+            local audTrackDefault = propNative("track-list/" .. audTrackNum .. "/default")
+            local audTrackForced = propNative("track-list/" .. audTrackNum .. "/forced")
+            local audTrackExternal = propNative("track-list/" .. audTrackNum .. "/external")
+            local filename = propNative("filename/no-ext")
             -- Convert ISO 639-1/2 codes
             if not (audTrackLang == nil) then audTrackLang = getLang(audTrackLang) and getLang(audTrackLang) or audTrackLang end
+            if audTrackTitle then audTrackTitle = audTrackTitle:gsub(filename, '') end
+            if audTrackExternal then audTrackTitle = esc_for_title(audTrackTitle) end
+            if audTrackCodec:match("PCM") then audTrackCodec = "PCM" end
 
-            if (audTrackTitle) then audTrackTitle = audTrackTitle .. ((audTrackLang ~= nil) and " (" .. audTrackLang .. ")" or "")
-            elseif (audTrackLang) then audTrackTitle = audTrackLang
-            else audTrackTitle = "Audio Track " .. i end
+            if audTrackTitle and audTrackLang then audTrackTitle = audTrackTitle .. "," .. audTrackLang .. "[" .. audTrackCodec .. "]" .. "," .. audTrackChannels .. " ch" .. "," .. audTrackSamplerate .. " kHz"
+            elseif audTrackTitle then audTrackTitle = audTrackTitle .. "[" .. audTrackCodec .. "]" .. "," .. audTrackChannels .. " ch" .. "," .. audTrackSamplerate .. " kHz"
+            elseif audTrackLang then audTrackTitle = audTrackLang .. "[" .. audTrackCodec .. "]" .. "," .. audTrackChannels .. " ch" .. "," .. audTrackSamplerate .. " kHz"
+            elseif audTrackChannels then audTrackTitle = "[" .. audTrackCodec .. "]" .. "," .. audTrackChannels .. " ch" .. "," .. audTrackSamplerate .. " kHz"
+            else audTrackTitle = "音频轨 " .. i end
+            if audTrackForced then  audTrackTitle = audTrackTitle .. "（强制）" end
+            if audTrackDefault then  audTrackTitle = audTrackTitle .. "（默认）" end
+            if audTrackExternal then  audTrackTitle = audTrackTitle .. "（外挂）" end
 
             local audTrackCommand = "set aid " .. audTrackID
             if (i == 1) then
@@ -227,10 +323,16 @@ local function audTrackMenu()
     return audTrackMenuVal
 end
 
+-- 字幕轨子菜单
+local function inspectSubTrack()
+    local subTrackDisable, subTracks = false, trackCount("sub")
+    if (#subTracks < 1) then subTrackDisable = true end
+    return subTrackDisable
+end
+
 -- Subtitle label
 local function subVisLabel() return propNative("sub-visibility") and "隐藏" or "取消隐藏" end
 
--- 字幕轨子菜单
 local function subTrackMenu()
     local subTrackMenuVal, subTrackCount = {}, trackCount("sub")
 
@@ -245,12 +347,30 @@ local function subTrackMenu()
             local subTrackID = propNative("track-list/" .. subTrackNum .. "/id")
             local subTrackTitle = propNative("track-list/" .. subTrackNum .. "/title")
             local subTrackLang = propNative("track-list/" .. subTrackNum .. "/lang")
+            local subTrackCodec = propNative("track-list/" .. subTrackNum .. "/codec"):upper()
+            local subTrackDefault = propNative("track-list/" .. subTrackNum .. "/default")
+            local subTrackForced = propNative("track-list/" .. subTrackNum .. "/forced")
+            local subTrackExternal = propNative("track-list/" .. subTrackNum .. "/external")
+            local filename = propNative("filename/no-ext")
             -- Convert ISO 639-1/2 codes
             if not (subTrackLang == nil) then subTrackLang = getLang(subTrackLang) and getLang(subTrackLang) or subTrackLang end
+            if subTrackTitle then subTrackTitle = subTrackTitle:gsub(filename, '') end
+            if subTrackExternal then subTrackTitle = esc_for_title(subTrackTitle) end
+            if subTrackCodec:match("PGS") then subTrackCodec = "PGS"
+            elseif subTrackCodec:match("SUBRIP") then subTrackCodec = "SRT"
+            elseif subTrackCodec:match("VTT") then subTrackCodec = "VTT"
+            elseif subTrackCodec:match("DVB_SUB") then subTrackCodec = "DVB"
+            elseif subTrackCodec:match("DVD_SUB") then subTrackCodec = "VOB"
+            end
 
-            if (subTrackTitle) then subTrackTitle = subTrackTitle .. ((subTrackLang ~= nil) and " (" .. subTrackLang .. ")" or "")
-            elseif (subTrackLang) then subTrackTitle = subTrackLang
-            else subTrackTitle = "Subtitle Track " .. i end
+            if subTrackTitle and subTrackLang then subTrackTitle = subTrackTitle .. "," .. subTrackLang .. "[" .. subTrackCodec .. "]" 
+            elseif subTrackTitle then subTrackTitle = subTrackTitle .. "[" .. subTrackCodec .. "]"
+            elseif subTrackLang then subTrackTitle = subTrackLang .. "[" .. subTrackCodec .. "]"
+            elseif subTrackCodec then subTrackTitle = "[" .. subTrackCodec .. "]"
+            else subTrackTitle = "字幕轨 " .. i end
+            if subTrackForced then  subTrackTitle = subTrackTitle .. "（强制）" end
+            if subTrackDefault then  subTrackTitle = subTrackTitle .. "（默认）" end
+            if subTrackExternal then  subTrackTitle = subTrackTitle .. "（外挂）" end
 
             local subTrackCommand = "set sid " .. subTrackID
             if (i == 1) then
@@ -518,12 +638,16 @@ menuList = {
 
 }
 
+-- If mpv enters a stopped state, change the change the menu back to the "no file loaded" menu
+-- so that it will still popup.
+menuListBase = menuList
+
 -- DO NOT create the "playing" menu tables until AFTER the file has loaded as we're unable to
 -- dynamically create some menus if it tries to build the table before the file is loaded.
 -- A prime example is the chapter-list or track-list values, which are unavailable until
 -- the file has been loaded.
 
-mp.register_event("file-loaded", function()
+local function playmenuList()
     menuList = {
         file_loaded_menu = true,
 
@@ -592,11 +716,13 @@ mp.register_event("file-loaded", function()
             {COMMAND, "下一帧", "", "frame-step", "", false, true},
             {COMMAND, "后退10秒", "", "seek -10", "", false, true},
             {COMMAND, "前进10秒", "", "seek 10", "", false, true},
+            {CASCADE, "播放列表", "playlist_menu", "", "", function() return inspectPlaylist() end},
             {CASCADE, "版本（Edition）", "edition_menu", "", "", function() return inspectEdition() end},
             {CASCADE, "章节", "chapter_menu", "", "", function() return inspectChapter() end},
         },
 
         -- Use functions returning tables, since we don't need these menus if there aren't any editions or any chapters to seek through.
+        playlist_menu = playlistMenu(),
         edition_menu = editionMenu(),
         chapter_menu = chapterMenu(),
 
@@ -699,7 +825,7 @@ mp.register_event("file-loaded", function()
 
 -- 二级菜单 —— 音频
         audio_menu = {
-            {CASCADE, "轨道", "audtrack_menu", "", "", false},
+            {CASCADE, "轨道", "audtrack_menu", "", "", function() return inspectAudTrack() end},
             {SEP},
             {COMMAND, "音量 -1", "", "add volume -1", "", false, true},
             {COMMAND, "音量 +1", "", "add volume  1", "", false, true},
@@ -709,8 +835,6 @@ mp.register_event("file-loaded", function()
             {COMMAND, "延迟 +0.1", "", "add audio-delay +0.1", "", false, true},
             {COMMAND, "重置偏移", "", "set audio-delay 0", "", false},
             {SEP},
-            {COMMAND, "上个输出设备", "", "script-binding cycle_adevice/back", "", false, true},
-            {COMMAND, "下个输出设备", "", "script-binding cycle_adevice/next", "", false, true},
             {CASCADE, "声道布局", "channel_layout", "", "", false},
         },
 
@@ -720,7 +844,7 @@ mp.register_event("file-loaded", function()
 
 -- 二级菜单 —— 字幕
         subtitle_menu = {
-            {CASCADE, "轨道", "subtrack_menu", "", "", false},
+            {CASCADE, "轨道", "subtrack_menu", "", "", function() return inspectSubTrack() end},
             {SEP},
             {COMMAND, "重置", "", "no-osd set sub-delay 0; no-osd set sub-pos 100; no-osd set sub-scale 1.0", "", false},
             {COMMAND, "字号 -0.1", "", "add sub-scale -0.1", "", false, true},
@@ -743,32 +867,32 @@ mp.register_event("file-loaded", function()
             {COMMAND, "清除全部视频滤镜", "", "vf clr \"\"", "", false},
             {COMMAND, "清除全部音频滤镜", "", "af clr \"\"", "", false},
             {SEP},
-            {COMMAND, opt.filter01B, opt.filter01C, opt.filter01D, "", false, opt.filter01G},
-            {COMMAND, opt.filter02B, opt.filter02C, opt.filter02D, "", false, opt.filter02G},
-            {COMMAND, opt.filter03B, opt.filter03C, opt.filter03D, "", false, opt.filter03G},
-            {COMMAND, opt.filter04B, opt.filter04C, opt.filter04D, "", false, opt.filter04G},
-            {COMMAND, opt.filter05B, opt.filter05C, opt.filter05D, "", false, opt.filter05G},
-            {COMMAND, opt.filter06B, opt.filter06C, opt.filter06D, "", false, opt.filter06G},
-            {COMMAND, opt.filter07B, opt.filter07C, opt.filter07D, "", false, opt.filter07G},
-            {COMMAND, opt.filter08B, opt.filter08C, opt.filter08D, "", false, opt.filter08G},
-            {COMMAND, opt.filter09B, opt.filter09C, opt.filter09D, "", false, opt.filter09G},
-            {COMMAND, opt.filter10B, opt.filter10C, opt.filter10D, "", false, opt.filter10G},
+            {COMMAND, opt.filter01B, "", opt.filter01D, "", false, opt.filter01G},
+            {COMMAND, opt.filter02B, "", opt.filter02D, "", false, opt.filter02G},
+            {COMMAND, opt.filter03B, "", opt.filter03D, "", false, opt.filter03G},
+            {COMMAND, opt.filter04B, "", opt.filter04D, "", false, opt.filter04G},
+            {COMMAND, opt.filter05B, "", opt.filter05D, "", false, opt.filter05G},
+            {COMMAND, opt.filter06B, "", opt.filter06D, "", false, opt.filter06G},
+            {COMMAND, opt.filter07B, "", opt.filter07D, "", false, opt.filter07G},
+            {COMMAND, opt.filter08B, "", opt.filter08D, "", false, opt.filter08G},
+            {COMMAND, opt.filter09B, "", opt.filter09D, "", false, opt.filter09G},
+            {COMMAND, opt.filter10B, "", opt.filter10D, "", false, opt.filter10G},
         },
 
 -- 二级菜单 —— 着色器
         shader_menu = {
             {COMMAND, "清除全部着色器", "", "change-list glsl-shaders clr \"\"", "", false},
             {SEP},
-            {COMMAND, opt.shader01B, opt.shader01C, opt.shader01D, "", false, opt.shader01G},
-            {COMMAND, opt.shader02B, opt.shader02C, opt.shader02D, "", false, opt.shader02G},
-            {COMMAND, opt.shader03B, opt.shader03C, opt.shader03D, "", false, opt.shader03G},
-            {COMMAND, opt.shader04B, opt.shader04C, opt.shader04D, "", false, opt.shader04G},
-            {COMMAND, opt.shader05B, opt.shader05C, opt.shader05D, "", false, opt.shader05G},
-            {COMMAND, opt.shader06B, opt.shader06C, opt.shader06D, "", false, opt.shader06G},
-            {COMMAND, opt.shader07B, opt.shader07C, opt.shader07D, "", false, opt.shader07G},
-            {COMMAND, opt.shader08B, opt.shader08C, opt.shader08D, "", false, opt.shader08G},
-            {COMMAND, opt.shader09B, opt.shader09C, opt.shader09D, "", false, opt.shader09G},
-            {COMMAND, opt.shader10B, opt.shader10C, opt.shader10D, "", false, opt.shader10G},
+            {COMMAND, opt.shader01B, "", opt.shader01D, "", false, opt.shader01G},
+            {COMMAND, opt.shader02B, "", opt.shader02D, "", false, opt.shader02G},
+            {COMMAND, opt.shader03B, "", opt.shader03D, "", false, opt.shader03G},
+            {COMMAND, opt.shader04B, "", opt.shader04D, "", false, opt.shader04G},
+            {COMMAND, opt.shader05B, "", opt.shader05D, "", false, opt.shader05G},
+            {COMMAND, opt.shader06B, "", opt.shader06D, "", false, opt.shader06G},
+            {COMMAND, opt.shader07B, "", opt.shader07D, "", false, opt.shader07G},
+            {COMMAND, opt.shader08B, "", opt.shader08D, "", false, opt.shader08G},
+            {COMMAND, opt.shader09B, "", opt.shader09D, "", false, opt.shader09G},
+            {COMMAND, opt.shader10B, "", opt.shader10D, "", false, opt.shader10G},
         },
 
 -- 二级菜单 —— 其它
@@ -824,6 +948,24 @@ mp.register_event("file-loaded", function()
         
         ::keyjump::
     end
+end
+
+mp.add_hook("on_preloaded", 100, playmenuList)
+
+local function observe_change()
+    mp.observe_property("track-list/count", "number", playmenuList)
+    mp.observe_property("chapter-list/count", "number", playmenuList)
+    mp.observe_property("playlist/count", "number", playmenuList)
+    mp.observe_property("playlist-shuffle", nil, playmenuList)
+    mp.observe_property("playlist-unshuffle", nil, playmenuList)
+    mp.observe_property("playlist-move", nil, playmenuList)
+end
+
+mp.register_event("file-loaded", observe_change)
+
+mp.register_event("end-file", function()
+    mp.unobserve_property(playmenuList)
+    menuList = menuListBase
 end)
 
 --[[ ************ 菜单内容 ************ ]]--

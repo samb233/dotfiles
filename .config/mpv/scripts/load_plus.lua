@@ -1,14 +1,15 @@
 --[[
 SOURCE_ https://github.com/mpv-player/mpv/blob/master/TOOLS/lua/autoload.lua
-COMMIT_ 20210624 ee27629
-SOURCE_ https://github.com/rossy/mpv-open-file-dialog
-COMMIT_ 20160310 04fe818
+COMMIT_ 4bc6686b6a80bbae78febf97652e2f0841ca396a
+SOURCE_ https://github.com/rossy/mpv-open-file-dialog/blob/master/open-file-dialog.lua
+COMMIT_ 04fe818fc703d8c5dcc3a6aabe1caeed8286bdbb
 
 功能集一：
   列表文件为1时自动填充同目录下的其它文件，可使用对应的 load_plus.conf 管理脚本设置。
 
 功能集二：
   自定义快捷键 在mpv中唤起一个打开文件的窗口用于快速加载文件/网址
+
 示例：在 input.conf 中另起写入下列内容
 w        script-binding    load_plus/import_files   # 打开文件
 W        script-binding    load_plus/import_url     # 打开地址
@@ -51,7 +52,7 @@ function SetUnion (a,b)
 end
 
 EXTENSIONS_VIDEO = Set {
-    '3gp',
+    '3g2','3gp',
     'amv','asf','avi',
     'f4v','flv',
     'm2ts','m4v','mkv','mov','mp4','mpeg','mpg',
@@ -60,14 +61,15 @@ EXTENSIONS_VIDEO = Set {
     'ts',
     'vob',
     'webm','wmv',
+    'y4m',
 }
 
 EXTENSIONS_AUDIO = Set {
-    'aac','aiff','alac','ape',
+    'aac','aiff','alac','ape','au',
     'dsf',
     'flac',
     'm4a','mp3',
-    'ogg','opus',
+    'oga','ogg','ogm','opus',
     'tak','tta',
     'wav','wma','wv',
 }
@@ -76,11 +78,11 @@ EXTENSIONS_IMAGE = Set {
     'apng','avif',
     'bmp',
     'gif',
-    'heic','heif',
-    'jfif','jpeg','jpg',
+    'j2k', 'jfif','jp2','jpeg','jpg',
     'png',
     'svg',
-    'tif','tiff',
+    'tga','tif','tiff',
+    'uci',
     'webp',
 }
 
@@ -146,6 +148,16 @@ function alnumcomp(x, y)
     return #xt < #yt
 end
 
+function get_playlist_filenames()
+  local filenames = {}
+  for n = 0, pl_count - 1, 1 do
+    local filename = mp.get_property('playlist/'..n..'/filename')
+    local _, file = utils.split_path(filename)
+    filenames[file] = true
+  end
+  return filenames
+end
+
 function find_and_add_entries()
     local path = mp.get_property("path", "")
     local dir, filename = utils.split_path(path)
@@ -158,7 +170,7 @@ function find_and_add_entries()
         return
     end
 
-    local pl_count = mp.get_property_number("playlist-count", 1)
+    pl_count = mp.get_property_number("playlist-count", 1)
     if pl_count > 1 then
         msg.warn("自动队列中止：已手动创建/修改播放列表")
         return
@@ -218,22 +230,17 @@ function find_and_add_entries()
     msg.trace("自动队列：当前文件所处序列 "..current)
 
     local append = {[-1] = {}, [1] = {}}
+    local filenames = get_playlist_filenames()
     for direction = -1, 1, 2 do -- 2 iterations, with direction = -1 and +1
         for i = 1, opt.max_entries do
             local file = files[current + i * direction]
-            local pl_e = pl[pl_current + i * direction]
             if file == nil or file[1] == "." then
                 break
             end
 
             local filepath = dir .. file
-            if pl_e then
-                -- If there's a playlist entry, and it's the same file, stop.
-                msg.trace(pl_e.filename.." == "..filepath.." ?")
-                if pl_e.filename == filepath then
-                    break
-                end
-            end
+            -- skip files already in playlist
+            if filenames[file] then break end
 
             if direction == -1 then
                 if pl_current == 1 then -- never add additional entries in the middle
@@ -419,6 +426,7 @@ function remove_vfSub()
 	local vfSub = "vf remove @LUA-load_plus"
 	if filter_state("LUA-load_plus") then mp.command(vfSub) end
 end
+
 
 mp.register_event("file-loaded", remove_vfSub)
 
