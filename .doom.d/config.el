@@ -7,10 +7,14 @@
 (prefer-coding-system 'utf-8-unix)
 
 ;; open at maximaized
-;; (pushnew! default-frame-alist '(width . 160) '(height . 40) '(alpha-background . 80))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(pushnew! default-frame-alist '(width . 160) '(height . 40))
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; (add-to-list 'default-frame-alist '(alpha-background . 85))
 (add-to-list 'default-frame-alist (cons 'alpha 90))
+(setq frame-title-format
+      '((:eval (if (buffer-file-name)
+                   (abbreviate-file-name (buffer-file-name))
+                 "%b"))))
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets. It is optional.
@@ -162,7 +166,7 @@
   ;; enable the /context/ mode for all buffers
   (sis-global-context-mode t)
   ;; enable the /inline english/ mode for all buffers
-  (sis-global-inline-mode nil)
+  (sis-global-inline-mode t)
   )
 
 
@@ -216,7 +220,10 @@
 ;; Need to type out :quit to close emacs
 (evil-ex-define-cmd "quit" 'evil-quit)
 
-
+;; settings for deft
+(setq deft-extensions '("txt" "tex" "org" "md"))
+(setq deft-directory "~/Documents/Notes")
+(setq deft-recursive t)
 
 ;; markdown font size settings
 (custom-set-faces
@@ -227,7 +234,6 @@
  '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
  '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
-
 
 ;; Org mode font config
 (after! org
