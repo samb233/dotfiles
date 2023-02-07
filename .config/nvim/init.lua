@@ -20,7 +20,7 @@ require("plugin-settings.gitsigns")
 require("plugin-settings.nvim-treesitter-context")
 require("plugin-settings.mkdnflow")
 require("plugin-settings.rest")
-require("plugin-settings.rnvimr")
+-- require("plugin-settings.rnvimr")
 require("plugin-settings.terminal")
 
 -- 主题设置

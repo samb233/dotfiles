@@ -36,7 +36,7 @@ map("n", "<C-Up>", ":resize -2<CR>", opt)
 map("n", "s=", "<C-w>=", opt)
 
 -- Terminal相关
-map("n", "<leader>t", ':ToggleTerm size=40 dir=%:p:h direction=vertical<CR>', opt)
+map("n", "<leader>t", ":ToggleTerm size=40 dir=%:p:h direction=vertical<CR>", opt)
 -- map("n", "<leader>t", ":sp | terminal<CR>", opt)
 -- map("n", "<leader>vt", ":vsp | terminal<CR>", opt)
 map("t", "<Esc>", "<C-\\><C-n>", opt)
@@ -78,12 +78,12 @@ map("n", "<leader>,", ":Telescope buffers<CR>", opt)
 -- 找到项目根目录
 -- 利用package vim-rooter
 function findRoot()
-  local rootDir = vim.fn['FindRootDirectory']()
-  if(rootDir == nil or rootDir == '') then
-    rootDir = vim.fn.expand('%:p:h')
-  end
+	local rootDir = vim.fn["FindRootDirectory"]()
+	if rootDir == nil or rootDir == "" then
+		rootDir = vim.fn.expand("%:p:h")
+	end
 
-  return rootDir
+	return rootDir
 end
 -- 查找文件
 map("n", "<leader>ff", ":lua require('telescope.builtin').find_files( { cwd = findRoot() })<CR>", opt)
@@ -98,8 +98,10 @@ map("n", "<leader>fl", ":lua require('telescope.builtin').live_grep( { cwd = fin
 -- nvim-tree
 -- map("n", "<leader>n", ":NvimTreeToggle<CR>", opt)
 
--- Rnvimr
-map("n", "<leader>n", ":RnvimrToggle<CR>", opt)
+-- Telescope file_browser
+-- map("n", "<M-n>", ":RnvimrToggle<CR>", opt)
+-- map("t", "<M-n>", ":RnvimrToggle<CR>", opt)
+map("n", "<leader>n", ":NvimTreeToggle<CR>", opt)
 
 -- 重启Lsp Server
 map("n", "<leader>lr", ":LspRestart<CR>", opt)

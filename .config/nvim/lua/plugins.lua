@@ -12,10 +12,10 @@ packer.startup({
 		use("nvim-treesitter/nvim-treesitter-context")
 		-- telescope
 		use({ "nvim-telescope/telescope.nvim", requires = { "nvim-lua/plenary.nvim" } })
-        use { "nvim-telescope/telescope-file-browser.nvim" }
+		use({ "nvim-telescope/telescope-file-browser.nvim" })
 
-        -- 寻找project目录
-        use({"airblade/vim-rooter"})
+		-- 寻找project目录
+		use({ "airblade/vim-rooter" })
 
 		-- comment
 		use("numToStr/Comment.nvim")
@@ -38,7 +38,7 @@ packer.startup({
 		use("lukas-reineke/indent-blankline.nvim")
 
 		--terminal
-        use("akinsho/toggleterm.nvim")
+		use("akinsho/toggleterm.nvim")
 
 		-- git
 		use({
@@ -81,7 +81,7 @@ packer.startup({
 		use({ "jose-elias-alvarez/null-ls.nvim", requires = "nvim-lua/plenary.nvim" })
 
 		-- 文件浏览
-		use({ "kevinhwang91/rnvimr" })
+		-- use({ "kevinhwang91/rnvimr" })
 	end,
 	config = {
 		-- 并发数限制
