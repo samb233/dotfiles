@@ -12,12 +12,16 @@ require("plugin-settings.nvim-tree")
 require("plugin-settings.telescope")
 require("plugin-settings.nvim-treesitter")
 require("plugin-settings.nvim-autopairs")
-require("plugin-settings.bufferline")
+-- require("plugin-settings.bufferline")
 require("plugin-settings.lualine")
 require("plugin-settings.indent-blankline")
 require("plugin-settings.comment")
 require("plugin-settings.gitsigns")
 require("plugin-settings.nvim-treesitter-context")
+require("plugin-settings.mkdnflow")
+require("plugin-settings.rest")
+require("plugin-settings.rnvimr")
+require("plugin-settings.terminal")
 
 -- 主题设置
 require("colorscheme")
@@ -30,3 +34,6 @@ require("lsp.cmp")
 
 require("lsp.ui")
 require("lsp.null-ls")
+
+-- fcitx5设置
+require("fcitx5")

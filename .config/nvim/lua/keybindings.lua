@@ -36,8 +36,7 @@ map("n", "<C-Up>", ":resize -2<CR>", opt)
 map("n", "s=", "<C-w>=", opt)
 
 -- Terminal相关
-map("n", "<leader>t", '<CMD>lua require("FTerm").toggle()<CR>', opt)
-map("t", "<leader>t", '<C-\\><C-n><CMD>lua require("FTerm").toggle()<CR>', opt)
+map("n", "<leader>t", ':ToggleTerm size=40 dir=%:p:h direction=vertical<CR>', opt)
 -- map("n", "<leader>t", ":sp | terminal<CR>", opt)
 -- map("n", "<leader>vt", ":vsp | terminal<CR>", opt)
 map("t", "<Esc>", "<C-\\><C-n>", opt)
@@ -73,15 +72,34 @@ map("n", "<leader>bd", ":Bdelete!<CR>", opt)
 map("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", opt)
 map("n", "<Tab>", ":BufferLineCycleNext<CR>", opt)
 
-map("n", "<leader>fb", ":Telescope buffers<CR>", opt)
+map("n", "<leader>,", ":Telescope buffers<CR>", opt)
 -- Telescope
+
+-- 找到项目根目录
+-- 利用package vim-rooter
+function findRoot()
+  local rootDir = vim.fn['FindRootDirectory']()
+  if(rootDir == nil or rootDir == '') then
+    rootDir = vim.fn.expand('%:p:h')
+  end
+
+  return rootDir
+end
 -- 查找文件
-map("n", "<leader>ff", ":Telescope find_files<CR>", opt)
+map("n", "<leader>ff", ":lua require('telescope.builtin').find_files( { cwd = findRoot() })<CR>", opt)
 -- 全局搜索
-map("n", "<leader>fg", ":Telescope live_grep<CR>", opt)
+map("n", "<leader>fg", ":lua require('telescope.builtin').grep_string( { cwd = findRoot() })<CR>", opt)
+-- 搜索git目录
+map("n", "<leader>fp", ":lua require('telescope.builtin').git_files( { cwd = vim.fn.expand('%:p:h') })<CR>", opt)
+
+map("n", "<leader>fl", ":lua require('telescope.builtin').live_grep( { cwd = findRoot() })<CR>", opt)
+-- map("n", "<leader>fg", ":Telescope live_grep<CR>", opt)
 
 -- nvim-tree
-map("n", "<leader>n", ":NvimTreeToggle<CR>", opt)
+-- map("n", "<leader>n", ":NvimTreeToggle<CR>", opt)
+
+-- Rnvimr
+map("n", "<leader>n", ":RnvimrToggle<CR>", opt)
 
 -- 重启Lsp Server
 map("n", "<leader>lr", ":LspRestart<CR>", opt)

@@ -10,13 +10,16 @@ nvim_tree.setup({
 	-- 不显示 git 状态图标
 	git = {
 		enable = false,
+		ignore = true,
+		show_on_dirs = true,
+		show_on_open_dirs = true,
+		timeout = 400,
 	},
-	-- project plugin 需要这样设置
-	update_cwd = true,
-	update_focused_file = {
-		enable = true,
-		update_cwd = true,
-	},
+	-- update_cwd = true,
+	-- update_focused_file = {
+	-- 	enable = true,
+	-- 	update_cwd = true,
+	-- },
 	-- 隐藏 .文件 和 node_modules 文件夹
 	-- filters = {
 	-- 	dotfiles = true,

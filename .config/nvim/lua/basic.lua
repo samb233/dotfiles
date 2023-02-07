@@ -21,6 +21,8 @@ vim.wo.signcolumn = "yes"
 -- 右侧参考线
 -- vim.wo.colorcolumn = "80"
 
+vim.o.autochdir = true
+
 -- Tab设置
 vim.o.tabstop = 4
 vim.bo.tabstop = 4
@@ -45,7 +47,7 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 
 -- 搜索不要高亮
-vim.o.hlsearch = false
+-- vim.o.hlsearch = false
 
 -- 边输入边搜索
 vim.o.incsearch = true

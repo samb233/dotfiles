@@ -12,6 +12,10 @@ packer.startup({
 		use("nvim-treesitter/nvim-treesitter-context")
 		-- telescope
 		use({ "nvim-telescope/telescope.nvim", requires = { "nvim-lua/plenary.nvim" } })
+        use { "nvim-telescope/telescope-file-browser.nvim" }
+
+        -- 寻找project目录
+        use({"airblade/vim-rooter"})
 
 		-- comment
 		use("numToStr/Comment.nvim")
@@ -34,13 +38,19 @@ packer.startup({
 		use("lukas-reineke/indent-blankline.nvim")
 
 		--terminal
-		use("numToStr/FTerm.nvim")
+        use("akinsho/toggleterm.nvim")
 
 		-- git
 		use({
 			"lewis6991/gitsigns.nvim",
 			-- tag = 'release' -- To use the latest release
 		})
+
+		-- markdown
+		use({ "jakewvincent/mkdnflow.nvim" })
+
+		-- rest client
+		use({ "rest-nvim/rest.nvim" })
 
 		--------------------- LSP --------------------
 		-- lspconfig
@@ -69,6 +79,9 @@ packer.startup({
 
 		-- 代码格式化
 		use({ "jose-elias-alvarez/null-ls.nvim", requires = "nvim-lua/plenary.nvim" })
+
+		-- 文件浏览
+		use({ "kevinhwang91/rnvimr" })
 	end,
 	config = {
 		-- 并发数限制
