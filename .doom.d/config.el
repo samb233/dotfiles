@@ -7,7 +7,7 @@
 (prefer-coding-system 'utf-8-unix)
 
 ;; open at maximaized
-(pushnew! default-frame-alist '(width . 160) '(height . 40))
+(pushnew! default-frame-alist '(width . 80) '(height . 45))
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; (add-to-list 'default-frame-alist '(alpha-background . 85))
 (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -282,7 +282,7 @@
      ("r" "~/Codes/Reading/"            "Reading")
      ("d" "~/Documents/"                "Documents")
      ("w" "~/工作/"                      "工作")
-     ("d" "~/Downloads/"                "Downloads")
+     ("D" "~/Downloads/"                "Downloads")
      ("P" "~/Pictures/"                 "Pictures")
      ("v" "~/Videos/"                   "Videos")
      ("s" "~/Shared/"                   "Shared")
@@ -296,6 +296,7 @@
   ;; (setq dirvish--debouncing-delay 2)
   (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-use-mode-line nil)
+  ;; (setq dirvish-default-layout '(0 0.4 0.6))
   ;; (setq dirvish-mode-line-format
   ;;       '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-header-line-height '46)
@@ -353,6 +354,7 @@
   (kbd "F") 'dirvish-fd
   (kbd "y") 'dirvish-yank-menu
   (kbd "f") 'dirvish-file-info-menu
+  (kbd ".") 'dired-omit-mode
   )
 
 (map! :leader
@@ -368,8 +370,14 @@
        :desc "Neotree toggle" "n" #'neotree-toggle
        :desc "fuZzy finder" "z" #'affe-find
        :desc "fuzzy Grep" "g" #'affe-grep
+       :desc "select Window" "w" #'ace-select-window
        :desc "fuzzy find Home" "h" (cmd!! #'affe-find "~/")
        )
+      )
+
+(map! :leader
+      :desc "ace-select-window" "w a" #'ace-select-window
+      :desc "ace-select-window" "w w" #'ace-select-window
       )
 
 (map! :leader
