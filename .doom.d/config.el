@@ -7,10 +7,10 @@
 (prefer-coding-system 'utf-8-unix)
 
 ;; open at maximaized
-(pushnew! default-frame-alist '(width . 80) '(height . 45))
+(pushnew! default-frame-alist '(width . 80) '(height . 50))
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; (add-to-list 'default-frame-alist '(alpha-background . 85))
-(add-to-list 'default-frame-alist (cons 'alpha 90))
+;; (add-to-list 'default-frame-alist (cons 'alpha 90))
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
@@ -21,7 +21,6 @@
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
-(setq scroll-margin 9)
 
 ;; set fonts
 ;; (setq doom-font (font-spec :family "Sarasa Term SC" :size 14.0 ))
@@ -30,14 +29,14 @@
 
 ;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Mono SC"))
 ;; (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 13.0 ))
-(setq doom-unicode-font (font-spec :family "JetBrainsMono Nerd Font" ))
+(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font" ))
 
 (defun +my/better-font()
   (interactive)
   ;; english font
   (if (display-graphic-p)
       (progn
-        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "JetBrainsMono Nerd Font" 17)) ;; 11 13 17 19 23
+        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "IBM Plex Mono Medm" 15)) ;; 11 13 17 19 23S
         ;; chinese font
         (dolist (charset '(kana han symbol cjk-misc bopomofo))
           (set-fontset-font (frame-parameter nil 'font)
@@ -71,7 +70,10 @@
 ;; mousewheel settings
 ;; scroll one line at a time (less "jumpy" than defaults)
 
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 5))) ;; one line at a time
+(setq scroll-margin 9)
+;; (pixel-scroll-precision-mode t)
+;; (good-scroll-mode 1)
+(setq mouse-wheel-scroll-amount '(1 ((shift) . 7))) ;; one line at a time
 
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
 
@@ -102,7 +104,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-tomorrow-night)
+(setq doom-theme 'doom-tomorrow-day)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -160,13 +162,13 @@
   (sis-ism-lazyman-config "1" "2" 'fcitx5)
 
   ;; enable the /cursor color/ mode
-  (sis-global-cursor-color-mode t)
+  ;; (sis-global-cursor-color-mode t)
   ;; enable the /respect/ mode
   (sis-global-respect-mode t)
   ;; enable the /context/ mode for all buffers
   (sis-global-context-mode t)
   ;; enable the /inline english/ mode for all buffers
-  (sis-global-inline-mode t)
+  ;; (sis-global-inline-mode t)
   )
 
 
@@ -187,12 +189,12 @@
 ;; Go lsp-mode setting
 ;; Set up before-save hooks to format buffer and add/delete imports.
 (add-hook 'go-mode-hook #'lsp-save-hooks)
-(add-hook 'go-mode-hook #'lsp-deferred)
+;; (add-hook 'go-mode-hook #'lsp-deferred)
 
 
 ;; Rust lsp-mode setting
-(setq lsp-rust-server 'rust-analyzer)
-(setq rustic-lsp-server 'rust-analyzer)
+;; (setq lsp-rust-server 'rust-analyzer)
+;; (setq rustic-lsp-server 'rust-analyzer)
 
 
 ;; lsp-mode keybinding
@@ -213,7 +215,8 @@
 
 (evil-define-key 'visual 'global
   (kbd "J") 'drag-stuff-down
-  (kbd "K") 'drag-stuff-up)
+  (kbd "K") 'drag-stuff-up
+  )
 
 ;; :q should kill the current buffer rather than quitting emacs entirely
 (evil-ex-define-cmd "q" 'kill-this-buffer)
@@ -253,7 +256,23 @@
       (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
     (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
 
-  (org-colors-tomorrow-night)
+  (defun org-colors-tomorrow-day()
+    "Enable Tomorrow Night colors for Org headers."
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.3 "#4271ae" ultra-bold)
+           (org-level-2 1.2 "#8959a8" extra-bold)
+           (org-level-3 1.1 "#b5bd68" bold)
+           (org-level-4 1.0 "#e6c547" semi-bold)
+           (org-level-5 1.0 "#c82829" normal)
+           (org-level-6 1.0 "#70c0ba" normal)
+           (org-level-7 1.0 "#b77ee0" normal)
+           (org-level-8 1.0 "#9ec400" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+  (org-colors-tomorrow-day)
   (setq org-src-preserve-indentation nil)
 
   (defun yank-with-indent ()
@@ -269,6 +288,8 @@
           (replace-string "\n" (concat "\n" indent))
           (widen)))))
   )
+
+;; (setq fd-dired-ls-option '(""))
 
 (use-package dirvish
   :init
@@ -311,7 +332,7 @@
         `(
           (,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
-          (,dirvish-image-exts . ("eog" "%f"))
+          (,dirvish-image-exts . ("gwenview" "%f"))
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
@@ -356,6 +377,8 @@
   (kbd "f") 'dirvish-file-info-menu
   (kbd ".") 'dired-omit-mode
   )
+
+;; (evil-define-key 'visual )
 
 (map! :leader
       (:prefix ("v" . "dirvish and vertico")
@@ -424,3 +447,28 @@
 
 ;; magit settings
 (setq auto-revert-check-vc-info t)
+
+;; docker settings
+(use-package docker
+:config
+(set-popup-rule! "^\\* podman " :size 0.8 :modeline t :quit 'other)
+(setq docker-command "podman")
+(setq docker-compose-command "podman-compose")
+(setq docker-pop-to-buffer-action '(display-buffer-same-window))
+(setq docker-run-async-with-buffer-function #'docker-run-async-with-buffer-vterm)
+(setq docker-container-columns
+      '(
+        (:name "Id" :width 16 :template "{{ json .ID }}" :sort nil :format nil)
+        (:name "Names" :width 10 :template "{{ json .Names }}" :sort nil :format nil)
+        (:name "Status" :width 20 :template "{{ json .Status }}" :sort nil :format nil)
+        (:name "Ports" :width 10 :template "{{ json .Ports }}" :sort nil :format nil)
+        (:name "Image" :width 15 :template "{{ json .Image }}" :sort nil :format nil)
+        (:name "Command" :width 30 :template "{{ json .Command }}" :sort nil :format nil)
+        (:name "Created" :width 23 :template "{{ json .CreatedAt }}" :sort nil :format
+               (lambda
+                 (x)
+                 (format-time-string "%F %T"
+                                     (date-to-time x))))
+        )
+      )
+)
