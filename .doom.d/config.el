@@ -1,5 +1,6 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
+
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 (setq-default buffer-file-coding-system 'utf-8-unix)
@@ -112,7 +113,7 @@
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/org/")
+(setq org-directory "~/Documents/Notes")
 
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
@@ -182,14 +183,74 @@
 ;; lsp-mode settings
 (setq lsp-headerline-breadcrumb-enable t)
 
+;; go-mode settings
 (defun lsp-save-hooks ()
   (add-hook 'before-save-hook #'lsp-format-buffer t t)
   (add-hook 'before-save-hook #'lsp-organize-imports t t))
 
 ;; Go lsp-mode setting
 ;; Set up before-save hooks to format buffer and add/delete imports.
-(add-hook 'go-mode-hook #'lsp-save-hooks)
 ;; (add-hook 'go-mode-hook #'lsp-deferred)
+(after! go-mode
+  (set-docsets! 'go-mode "Go")
+  (set-repl-handler! 'go-mode #'gorepl-run)
+  (set-lookup-handlers! 'go-mode
+    :definition #'go-guru-definition
+    :references #'go-guru-referrers
+    :documentation #'godoc-at-point)
+
+  ;; Redefines default formatter to *not* use goimports if reformatting a
+  ;; region; as it doesn't play well with partial code.
+  (set-formatter! 'gofmt
+    '(("%s" (if (or +format-region-p
+                    (not (executable-find "goimports")))
+                "gofmt"
+              "goimports"))))
+
+  (if (modulep! +lsp)
+      (add-hook 'go-mode-local-vars-hook #'lsp! 'append)
+    (add-hook 'go-mode-hook #'lsp-save-hooks))
+
+  (when (modulep! +tree-sitter)
+    (add-hook 'go-mode-local-vars-hook #'tree-sitter! 'append))
+
+  (map! :map go-mode-map
+        :localleader
+        "a" #'go-tag-add
+        "d" #'go-tag-remove
+        "e" #'+go/play-buffer-or-region
+        "i" #'go-goto-imports      ; Go to imports
+        (:prefix ("h" . "help")
+                 "." #'godoc-at-point     ; Lookup in godoc
+                 "d" #'go-guru-describe   ; Describe this
+                 "v" #'go-guru-freevars   ; List free variables
+                 "i" #'go-guru-implements ; Implements relations for package types
+                 "p" #'go-guru-peers      ; List peers for channel
+                 "P" #'go-guru-pointsto   ; What does this point to
+                 "r" #'go-guru-referrers  ; List references to object
+                 "e" #'go-guru-whicherrs  ; Which errors
+                 "w" #'go-guru-what       ; What query
+                 "c" #'go-guru-callers    ; Show callers of this function
+                 "C" #'go-guru-callees)   ; Show callees of this function
+        (:prefix ("ri" . "imports")
+                 "a" #'go-import-add
+                 "r" #'go-remove-unused-imports)
+        (:prefix ("b" . "build")
+         :desc "go run ." "r" (cmd! (compile "go run ."))
+         :desc "go build" "b" (cmd! (compile "go build"))
+         :desc "go clean" "c" (cmd! (compile "go clean")))
+        (:prefix ("t" . "test")
+                 "t" #'+go/test-rerun
+                 "a" #'+go/test-all
+                 "s" #'+go/test-single
+                 "n" #'+go/test-nested
+                 "f" #'+go/test-file
+                 "g" #'go-gen-test-dwim
+                 "G" #'go-gen-test-all
+                 "e" #'go-gen-test-exported
+                 (:prefix ("b" . "bench")
+                          "s" #'+go/bench-single
+                          "a" #'+go/bench-all))))
 
 
 ;; Rust lsp-mode setting
@@ -448,27 +509,33 @@
 ;; magit settings
 (setq auto-revert-check-vc-info t)
 
+;; vterm settings
+(
+ after! vterm
+ (setq vterm-max-scrollback 10000)
+ (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
+ )
 ;; docker settings
 (use-package docker
-:config
-(set-popup-rule! "^\\* podman " :size 0.8 :modeline t :quit 'other)
-(setq docker-command "podman")
-(setq docker-compose-command "podman-compose")
-(setq docker-pop-to-buffer-action '(display-buffer-same-window))
-(setq docker-run-async-with-buffer-function #'docker-run-async-with-buffer-vterm)
-(setq docker-container-columns
-      '(
-        (:name "Id" :width 14 :template "{{ json .ID }}" :sort nil :format nil)
-        (:name "Names" :width 12 :template "{{ json .Names }}" :sort nil :format nil)
-        (:name "Status" :width 14 :template "{{ json .Status }}" :sort nil :format nil)
-        (:name "Ports" :width 24 :template "{{ json .Ports }}" :sort nil :format nil)
-        (:name "Image" :width 40 :template "{{ json .Image }}" :sort nil :format nil)
-        (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
-               (lambda
-                 (x)
-                 (format-time-string "%F %T"
-                                     (date-to-time x))))
-        (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)
+  :config
+  (set-popup-rule! "^\\* podman " :size 0.8 :modeline t :quit 'other)
+  (setq docker-command "podman")
+  (setq docker-compose-command "podman-compose")
+  (setq docker-pop-to-buffer-action '(display-buffer-same-window))
+  (setq docker-run-async-with-buffer-function #'docker-run-async-with-buffer-vterm)
+  (setq docker-container-columns
+        '(
+          (:name "Id" :width 14 :template "{{ json .ID }}" :sort nil :format nil)
+          (:name "Names" :width 12 :template "{{ json .Names }}" :sort nil :format nil)
+          (:name "Status" :width 14 :template "{{ json .Status }}" :sort nil :format nil)
+          (:name "Ports" :width 24 :template "{{ json .Ports }}" :sort nil :format nil)
+          (:name "Image" :width 40 :template "{{ json .Image }}" :sort nil :format nil)
+          (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
+                 (lambda
+                   (x)
+                   (format-time-string "%F %T"
+                                       (date-to-time x))))
+          (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)
+          )
         )
-      )
-)
+  )
