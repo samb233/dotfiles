@@ -430,6 +430,12 @@
   (eshell-git-prompt-use-theme 'multiline2)
   )
 
+;; vterm settings
+(
+ after! vterm
+ (setq vterm-max-scrollback 10000)
+ (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
+ )
 
 ;; magit settings
 (setq auto-revert-check-vc-info t)
