@@ -54,3 +54,4 @@
 (package! eshell-git-prompt)
 (package! dirvish)
 (package! affe)
+(package! grip-mode)

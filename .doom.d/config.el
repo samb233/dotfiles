@@ -539,3 +539,17 @@
           )
         )
   )
+
+
+;; markdwon preview use grip-mode
+(use-package grip-mode)
+
+(map! :map markdown-mode-map
+        :localleader
+        "g" #'grip-mode
+        )
+
+(map! :map org-mode-map
+        :localleader
+        "G" #'grip-mode
+        )
