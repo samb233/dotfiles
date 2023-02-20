@@ -456,6 +456,8 @@
        :desc "fuzzy Grep" "g" #'affe-grep
        :desc "select Window" "w" #'ace-select-window
        :desc "fuzzy find Home" "h" (cmd!! #'affe-find "~/")
+       :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
+       :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
        )
       )
 
@@ -502,7 +504,7 @@
 
 ;; customize eshell
 (after! eshell
-  (eshell-git-prompt-use-theme 'multiline2)
+  (eshell-git-prompt-use-theme 'simple)
   )
 
 
