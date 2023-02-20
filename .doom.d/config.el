@@ -8,7 +8,7 @@
 (prefer-coding-system 'utf-8-unix)
 
 ;; open at maximaized
-(pushnew! default-frame-alist '(width . 80) '(height . 50))
+(pushnew! default-frame-alist '(width . 80) '(height . 45))
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 ;; (add-to-list 'default-frame-alist '(alpha-background . 85))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -24,35 +24,36 @@
 
 
 ;; set fonts
-;; (setq doom-font (font-spec :family "Sarasa Term SC" :size 14.0 ))
-;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Term SC"))
+(setq doom-font (font-spec :family "Sarasa Mono SC" :size 13.0 ))
+(setq doom-variable-pitch-font (font-spec :family "Sarasa Mono SC"))
+(setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 ;; (setq doom-unicode-font (font-spec :family "Sarasa Term SC" ))
 
 ;; (setq doom-variable-pitch-font (font-spec :family "Sarasa Mono SC"))
 ;; (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 13.0 ))
-(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font" ))
+;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font" ))
 
-(defun +my/better-font()
-  (interactive)
-  ;; english font
-  (if (display-graphic-p)
-      (progn
-        (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "IBM Plex Mono Medm" 15)) ;; 11 13 17 19 23S
-        ;; chinese font
-        (dolist (charset '(kana han symbol cjk-misc bopomofo))
-          (set-fontset-font (frame-parameter nil 'font)
-                            charset
-                            (font-spec :family "Noto Sans Mono CJK SC")))) ;; 14 16 20 22 28
-    ))
+;; (defun +my/better-font()
+;;   (interactive)
+;;   ;; english font
+;;   (if (display-graphic-p)
+;;       (progn
+;;         (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "IBM Plex Mono Medm" 15)) ;; 11 13 17 19 23S
+;;         ;; chinese font
+;;         (dolist (charset '(kana han symbol cjk-misc bopomofo))
+;;           (set-fontset-font (frame-parameter nil 'font)
+;;                             charset
+;;                             (font-spec :family "Noto Sans Mono CJK SC")))) ;; 14 16 20 22 28
+;;     ))
 
-(defun +my|init-font(frame)
-  (with-selected-frame frame
-    (if (display-graphic-p)
-        (+my/better-font))))
+;; (defun +my|init-font(frame)
+;;   (with-selected-frame frame
+;;     (if (display-graphic-p)
+;;         (+my/better-font))))
 
-(if (and (fboundp 'daemonp) (daemonp))
-    (add-hook 'after-make-frame-functions #'+my|init-font)
-  (+my/better-font))
+;; (if (and (fboundp 'daemonp) (daemonp))
+;;     (add-hook 'after-make-frame-functions #'+my|init-font)
+;;   (+my/better-font))
 
 
 ;; doom-modeline settings
