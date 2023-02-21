@@ -552,3 +552,7 @@
         :localleader
         "G" #'grip-mode
         )
+
+;; settings for treemacs
+(setq treemacs-position 'right)
+(setq treemacs-width 40)
