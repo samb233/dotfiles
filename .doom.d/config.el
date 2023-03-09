@@ -1,58 +1,41 @@
-;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+(setq user-full-name "Jie Samb"
+      user-mail-address "samb233@hotmail.com")
 
-
-;; Place your private configuration here! Remember, you do not need to run 'doom
-;; sync' after modifying this file!
 (setq-default buffer-file-coding-system 'utf-8-unix)
 (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
 
-;; open at maximaized
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 ;; (add-to-list 'default-frame-alist '(alpha-background . 85))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
+
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
-;; Some functionality uses this to identify you, e.g. GPG configuration, email
-;; clients, file templates and snippets. It is optional.
-(setq user-full-name "Jie Samb"
-      user-mail-address "samb233@hotmail.com")
-
-
-;; set fonts
 (setq doom-font (font-spec :family "IBM Plex Mono Medm" :size 11.0))
 (setq doom-variable-pitch-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 
-;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font" ))
+(setq scroll-margin 9)
+(setq mouse-wheel-scroll-amount '
+      (3
+       ((shift) . hscroll)
+       ((meta))
+       ((control) . text-scale)))
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
 
-;; (defun +my/better-font()
-;;   (interactive)
-;;   ;; english font
-;;   (if (display-graphic-p)
-;;       (progn
-;;         (set-face-attribute 'default nil :font (format "%s:pixelsize=%d" "IBM Plex Mono Medm" 15)) ;; 11 13 17 19 23S
-;;         ;; chinese font
-;;         (dolist (charset '(kana han symbol cjk-misc bopomofo))
-;;           (set-fontset-font (frame-parameter nil 'font)
-;;                             charset
-;;                             (font-spec :family "Noto Sans Mono CJK SC")))) ;; 14 16 20 22 28
-;;     ))
+;; (pixel-scroll-precision-mode t)
 
-;; (defun +my|init-font(frame)
-;;   (with-selected-frame frame
-;;     (if (display-graphic-p)
-;;         (+my/better-font))))
+(setq doom-theme 'doom-tomorrow-day)
 
-;; (if (and (fboundp 'daemonp) (daemonp))
-;;     (add-hook 'after-make-frame-functions #'+my|init-font)
-;;   (+my/better-font))
+(setq display-line-numbers-type 'relative)
 
-;; doom-modeline settings
 (setq doom-modeline-modal nil)
 (setq doom-modeline-buffer-encoding t)
 (setq doom-modeline-vcs-max-length 20)
@@ -62,241 +45,60 @@
 ;; (setq doom-modeline-bar-width 7)
 ;; (setq doom-modeline-major-mode-icon t)
 
-;; open company tab on go mode
-(add-hook 'after-init-hook 'company-tng-mode)
-
-;; mousewheel settings
-;; scroll one line at a time (less "jumpy" than defaults)
-
-(setq scroll-margin 9)
-;; (pixel-scroll-precision-mode t)
-(setq mouse-wheel-scroll-amount '
-(3
- ((shift)
-  . hscroll)
- ((meta))
- ((control)
-  . text-scale))
-) ;; one line at a time
-
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-
-(setq scroll-step 1) ;; keyboard scroll one line at a time
-
-;; Doom exposes five (optional) variables for controlling fonts in Doom:
-;;
-;; - `doom-font' -- the primary font to use
-;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
-;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
-;;   presentations or streaming.
-;; - `doom-unicode-font' -- for unicode glyphs
-;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
-
-;; See 'C-h v doom-font' for documentation and more examples of what they
-;; accept. For example:
-;;
-;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
-;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-;;
-;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
-;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
-;; refresh your font settings. If Emacs still can't find your font, it likely
-;; wasn't installed correctly. Font issues are rarely Doom issues!
-
-;; There are two ways to load a theme. Both assume the theme is installed and
-;; available. You can either set `doom-theme' or manually load a theme with the
-;; `load-theme' function. This is the default:
-(setq doom-theme 'doom-tomorrow-day)
-
-;; This determines the style of line numbers in effect. If set to `nil', line
-;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
-
-;; If you use `org' and don't want your org files in the default location below,
-;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/Documents/Notes")
-
-
-;; Whenever you reconfigure a package, make sure to wrap your config in an
-;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
-;;
-;;   (after! PACKAGE
-;;     (setq x y))
-;;
-;; The exceptions to this rule:
-;;
-;;   - Setting file/directory variables (like `org-directory')
-;;   - Setting variables which explicitly tell you to set them before their
-;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
-;;   - Setting doom variables (which start with 'doom-' or '+').
-;;
-;; Here are some additional functions/macros that will help you configure Doom.
-;;
-;; - `load!' for loading external *.el files relative to this one
-;; - `use-package!' for configuring packages
-;; - `after!' for running code after a package has loaded
-;; - `add-load-path!' for adding directories to the `load-path', relative to
-;;   this file. Emacs searches the `load-path' when you load packages with
-;;   `require' or `use-package'.
-;; - `map!' for binding new keys
-;;
-;; To get information about any of these functions/macros, move the cursor over
-;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
-;; This will open documentation for it, including demos of how they are used.
-;; Alternatively, use `C-h o' to look up a symbol (functions, variables, faces,
-;; etc).
-;;
-;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
-;; they are implemented.
-;;
-;;
-
-
-;; smart input source switch
-(use-package sis
-  ;; :hook
-  ;; enable the /context/ and /inline region/ mode for specific buffers
-  ;; (((text-mode prog-mode) . sis-context-mode)
-  ;;  ((text-mode prog-mode) . sis-inline-mode))
-
-  :config
-  ;; For Fcitx5
-  (sis-ism-lazyman-config "1" "2" 'fcitx5)
-
-  ;; enable the /cursor color/ mode
-  ;; (sis-global-cursor-color-mode t)
-  ;; enable the /respect/ mode
-  (sis-global-respect-mode t)
-  ;; enable the /context/ mode for all buffers
-  (sis-global-context-mode t)
-  ;; enable the /inline english/ mode for all buffers
-  ;; (sis-global-inline-mode t)
-  )
-
-
-;; setting keybinds for vertico project search
-(map! :leader
-      (:prefix ("p" . "Project")
-       :desc "Vertico search in project" "v" #'+vertico/project-search
-       )
-      )
-
-;; lsp-mode settings
-(setq lsp-headerline-breadcrumb-enable t)
-
-;; go-mode settings
-(defun lsp-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-
-(add-hook 'go-mode-hook #'lsp-save-hooks)
-;; Go lsp-mode setting
-;; Set up before-save hooks to format buffer and add/delete imports.
-
-
-;; Rust lsp-mode setting
-;; (setq lsp-rust-server 'rust-analyzer)
-;; (setq rustic-lsp-server 'rust-analyzer)
-
-;; lsp-mode keybinding
-(map! :leader
-      (:prefix-map ("l" . "LSP")
-       :desc "LSP rename" "n" #'lsp-rename
-       :desc "LSP find definitions" "f" #'lsp-ui-peek-find-definitions
-       :desc "LSP find reference" "r" #'lsp-find-references
-       :desc "LSP ui doc toggle" "h" #'lsp-ui-doc-glance
-       (:prefix ("w" . "workspace actions")
-       :desc "LSP add workspace" "a" #'lsp-workspace-folders-add
-       :desc "LSP workspace restart" "r"#'lsp-restart-workspace
-                )
-      )
-)
-
-
-
-;; some keybindings
 (evil-define-key 'insert 'global
   (kbd "C-v") 'yank)
 
 (evil-define-key 'visual 'global
   (kbd "J") 'drag-stuff-down
-  (kbd "K") 'drag-stuff-up
-  )
+  (kbd "K") 'drag-stuff-up)
 
-;; :q should kill the current buffer rather than quitting emacs entirely
 (evil-ex-define-cmd "q" 'kill-this-buffer)
-;; Need to type out :quit to close emacs
 (evil-ex-define-cmd "quit" 'evil-quit)
 
-;; settings for deft
-(setq deft-extensions '("txt" "tex" "org" "md"))
-(setq deft-directory "~/Documents/Notes")
-(setq deft-recursive t)
+(map! :leader
+      :desc "ace-select-window" "w a" #'ace-select-window
+      :desc "ace-select-window" "w w" #'ace-select-window
+      )
 
-;; markdown font size settings
-(custom-set-faces
- '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
- '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
- '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
+(use-package! lsp-bridge
+  :config
+  (map! :map acm-mode-map
+        [tab]           #'acm-select-next
+        [backtab]       #'acm-select-prev
+        )
+  (map! :leader
+        (:prefix-map ("l" . "LSP")
+         :desc "LSP rename" "n" #'lsp-bridge-rename
+         :desc "LSP find definitions" "f" #'lsp-bridge-find-def
+         :desc "LSP find reference" "r" #'lsp-bridge-find-references
+         :desc "LSP ui doc toggle" "h" #'lsp-bridge-popup-documentation
+         :desc "LSP restart server" "R" #'lsp-bridge-restart-process
+         ))
+  (evil-define-key 'insert acm-mode-map
+    (kbd "C-j") 'acm-select-next
+    (kbd "C-k") 'acm-select-prev
+    (kbd "C-l") 'acm-complete
+    (kbd "RET") 'acm-complete
+    )
+  (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
 
-;; Org mode font config
-(after! org
-  (defun org-colors-tomorrow-night ()
-    "Enable Tomorrow Night colors for Org headers."
-    (interactive)
-    (dolist
-        (face
-         '((org-level-1 1.3 "#81a2be" ultra-bold)
-           (org-level-2 1.2 "#b294bb" extra-bold)
-           (org-level-3 1.1 "#b5bd68" bold)
-           (org-level-4 1.0 "#e6c547" semi-bold)
-           (org-level-5 1.0 "#cc6666" normal)
-           (org-level-6 1.0 "#70c0ba" normal)
-           (org-level-7 1.0 "#b77ee0" normal)
-           (org-level-8 1.0 "#9ec400" normal)))
-      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+  (evil-define-key 'normal lsp-bridge-ref-mode-map
+    (kbd "RET") 'lsp-bridge-ref-open-file-and-stay
+    (kbd "q") 'lsp-bridge-ref-quit
+    )
 
-  (defun org-colors-tomorrow-day()
-    "Enable Tomorrow Night colors for Org headers."
-    (interactive)
-    (dolist
-        (face
-         '((org-level-1 1.3 "#4271ae" ultra-bold)
-           (org-level-2 1.2 "#8959a8" extra-bold)
-           (org-level-3 1.1 "#b5bd68" bold)
-           (org-level-4 1.0 "#e6c547" semi-bold)
-           (org-level-5 1.0 "#c82829" normal)
-           (org-level-6 1.0 "#70c0ba" normal)
-           (org-level-7 1.0 "#b77ee0" normal)
-           (org-level-8 1.0 "#9ec400" normal)))
-      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+  (setq lsp-bridge-enable-mode-line nil)
+  (setq lsp-bridge--mode-line-format '())
+  (require 'yasnippet)
+  (yas-global-mode 1)
+  (global-lsp-bridge-mode))
 
-  (org-colors-tomorrow-day)
-  (setq org-src-preserve-indentation nil)
-
-  (defun yank-with-indent ()
-    (interactive)
-    (let ((indent
-           (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-      (message indent)
-      (yank)
-      (save-excursion
-        (save-restriction
-          (narrow-to-region (mark t) (point))
-          (pop-to-mark-command)
-          (replace-string "\n" (concat "\n" indent))
-          (widen)))))
-  )
-
-;; (setq fd-dired-ls-option '(""))
+(map! :after evil-org
+      :map evil-org-mode-map
+      :i "C-j" nil
+      :i "C-k" nil
+      :i "RET" nil
+      :i [return] nil)
 
 (use-package dirvish
   :init
@@ -373,7 +175,6 @@
    ("M-e" . dirvish-emerge-menu)
    ("M-j" . dirvish-fd-jump)))
 
-
 (evil-define-key 'normal dirvish-mode-map
   (kbd "e") 'dired-create-empty-file
   (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
@@ -385,7 +186,9 @@
   (kbd ".") 'dired-omit-mode
   )
 
-;; (evil-define-key 'visual )
+(evil-define-key 'normal dired-mode-map
+  (kbd "h") 'dired-up-directory
+  (kbd "l") 'dired-find-file)
 
 (map! :leader
       (:prefix ("v" . "dirvish and vertico")
@@ -398,72 +201,21 @@
        :desc "Fd find file in dir" "f" #'+vertico/consult-fd
        :desc "Project searching by vertico" "p" #'+vertico/project-search
        :desc "Neotree toggle" "n" #'neotree-toggle
-       :desc "fuZzy finder" "z" #'affe-find
-       :desc "fuzzy Grep" "g" #'affe-grep
        :desc "select Window" "w" #'ace-select-window
-       :desc "fuzzy find Home" "h" (cmd!! #'affe-find "~/")
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
-       )
-      )
+       ))
 
-(map! :leader
-      :desc "ace-select-window" "w a" #'ace-select-window
-      :desc "ace-select-window" "w w" #'ace-select-window
-      )
+(after! vterm
+ (setq vterm-max-scrollback 10000)
+ (remove-hook 'vterm-mode-hook 'hide-mode-line-mode))
 
-(map! :leader
-      :desc "Fuzzy find file in dir" "f z" #'+vertico/consult-fd
-      )
-
-(evil-define-key 'normal dired-mode-map
-  (kbd "h") 'dired-up-directory
-  (kbd "l") 'dired-find-file ; use dired-find-file instead of dired-open.
-  )
-;; Get file icons in dired
-
-
-;; With dired-open plugin, you can launch external programs for certain extensions
-(setq dired-open-extensions '(("gif" . "eog")
-                              ("jpg" . "eog")
-                              ("png" . "eog")
-                              ("mkv" . "mpv")
-                              ("mp4" . "mpv")
-                              ("doc" . "wps")
-                              ("xls" . "et")
-                              ("ppt" . "wpp")
-                              ("docx" . "wps")
-                              ("xlsx" . "et")
-                              ("pptx" . "wpp")
-                              ))
-
-;; settings for shfmt
-;; fix zsh shfmt format
-(use-package sh-script
-  :config
-  (set-formatter! 'shfmt
-    '("shfmt" "-ci"
-      ("-i" "%d" (unless indent-tabs-mode tab-width))
-      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
-  )
-
-
-;; customize eshell
 (after! eshell
   (eshell-git-prompt-use-theme 'simple)
   )
 
-
-;; magit settings
 (setq auto-revert-check-vc-info t)
 
-;; vterm settings
-(
- after! vterm
- (setq vterm-max-scrollback 10000)
- (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
- )
-;; docker settings
 (use-package docker
   :config
   (set-popup-rule! "^\\* podman " :size 0.8 :modeline t :quit 'other)
@@ -490,18 +242,74 @@
 
 (map! :leader
       :desc "docker Containers" "o c" #'docker-containers
-
       )
 
-;; markdwon preview use grip-mode
-(use-package grip-mode)
+(use-package sis
+  :config
+  (sis-ism-lazyman-config "1" "2" 'fcitx5)
+  ;; enable the /cursor color/ mode
+  ;; (sis-global-cursor-color-mode t)
+  ;; enable the /respect/ mode
+  (sis-global-respect-mode t)
+  ;; enable the /context/ mode for all buffers
+  (sis-global-context-mode t)
+  ;; enable the /inline english/ mode for all buffers
+  ;; (sis-global-inline-mode t)
+  )
 
-(map! :map markdown-mode-map
-        :localleader
-        "g" #'grip-mode
-        )
+(setq org-directory "~/Documents/Notes")
+(after! org
+  (defun org-colors-tomorrow-night ()
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.3 "#81a2be" ultra-bold)
+           (org-level-2 1.2 "#b294bb" extra-bold)
+           (org-level-3 1.1 "#b5bd68" bold)
+           (org-level-4 1.0 "#e6c547" semi-bold)
+           (org-level-5 1.0 "#cc6666" normal)
+           (org-level-6 1.0 "#70c0ba" normal)
+           (org-level-7 1.0 "#b77ee0" normal)
+           (org-level-8 1.0 "#9ec400" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
 
-(map! :map org-mode-map
-        :localleader
-        "G" #'grip-mode
-        )
+  (defun org-colors-tomorrow-day()
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.3 "#4271ae" ultra-bold)
+           (org-level-2 1.2 "#8959a8" extra-bold)
+           (org-level-3 1.1 "#b5bd68" bold)
+           (org-level-4 1.0 "#e6c547" semi-bold)
+           (org-level-5 1.0 "#c82829" normal)
+           (org-level-6 1.0 "#70c0ba" normal)
+           (org-level-7 1.0 "#b77ee0" normal)
+           (org-level-8 1.0 "#9ec400" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+  (org-colors-tomorrow-day)
+
+  (setq org-src-preserve-indentation nil))
+
+(custom-set-faces
+ '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
+ '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
+
+(setq deft-extensions '("txt" "tex" "org" "md"))
+(setq deft-directory "~/Documents/Notes")
+(setq deft-recursive t)
+
+(use-package sh-script
+  :config
+  (set-formatter! 'shfmt
+    '("shfmt" "-ci"
+      ("-i" "%d" (unless indent-tabs-mode tab-width))
+      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
+  )

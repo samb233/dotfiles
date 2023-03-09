@@ -50,8 +50,9 @@
 ;(unpin! t)
 
 (package! sis)
-(package! dired-open)
 (package! eshell-git-prompt)
 (package! dirvish)
-(package! affe)
-(package! grip-mode)
+(package! lsp-bridge
+  :recipe (:host github
+           :repo "manateelazycat/lsp-bridge"
+	   :files ("*")))
