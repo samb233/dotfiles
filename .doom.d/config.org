@@ -79,6 +79,11 @@ emacs29新加入的像素滚动模式。
   (setq doom-theme 'doom-tomorrow-day)
 #+end_src
 
+设置光标样式
+#+begin_src emacs-lisp
+  (setq evil-emacs-state-cursor 'bar)
+#+end_src
+
 设置相对行号。
 使用evil-mode怎么能少了这个！
 #+begin_src emacs-lisp
@@ -98,12 +103,11 @@ emacs29新加入的像素滚动模式。
   ;; (setq doom-modeline-major-mode-icon t)
 #+end_src
 
-
 * 基础按键设置
-设置Ctrl-v粘贴
+在insert模式使用emacs的快捷键
 #+begin_src emacs-lisp
-  (evil-define-key 'insert 'global
-    (kbd "C-v") 'yank)
+  (defalias 'evil-insert-state 'evil-emacs-state)
+  (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
 #+end_src
 
 设置visual模式下Shift-j和Shift-k上下移动代码块
@@ -127,12 +131,19 @@ emacs29新加入的像素滚动模式。
         )
 #+end_src
 
+
 * lsp客户端
 设置代码补全。
 当然是用目前最快的lsp-bridge。
 #+begin_src emacs-lisp
   (use-package! lsp-bridge
     :config
+    (map! :map acm-mode-map
+          "C-j"     #'acm-select-next
+          "C-k"     #'acm-select-prev
+          :map yas-keymap
+          [tab] #'acm-complete-or-expand-yas-snippet
+          )
     (map! :leader
           (:prefix-map ("l" . "LSP")
            :desc "LSP rename" "n" #'lsp-bridge-rename
@@ -376,6 +387,19 @@ magit好用极了，根本不需要设置。
     ;; enable the /inline english/ mode for all buffers
     ;; (sis-global-inline-mode t)
     )
+#+end_src
+
+另外，由于我使用了evil-emacs-state，所以需要额外设置一下输入法切换。
+#+begin_src emacs-lisp
+  (add-hook 'evil-emacs-state-exit-hook 'sis-set-english)
+  (add-hook 'evil-emacs-state-entry-hook 'sis-context t)
+#+end_src
+
+doom对离开insert模式还做了一些hook，不太清楚作用，但还是在这里加上
+#+begin_src emacs-lisp
+  (add-hook 'evil-emacs-state-exit-hook 'doom-modeline-update-buffer-file-name)
+  (add-hook 'evil-emacs-state-exit-hook '+default-disable-delete-selection-mode-h)
+  (add-hook 'evil-emacs-state-exit-hook 'evil-maybe-expand-abbrev)
 #+end_src
 
 * Org-Mode设置
