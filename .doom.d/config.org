@@ -133,10 +133,6 @@ emacs29新加入的像素滚动模式。
 #+begin_src emacs-lisp
   (use-package! lsp-bridge
     :config
-    (map! :map acm-mode-map
-          [tab]           #'acm-select-next
-          [backtab]       #'acm-select-prev
-          )
     (map! :leader
           (:prefix-map ("l" . "LSP")
            :desc "LSP rename" "n" #'lsp-bridge-rename
@@ -144,12 +140,15 @@ emacs29新加入的像素滚动模式。
            :desc "LSP find reference" "r" #'lsp-bridge-find-references
            :desc "LSP ui doc toggle" "h" #'lsp-bridge-popup-documentation
            :desc "LSP restart server" "R" #'lsp-bridge-restart-process
+           :desc "LSP Error list" "e" #'lsp-bridge-diagnostic-list
+           :desc "LSP code action" "a" #'lsp-bridge-code-action
            ))
     (evil-define-key 'insert acm-mode-map
       (kbd "C-j") 'acm-select-next
       (kbd "C-k") 'acm-select-prev
       (kbd "C-l") 'acm-complete
       (kbd "RET") 'acm-complete
+      (kbd "TAB") 'acm-complete
       )
     (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
 
@@ -160,6 +159,8 @@ emacs29新加入的像素滚动模式。
 
     (setq lsp-bridge-enable-mode-line nil)
     (setq lsp-bridge--mode-line-format '())
+    (setq lsp-bridge-enable-hover-diagnostic t)
+    (setq lsp-bridge-diagnostic-max-number 200)
     (require 'yasnippet)
     (yas-global-mode 1)
     (global-lsp-bridge-mode))
@@ -174,6 +175,12 @@ emacs29新加入的像素滚动模式。
         :i "C-k" nil
         :i "RET" nil
         :i [return] nil)
+#+end_src
+
+禁用eldoc。
+eldoc性能不行，在光标移动快的时候会卡手。屏蔽之。
+#+begin_src emacs-lisp
+  (advice-add #'eldoc-mode :override #'(lambda (x) (message "disabled eldoc-mode")))
 #+end_src
 
 * 文件管理器
@@ -279,6 +286,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
   (map! :leader
         (:prefix ("v" . "dirvish and vertico")
          :desc "Open dirvish" "v" #'dirvish
+         :desc "Open Normal Dired" "n" #'dired-jump
          :desc "Quit dirvish" "q" #'dirvish-quit
          :desc "Toggle dirvish-side" "s" #'dirvish-side
          :desc "Fd in dirvish" "F" #'dirvish-fd
@@ -286,8 +294,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "Jump recent dir" "j" #'consult-dir
          :desc "Fd find file in dir" "f" #'+vertico/consult-fd
          :desc "Project searching by vertico" "p" #'+vertico/project-search
-         :desc "Neotree toggle" "n" #'neotree-toggle
-         :desc "select Window" "w" #'ace-select-window
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
          ))
