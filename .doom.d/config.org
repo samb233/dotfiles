@@ -93,14 +93,13 @@ emacs29新加入的像素滚动模式。
 设置doom-modeline。
 我喜欢简洁一点，去掉了上面的部分图标等。
 #+begin_src emacs-lisp
-  (setq doom-modeline-modal nil)
+  (setq doom-modeline-modal t)
+  (setq doom-modeline-modal-icon nil)
   (setq doom-modeline-buffer-encoding t)
   (setq doom-modeline-vcs-max-length 20)
-  (setq doom-modeline-height 28)
+  (setq doom-modeline-height 29)
   (setq doom-modeline-buffer-modification-icon nil)
   (setq doom-modeline-buffer-state-icon nil)
-  ;; (setq doom-modeline-bar-width 7)
-  ;; (setq doom-modeline-major-mode-icon t)
 #+end_src
 
 * 基础按键设置
@@ -108,6 +107,7 @@ emacs29新加入的像素滚动模式。
 #+begin_src emacs-lisp
   (defalias 'evil-insert-state 'evil-emacs-state)
   (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+  ;; (setq evil-disable-insert-state-bindings t)
 #+end_src
 
 设置visual模式下Shift-j和Shift-k上下移动代码块
@@ -123,6 +123,13 @@ emacs29新加入的像素滚动模式。
   (evil-ex-define-cmd "quit" 'evil-quit)
 #+end_src
 
+取消按键宏。
+我用不到这个功能，但不小心按两次q就弹出来很烦人。
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global
+    (kbd "q") nil)
+#+end_src
+
 设置窗口跳转。使用插件ace-window
 #+begin_src emacs-lisp
   (map! :leader
@@ -130,7 +137,6 @@ emacs29新加入的像素滚动模式。
         :desc "ace-select-window" "w w" #'ace-select-window
         )
 #+end_src
-
 
 * lsp客户端
 设置代码补全。
@@ -142,12 +148,15 @@ emacs29新加入的像素滚动模式。
           "C-j"     #'acm-select-next
           "C-k"     #'acm-select-prev
           :map yas-keymap
-          [tab] #'acm-complete-or-expand-yas-snippet
+          [tab]     #'acm-complete-or-expand-yas-snippet
+          [right]   #'yas-next-field-or-maybe-expand
+          "C-l"     #'yas-next-field-or-maybe-expand
           )
     (map! :leader
           (:prefix-map ("l" . "LSP")
            :desc "LSP rename" "n" #'lsp-bridge-rename
            :desc "LSP find definitions" "f" #'lsp-bridge-find-def
+           :desc "LSP find definitions" "o" #'lsp-bridge-find-def-other-window
            :desc "LSP find reference" "r" #'lsp-bridge-find-references
            :desc "LSP ui doc toggle" "h" #'lsp-bridge-popup-documentation
            :desc "LSP restart server" "R" #'lsp-bridge-restart-process
@@ -172,8 +181,6 @@ emacs29新加入的像素滚动模式。
     (setq lsp-bridge--mode-line-format '())
     (setq lsp-bridge-enable-hover-diagnostic t)
     (setq lsp-bridge-diagnostic-max-number 200)
-    (require 'yasnippet)
-    (yas-global-mode 1)
     (global-lsp-bridge-mode))
 #+end_src
 
@@ -190,8 +197,10 @@ emacs29新加入的像素滚动模式。
 
 禁用eldoc。
 eldoc性能不行，在光标移动快的时候会卡手。屏蔽之。
+后续发现仅是go-eldoc性能不行，所以在package.el中禁用了go-eldoc，
+暂且注释掉这一行，打开eldoc
 #+begin_src emacs-lisp
-  (advice-add #'eldoc-mode :override #'(lambda (x) (message "disabled eldoc-mode")))
+  ;; (advice-add #'eldoc-mode :override #'(lambda (x) (message "disabled eldoc-mode")))
 #+end_src
 
 * 文件管理器
@@ -307,6 +316,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "Project searching by vertico" "p" #'+vertico/project-search
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
+         :desc "toggle tree-sitter-hl-mode" "t" #'tree-sitter-hl-mode
          ))
 #+end_src
 
@@ -405,6 +415,7 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
 * Org-Mode设置
 配置一下Org-Mode的主题颜色、字体大小等。
 最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
+另外做个备忘，org-mode中提升标题等级是M+左箭头，降低是M+右箭头。
 #+begin_src emacs-lisp
   (setq org-directory "~/Documents/Notes")
   (after! org
@@ -439,8 +450,8 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
       (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
 
     (org-colors-tomorrow-day)
-
-    (setq org-src-preserve-indentation nil))
+    (setq org-src-preserve-indentation nil)
+    )
 #+end_src
 
 * markdown设置
@@ -477,4 +488,22 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
         ("-i" "%d" (unless indent-tabs-mode tab-width))
         ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
     )
+#+end_src
+
+* go-mode设置
+去掉go-eldoc，慢，还吃cpu。
+#+begin_src emacs-lisp
+  (after! go-mode
+    (remove-hook 'go-mode-hook #'go-eldoc-setup))
+#+end_src
+
+* flycheck设置
+设置错误弹窗为popup
+#+begin_src emacs-lisp
+    (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+#+end_src
+
+更改为只在save时检查
+#+begin_src emacs-lisp
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
 #+end_src

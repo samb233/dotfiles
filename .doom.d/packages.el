@@ -49,6 +49,10 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
+(package! go-eldoc :disable t)
+(package! irony :disable t)
+(package! rtags :disable t)
+
 (package! sis)
 (package! eshell-git-prompt)
 (package! dirvish)

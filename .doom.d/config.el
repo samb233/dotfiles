@@ -34,19 +34,21 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
+(setq evil-emacs-state-cursor 'bar)
+
 (setq display-line-numbers-type 'relative)
 
-(setq doom-modeline-modal nil)
+(setq doom-modeline-modal t)
+(setq doom-modeline-modal-icon nil)
 (setq doom-modeline-buffer-encoding t)
 (setq doom-modeline-vcs-max-length 20)
-(setq doom-modeline-height 28)
+(setq doom-modeline-height 29)
 (setq doom-modeline-buffer-modification-icon nil)
 (setq doom-modeline-buffer-state-icon nil)
-;; (setq doom-modeline-bar-width 7)
-;; (setq doom-modeline-major-mode-icon t)
 
-(evil-define-key 'insert 'global
-  (kbd "C-v") 'yank)
+(defalias 'evil-insert-state 'evil-emacs-state)
+(define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+;; (setq evil-disable-insert-state-bindings t)
 
 (evil-define-key 'visual 'global
   (kbd "J") 'drag-stuff-down
@@ -54,6 +56,9 @@
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
+
+(evil-define-key 'normal 'global
+  (kbd "q") nil)
 
 (map! :leader
       :desc "ace-select-window" "w a" #'ace-select-window
@@ -63,22 +68,30 @@
 (use-package! lsp-bridge
   :config
   (map! :map acm-mode-map
-        [tab]           #'acm-select-next
-        [backtab]       #'acm-select-prev
+        "C-j"     #'acm-select-next
+        "C-k"     #'acm-select-prev
+        :map yas-keymap
+        [tab]     #'acm-complete-or-expand-yas-snippet
+        [right]   #'yas-next-field-or-maybe-expand
+        "C-l"     #'yas-next-field-or-maybe-expand
         )
   (map! :leader
         (:prefix-map ("l" . "LSP")
          :desc "LSP rename" "n" #'lsp-bridge-rename
          :desc "LSP find definitions" "f" #'lsp-bridge-find-def
+         :desc "LSP find definitions" "o" #'lsp-bridge-find-def-other-window
          :desc "LSP find reference" "r" #'lsp-bridge-find-references
          :desc "LSP ui doc toggle" "h" #'lsp-bridge-popup-documentation
          :desc "LSP restart server" "R" #'lsp-bridge-restart-process
+         :desc "LSP Error list" "e" #'lsp-bridge-diagnostic-list
+         :desc "LSP code action" "a" #'lsp-bridge-code-action
          ))
   (evil-define-key 'insert acm-mode-map
     (kbd "C-j") 'acm-select-next
     (kbd "C-k") 'acm-select-prev
     (kbd "C-l") 'acm-complete
     (kbd "RET") 'acm-complete
+    (kbd "TAB") 'acm-complete
     )
   (add-hook 'acm-mode-hook #'evil-normalize-keymaps)
 
@@ -89,8 +102,8 @@
 
   (setq lsp-bridge-enable-mode-line nil)
   (setq lsp-bridge--mode-line-format '())
-  (require 'yasnippet)
-  (yas-global-mode 1)
+  (setq lsp-bridge-enable-hover-diagnostic t)
+  (setq lsp-bridge-diagnostic-max-number 200)
   (global-lsp-bridge-mode))
 
 (map! :after evil-org
@@ -99,6 +112,8 @@
       :i "C-k" nil
       :i "RET" nil
       :i [return] nil)
+
+;; (advice-add #'eldoc-mode :override #'(lambda (x) (message "disabled eldoc-mode")))
 
 (use-package dirvish
   :init
@@ -193,6 +208,7 @@
 (map! :leader
       (:prefix ("v" . "dirvish and vertico")
        :desc "Open dirvish" "v" #'dirvish
+       :desc "Open Normal Dired" "n" #'dired-jump
        :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
        :desc "Fd in dirvish" "F" #'dirvish-fd
@@ -200,10 +216,9 @@
        :desc "Jump recent dir" "j" #'consult-dir
        :desc "Fd find file in dir" "f" #'+vertico/consult-fd
        :desc "Project searching by vertico" "p" #'+vertico/project-search
-       :desc "Neotree toggle" "n" #'neotree-toggle
-       :desc "select Window" "w" #'ace-select-window
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
+       :desc "toggle tree-sitter-hl-mode" "t" #'tree-sitter-hl-mode
        ))
 
 (after! vterm
@@ -257,6 +272,13 @@
   ;; (sis-global-inline-mode t)
   )
 
+(add-hook 'evil-emacs-state-exit-hook 'sis-set-english)
+(add-hook 'evil-emacs-state-entry-hook 'sis-context t)
+
+(add-hook 'evil-emacs-state-exit-hook 'doom-modeline-update-buffer-file-name)
+(add-hook 'evil-emacs-state-exit-hook '+default-disable-delete-selection-mode-h)
+(add-hook 'evil-emacs-state-exit-hook 'evil-maybe-expand-abbrev)
+
 (setq org-directory "~/Documents/Notes")
 (after! org
   (defun org-colors-tomorrow-night ()
@@ -290,8 +312,8 @@
     (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
 
   (org-colors-tomorrow-day)
-
-  (setq org-src-preserve-indentation nil))
+  (setq org-src-preserve-indentation nil)
+  )
 
 (custom-set-faces
  '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
@@ -313,3 +335,10 @@
       ("-i" "%d" (unless indent-tabs-mode tab-width))
       ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
   )
+
+(after! go-mode
+  (remove-hook 'go-mode-hook #'go-eldoc-setup))
+
+(set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+
+(setq flycheck-check-syntax-automatically '(save mode-enabled))
