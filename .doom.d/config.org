@@ -93,7 +93,7 @@ emacs29新加入的像素滚动模式。
 设置doom-modeline。
 我喜欢简洁一点，去掉了上面的部分图标等。
 #+begin_src emacs-lisp
-  (setq doom-modeline-modal t)
+  (setq doom-modeline-modal nil)
   (setq doom-modeline-modal-icon nil)
   (setq doom-modeline-buffer-encoding t)
   (setq doom-modeline-vcs-max-length 20)
@@ -115,6 +115,18 @@ emacs29新加入的像素滚动模式。
   (evil-define-key 'visual 'global
     (kbd "J") 'drag-stuff-down
     (kbd "K") 'drag-stuff-up)
+#+end_src
+
+使用consult-line替代I-search
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
+  (map! "C-s" #'consult-line)
+#+end_src
+
+设置Ctrl-v和Alt-v粘贴
+#+begin_src emacs-lisp
+  (map! "C-v" #'yank)
+  (map! "M-v" #'yank)
 #+end_src
 
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
@@ -233,7 +245,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     ;; (setq dirvish--debouncing-delay 2)
     (setq dirvish-async-listing-threshold 10000)
     (setq dirvish-use-mode-line nil)
-    ;; (setq dirvish-default-layout '(0 0.4 0.6))
+    (setq dirvish-default-layout '(0 0.4 0.6))
     ;; (setq dirvish-mode-line-format
     ;;       '(:left (sort symlink) :right (omit yank index)))
     (setq dirvish-header-line-height '46)
@@ -255,7 +267,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("pdf") . ("evince" "%f"))
             (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
             ))
-    ;; (setq dirvish-header-line-format '(:left (path) :right (free-space)))
     (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
     (setq dirvish-path-separators (list "  ~" "  " "/"))
     (setq dirvish-side-display-alist `((side . right) (slot . -1)))
@@ -313,7 +324,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "Jump using fd" "J" #'dirvish-fd-jump
          :desc "Jump recent dir" "j" #'consult-dir
          :desc "Fd find file in dir" "f" #'+vertico/consult-fd
-         :desc "Project searching by vertico" "p" #'+vertico/project-search
+         :desc "Project searching at Point" "p" #'+default/search-project-for-symbol-at-point
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
          :desc "toggle tree-sitter-hl-mode" "t" #'tree-sitter-hl-mode
@@ -333,7 +344,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 设置eshell的主题
 #+begin_src emacs-lisp
   (after! eshell
-    (eshell-git-prompt-use-theme 'simple)
+    (eshell-git-prompt-use-theme 'git-radar)
     )
 #+end_src
 
@@ -505,5 +516,5 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
 
 更改为只在save时检查
 #+begin_src emacs-lisp
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (setq flycheck-check-syntax-automatically '(save mode-enabled idle-buffer-switch))
 #+end_src
