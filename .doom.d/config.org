@@ -250,7 +250,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (setq dirvish-default-layout '(0 0.4 0.6))
     ;; (setq dirvish-mode-line-format
     ;;       '(:left (sort symlink) :right (omit yank index)))
-    (setq dirvish-header-line-height '46)
+    (setq dirvish-header-line-height '41)
     ;; (setq dirvish-mode-line-height '46)
     (setq dirvish-attributes
           '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
@@ -536,10 +536,12 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
 设置按键。
 我很喜欢Doom给org-capture设置了一个SPC+X的按键。
-很好用很大气。所以我给org-roam的Capture设置为SPC+Z
+但我不用org-capture，所以把它重新绑定给org-roam-capture。
+这个快捷键很好用很大气。所以我给org-roam的node-find设置为SPC+Z
 #+begin_src emacs-lisp
   (map! :leader
-        :desc "org-roam capture" "Z" #'org-roam-capture
+        :desc "org-roam capture" "X" #'org-roam-capture
+        :desc "org-roam find node" "Z" #'org-roam-node-find
         )
 #+end_src
 
