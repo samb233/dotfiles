@@ -235,6 +235,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
        ("P" "~/Pictures/"                 "Pictures")
        ("v" "~/Videos/"                   "Videos")
        ("s" "~/Shared/"                   "Shared")
+       ("n" "~/Notes/"                    "Notes")
+       ("b" "~/Books/"                    "Books")
        ("M" "/mnt/"                       "Drives")
        ("T" "~/.local/share/Trash/files/" "TrashCan")
        ))
@@ -264,8 +266,9 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("doc" "docx") . ("wps" "%f"))
             (("ppt" "pptx") . ("wpp" "%f"))
             (("xls" "xlsx") . ("et" "%f"))
-            (("pdf") . ("evince" "%f"))
+            (("pdf") . ("okular" "%f"))
             (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
+            (("epub") . ("koodo-reader" "%f"))
             ))
     (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
     (setq dirvish-path-separators (list "  ~" "  " "/"))
@@ -284,6 +287,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
      ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
      ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
      ("TAB" . dirvish-subtree-toggle)
+     ([backtab] . dirvish-subtree-remove)
      ("M-f" . dirvish-history-go-forward)
      ("M-b" . dirvish-history-go-backward)
      ("M-l" . dirvish-ls-switches-menu)
@@ -315,7 +319,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 以及一些相关的常用操作，我将其绑定到SPC-v-...中
 #+begin_src emacs-lisp
   (map! :leader
-        (:prefix ("v" . "dirvish and vertico")
+        (:prefix ("v" . "my personal bindings")
          :desc "Open dirvish" "v" #'dirvish
          :desc "Open Normal Dired" "n" #'dired-jump
          :desc "Quit dirvish" "q" #'dirvish-quit
@@ -424,11 +428,12 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
 #+end_src
 
 * Org-Mode设置
+** 外观设置
 配置一下Org-Mode的主题颜色、字体大小等。
 最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
 另外做个备忘，org-mode中提升标题等级是M+左箭头，降低是M+右箭头。
 #+begin_src emacs-lisp
-  (setq org-directory "~/Documents/Notes")
+  (setq org-directory "~/Notes")
   (after! org
     (defun org-colors-tomorrow-night ()
       (interactive)
@@ -464,6 +469,80 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
     (setq org-src-preserve-indentation nil)
     )
 #+end_src
+
+** org-roam
+设置笔记文件夹
+#+begin_src emacs-lisp
+  (setq org-roam-directory "~/Notes/Roam")
+  (map! :leader
+        :desc "Zettelkasten by org-roam" "v z" #'org-roam-node-find
+        :desc "org-roam node Insert" "v i" #'org-roam-node-insert
+        )
+      #+end_src
+
+设置日志。
+主要是使用模板设置保存的文件夹，来兼容我以前的日志模式。
+我希望我创建日志的时候能一键弹出，而不用选择模板什么的，所以只设置一个模板。
+#+begin_src emacs-lisp
+  (setq org-roam-dailies-directory "~/Notes/Daily")
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y>/%<%Y-%m>/%<%Y-%m-%d>.org"
+                              "#+title: %<%Y-%m-%d %A>\n"))))
+  (map! :leader
+        :desc "my Journal today" "J" #'org-roam-dailies-goto-today
+        )
+#+end_src
+
+设置模板
+同样，也是通过模板来设置保存的文件夹。
+org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
+#+begin_src emacs-lisp
+  (setq org-roam-capture-templates '(
+                                     ("d" "Default" plain "%?"
+                                      :target (file+head "default/%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#+filetags: \n")
+                                      :unnarrowed t)
+                                     ("b" "Book Notes" plain "%?"
+                                      :target (file+head "book/book-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#+filetags: :book: \n\n")
+                                      :unnarrowed t)
+                                     ("w" "Work" plain "%?"
+                                      :target (file+head "work/work-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#filetags: :work: \n\n")
+                                      :unnarrowed t)
+                                     ("a" "Anime" plain "%?"
+                                      :target (file+head "anime/anime-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title:${slug}\n#+filetags: :anime: \n\n")
+                                      :unnarrowed t)
+                                     ("p" "Project" plain "%?"
+                                      :target (file+head "project/project-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#+filetags: :project: \n\n - tag ::")
+                                      :unnarrowed t)
+                                     ("c" "Coding" plain "%?"
+                                      :target (file+head "coding/coding-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#+filetags: :coding: \n\n - tag ::")
+                                      :unnarrowed t)
+                                     ("t" "Thinking" plain "%?"
+                                      :target (file+head "thinking/thinking-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#+filetags: :thinking: \n\n - tag ::")
+                                      :unnarrowed t)
+                                     ("r" "Reference" plain "%?"
+                                      :target (file+head "reference/reference-%<%Y%m%d%H>-${slug}.org"
+                                                         "#+title: ${title}\n#+filetags: :reference: \n\n - tag ::")
+                                      :unarrowed t)))
+#+end_src
+
+设置按键。
+我很喜欢Doom给org-capture设置了一个SPC+X的按键。
+很好用很大气。所以我给org-roam的Capture设置为SPC+Z
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "org-roam capture" "Z" #'org-roam-capture
+        )
+#+end_src
+
 
 * markdown设置
 也是设置一下字体大小和颜色。
