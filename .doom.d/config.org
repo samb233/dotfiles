@@ -193,6 +193,7 @@ emacs29新加入的像素滚动模式。
     (setq lsp-bridge--mode-line-format '())
     (setq lsp-bridge-enable-hover-diagnostic t)
     (setq lsp-bridge-diagnostic-max-number 200)
+    ;; (setq acm-backend-lsp-enable-auto-import nil)
     (global-lsp-bridge-mode))
 #+end_src
 
@@ -435,7 +436,7 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
 #+begin_src emacs-lisp
   (setq org-directory "~/Notes")
   (after! org
-    (defun org-colors-tomorrow-night ()
+    (defun my/org-colors-tomorrow-night ()
       (interactive)
       (dolist
           (face
@@ -450,7 +451,7 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
         (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
       (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
 
-    (defun org-colors-tomorrow-day()
+    (defun my/org-colors-tomorrow-day()
       (interactive)
       (dolist
           (face
@@ -465,7 +466,7 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
         (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
       (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
 
-    (org-colors-tomorrow-day)
+    (my/org-colors-tomorrow-day)
     (setq org-src-preserve-indentation nil)
     )
 #+end_src
@@ -500,38 +501,42 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
 org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+begin_src emacs-lisp
   (setq org-roam-capture-templates '(
-                                     ("d" "Default" plain "%?"
-                                      :target (file+head "default/%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#+filetags: \n")
-                                      :unnarrowed t)
-                                     ("b" "Book Notes" plain "%?"
-                                      :target (file+head "book/book-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#+filetags: :book: \n\n")
-                                      :unnarrowed t)
-                                     ("w" "Work" plain "%?"
-                                      :target (file+head "work/work-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#filetags: :work: \n\n")
-                                      :unnarrowed t)
-                                     ("a" "Anime" plain "%?"
-                                      :target (file+head "anime/anime-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title:${slug}\n#+filetags: :anime: \n\n")
-                                      :unnarrowed t)
-                                     ("p" "Project" plain "%?"
-                                      :target (file+head "project/project-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#+filetags: :project: \n\n - tag ::")
-                                      :unnarrowed t)
-                                     ("c" "Coding" plain "%?"
-                                      :target (file+head "coding/coding-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#+filetags: :coding: \n\n - tag ::")
-                                      :unnarrowed t)
-                                     ("t" "Thinking" plain "%?"
-                                      :target (file+head "thinking/thinking-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#+filetags: :thinking: \n\n - tag ::")
-                                      :unnarrowed t)
-                                     ("r" "Reference" plain "%?"
-                                      :target (file+head "reference/reference-%<%Y%m%d%H>-${slug}.org"
-                                                         "#+title: ${title}\n#+filetags: :reference: \n\n - tag ::")
-                                      :unarrowed t)))
+          ("d" "Default" plain "%?"
+          :target (file+head "default/%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: \n")
+          :unnarrowed t)
+          ("b" "Book Notes" plain "%?"
+          :target (file+head "book/book-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :book: \n\n")
+          :unnarrowed t)
+          ("w" "Work" plain "%?"
+          :target (file+head "work/work-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#filetags: :work: \n\n")
+          :unnarrowed t)
+          ("a" "Anime" plain "%?"
+          :target (file+head "anime/anime-%<%Y%m%d%H>-${slug}.org"
+                          "#+title:${slug}\n#+filetags: :anime: \n\n")
+          :unnarrowed t)
+          ("p" "Project" plain "%?"
+          :target (file+head "project/project-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :project: \n\n - tag ::")
+          :unnarrowed t)
+          ("c" "Coding" plain "%?"
+          :target (file+head "coding/coding-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :coding: \n\n - tag ::")
+          :unnarrowed t)
+          ("t" "Thinking" plain "%?"
+          :target (file+head "thinking/thinking-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :thinking: \n\n - tag ::")
+          :unnarrowed t)
+          ("t" "Inspiration" plain "%?"
+          :target (file+head "inspiration/inspiration-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :inspiration: \n\n - tag ::")
+          :unnarrowed t)
+          ("r" "Reference" plain "%?"
+          :target (file+head "reference/reference-%<%Y%m%d%H>-${slug}.org"
+                          "#+title: ${title}\n#+filetags: :reference: \n\n - tag ::")
+          :unarrowed t)))
 #+end_src
 
 设置按键。
@@ -565,7 +570,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 设置搜索笔记的文件夹位置，以及让其搜索文件夹中子文件夹。
 #+begin_src emacs-lisp
   (setq deft-extensions '("txt" "tex" "org" "md"))
-  (setq deft-directory "~/Documents/Notes")
+  (setq deft-directory "~/Notes")
   (setq deft-recursive t)
 #+end_src
 
