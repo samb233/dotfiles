@@ -252,7 +252,7 @@ eldoc性能不行，在光标移动快的时候会卡手。屏蔽之。
 配置dirvish。
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
 #+begin_src emacs-lisp
-  (use-package dirvish
+  (use-package! dirvish
     :init
     (dirvish-override-dired-mode)
     :custom
@@ -319,32 +319,15 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "F" #'dirvish-fd
           :n "y" #'dirvish-yank-menu
           :n "f" #'dirvish-file-info-menu
-          :n "H" #'dirvish-history-jump
-          )
+          :n "H" #'dirvish-history-jump )
     )
 #+end_src
-
-当然，由于使用了evil模式，所以还得额外配置一下按键绑定。
-#+begin_src emacs-lisp
-  (evil-define-key 'normal dirvish-mode-map
-    (kbd "e") 'dired-create-empty-file
-    (kbd "q") 'dirvish-quit ;; use dirvish would kill the preview buffer
-    (kbd "s") 'dirvish-quicksort
-    (kbd "a") 'dirvish-quick-access
-    (kbd "F") 'dirvish-fd
-    (kbd "y") 'dirvish-yank-menu
-    (kbd "f") 'dirvish-file-info-menu
-    (kbd ".") 'dired-omit-mode
-    )
-
-  (evil-define-key 'normal dired-mode-map
-    (kbd "h") 'dired-up-directory
-    (kbd "l") 'dired-find-file)
-    #+end_src
 
 以及一些相关的常用操作，我将其绑定到SPC-v-...中
 #+begin_src emacs-lisp
   (map! :leader
+        :desc "Open dired" "N" #'dired-jump
+        :desc "Open dirvish" "V" #'dirvish
         (:prefix ("v" . "my personal bindings")
          :desc "Open dirvish" "v" #'dirvish
          :desc "Open Normal Dired" "n" #'dired-jump
