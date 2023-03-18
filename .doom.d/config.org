@@ -98,8 +98,8 @@ emacs29新加入的像素滚动模式。
   (setq doom-modeline-buffer-encoding t)
   (setq doom-modeline-vcs-max-length 20)
   (setq doom-modeline-height 29)
-  (setq doom-modeline-buffer-modification-icon t)
-  (setq doom-modeline-buffer-state-icon t)
+  (setq doom-modeline-buffer-modification-icon nil)
+  (setq doom-modeline-buffer-state-icon nil)
 #+end_src
 
 * 基础按键设置
@@ -323,7 +323,13 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "S" #'dirvish-fd-switches-menu
           :n "y" #'dirvish-yank-menu
           :n "f" #'dirvish-file-info-menu
-          :n "H" #'dirvish-history-jump )
+          :n "H" #'dirvish-history-jump
+          :n "TAB" #'dirvish-subtree-toggle
+          :n [backtab] #'dirvish-subtree-up
+          "M-t" #'dirvish-layout-toggle
+          "M-j" #'dirvish-fd-jump
+          "M-m" #'dirvish-mark-menu
+          )
     )
 #+end_src
 
