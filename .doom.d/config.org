@@ -93,7 +93,7 @@ emacs29新加入的像素滚动模式。
 设置doom-modeline。
 我喜欢简洁一点，去掉了上面的部分图标等。
 #+begin_src emacs-lisp
-  (setq doom-modeline-modal nil)
+  (setq doom-modeline-modal t)
   (setq doom-modeline-modal-icon nil)
   (setq doom-modeline-buffer-encoding t)
   (setq doom-modeline-vcs-max-length 20)
@@ -151,12 +151,15 @@ emacs29新加入的像素滚动模式。
 #+end_src
 
 * 基础插件变量设置
-undo设置
+** undo
+默认的undo行为在我看来不能适应。
+写代码是undo是不靠谱的这件事，太可怕了。
 #+begin_src emacs-lisp
   (setq undo-no-redo t)
   (setq evil-want-fine-undo t)
 #+end_src
 
+** recentf
 设置recentf最大储存项
 doom默认的200个也太少了，至少1000吧
 #+begin_src emacs-lisp
@@ -165,22 +168,43 @@ doom默认的200个也太少了，至少1000吧
     )
 #+end_src
 
+** 文件-模式
 设置用python-mode打开vpy文件
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 #+end_src
 
+** vc-state
+vc设置，因为性能原因被关闭了。
+但随时随地知道git状态其实是蛮重要的，我把它打开。
+#+begin_src emacs-lisp
+  (setq auto-revert-check-vc-info t)
+#+end_src
+
+** evil
+设置各个模式的tags。
+设置成全名，让我有种在vim的熟悉感，非常爽。
+#+begin_src emacs-lisp
+  (after! evil
+    (setq evil-emacs-state-tag "EMACS")
+    (setq evil-insert-state-tag "INSERT")
+    (setq evil-motion-state-tag "MOTION")
+    (setq evil-normal-state-tag "NORMAL")
+    (setq evil-replace-state-tag "REPLACE")
+    (setq evil-operator-state-tag "OPERATOR")
+    (setq evil-visual-char-tag "VISUAL")
+    (setq evil-visual-line-tag "V-LINE")
+    (setq evil-visual-block-tag "V-BLOCK")
+    (setq evil-visual-screen-line-tag "V-SCREEN")
+    )
+#+end_src
+
+** 一些兼容性设置
 设置关闭window后选择的window。
 设置为pos以和dirvish兼容。
 不然如eshell-toggle等操作时会选择到预览窗口中去。
 #+begin_src emacs-lisp
   (setq delete-window-choose-selected 'pos)
-#+end_src
-
-vc设置，因为性能原因被关闭了。
-但随时随地知道git状态其实是蛮重要的，我把它打开。
-#+begin_src emacs-lisp
-  (setq auto-revert-check-vc-info t)
 #+end_src
 
 * lsp客户端
@@ -289,7 +313,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
     (setq delete-by-moving-to-trash t)
     (setq dired-listing-switches
-          "-l --almost-all --human-readable --group-directories-first --no-group")
+          "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso")
     (setq dirvish-fd-default-dir "/home/jiesamb/")
     (setq dirvish-open-with-programs
           `(
@@ -348,9 +372,9 @@ emacs里终端我主要用两个，eshell和vterm。
 eshell打开就在当前文件目录下，vterm打开会在当前项目目录下。
 vterm中运行的是zsh，并且性能较好，所以会更常用些。
 #+begin_src emacs-lisp
-(after! vterm
- (setq vterm-max-scrollback 10000)
- (remove-hook 'vterm-mode-hook 'hide-mode-line-mode))
+  (after! vterm
+    (setq vterm-max-scrollback 10000)
+    (remove-hook 'vterm-mode-hook 'hide-mode-line-mode))
 #+end_src
 
 设置eshell的主题
@@ -359,6 +383,14 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
     (eshell-git-prompt-use-theme 'git-radar)
     )
   (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
+#+end_src
+
+设置快捷键
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "Open Vterm" "T" #'+vterm/here
+        :desc "Toggle Eshell" "E" #'+eshell/toggle
+        )
 #+end_src
 
 * Docker设置
