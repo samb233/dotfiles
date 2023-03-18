@@ -47,7 +47,7 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 并且能兼容Doom的Big Mode。
 #+begin_src emacs-lisp
   (setq doom-font (font-spec :family "IBM Plex Mono Medm" :size 11.0))
-  (setq doom-variable-pitch-font (font-spec :family "BlexMono Nerd Font"))
+  (setq doom-variable-pitch-font (font-spec :family "FiraCode Nerd Font"))
   (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 #+end_src
 
@@ -154,6 +154,7 @@ emacs29新加入的像素滚动模式。
 undo设置
 #+begin_src emacs-lisp
   (setq undo-no-redo t)
+  (setq evil-want-fine-undo t)
 #+end_src
 
 设置recentf最大储存项
@@ -167,6 +168,19 @@ doom默认的200个也太少了，至少1000吧
 设置用python-mode打开vpy文件
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+#+end_src
+
+设置关闭window后选择的window。
+设置为pos以和dirvish兼容。
+不然如eshell-toggle等操作时会选择到预览窗口中去。
+#+begin_src emacs-lisp
+  (setq delete-window-choose-selected 'pos)
+#+end_src
+
+vc设置，因为性能原因被关闭了。
+但随时随地知道git状态其实是蛮重要的，我把它打开。
+#+begin_src emacs-lisp
+  (setq auto-revert-check-vc-info t)
 #+end_src
 
 * lsp客户端
@@ -266,7 +280,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     ;; (setq dirvish--debouncing-delay 2)
     (setq dirvish-async-listing-threshold 10000)
     (setq dirvish-use-mode-line nil)
-    (setq dirvish-default-layout '(0 0.4 0.6))
+    ;; (setq dirvish-default-layout '(0 0.4 0.6))
     ;; (setq dirvish-mode-line-format
     ;;       '(:left (sort symlink) :right (omit yank index)))
     (setq dirvish-header-line-height '41)
@@ -294,27 +308,20 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (setq dirvish-side-display-alist `((side . right) (slot . -1)))
     (setq dirvish-side-width 40)
     (setq dirvish-side-auto-close t)
-    :hook
-    (dired-mode . dired-omit-mode)
-    :bind ; Bind `dirvish|dirvish-side|dirvish-dwim' as you see fit
-    (
-     :map dirvish-mode-map ; Dirvish inherits `dired-mode-map'
-     ("f"   . dirvish-file-info-menu)
-     ("y"   . dirvish-yank-menu)
-     ("^"   . dirvish-history-last)
-     ("H"   . dirvish-history-jump) ; remapped `describe-mode'
-     ("s"   . dirvish-quicksort)    ; remapped `dired-sort-toggle-or-edit'
-     ("v"   . dirvish-vc-menu)      ; remapped `dired-view-file'
-     ("TAB" . dirvish-subtree-toggle)
-     ([backtab] . dirvish-subtree-remove)
-     ("M-f" . dirvish-history-go-forward)
-     ("M-b" . dirvish-history-go-backward)
-     ("M-l" . dirvish-ls-switches-menu)
-     ("M-m" . dirvish-mark-menu)
-     ("M-t" . dirvish-layout-toggle)
-     ("M-s" . dirvish-setup-menu)
-     ("M-e" . dirvish-emerge-menu)
-     ("M-j" . dirvish-fd-jump)))
+    (map! :map dirvish-mode-map
+          :n "h" #'dired-up-directory
+          :n "l" #'dired-find-file
+          :n "e" #'dired-create-empty-file
+          :n "." #'dired-omit-mode
+          :n "q" #'dirvish-quit
+          :n "s" #'dirvish-quicksort
+          :n "a" #'dirvish-quick-access
+          :n "F" #'dirvish-fd
+          :n "y" #'dirvish-yank-menu
+          :n "f" #'dirvish-file-info-menu
+          :n "H" #'dirvish-history-jump
+          )
+    )
 #+end_src
 
 当然，由于使用了evil模式，所以还得额外配置一下按键绑定。
@@ -371,21 +378,12 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
   (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
 #+end_src
 
-* magit设置
-magit好用极了，根本不需要设置。
-在这里设置的其实是vc的设置，因为性能原因被关闭了。
-但随时随地知道git状态其实是蛮重要的，我把它打开。
-#+begin_src emacs-lisp
-  (setq auto-revert-check-vc-info t)
-#+end_src
-
 * Docker设置
 说是docker，但其实在ArchLinux上我更喜欢用podman。
 主要设置一下窗口的大小、窗口内的样式等。
 #+begin_src emacs-lisp
   (use-package docker
     :config
-    (set-popup-rule! "^\\* podman " :size 0.8 :modeline t :quit 'other)
     (setq docker-command "podman")
     (setq docker-compose-command "podman-compose")
     (setq docker-pop-to-buffer-action '(display-buffer-same-window))
