@@ -200,14 +200,6 @@ vc设置，因为性能原因被关闭了。
     )
 #+end_src
 
-** 一些兼容性设置
-设置关闭window后选择的window。
-设置为pos以和dirvish兼容。
-不然如eshell-toggle等操作时会选择到预览窗口中去。
-#+begin_src emacs-lisp
-  (setq delete-window-choose-selected 'pos)
-#+end_src
-
 * lsp客户端
 设置代码补全。
 当然是用目前最快的lsp-bridge。
@@ -328,8 +320,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n [backtab] #'dirvish-subtree-up
           "M-t" #'dirvish-layout-toggle
           "M-j" #'dirvish-fd-jump
-          "M-m" #'dirvish-mark-menu
-          )
+          "M-m" #'dirvish-mark-menu )
     )
 #+end_src
 
@@ -352,6 +343,17 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "List processes" "l" #'list-processes
          ))
 #+end_src
+
+设置关闭window后选择的window。
+设置为pos以和dirvish兼容。
+不然如eshell-toggle等操作时会选择到预览窗口中去。
+#+begin_src emacs-lisp
+  (setq delete-window-choose-selected 'pos)
+#+end_src
+
+另外，另一个问题：即在dirvish界面打开另一个窗口，
+如find-file开个新文件或者开个magit，
+新窗口会开在perview的window上，目前还没找到解决办法。
 
 * 终端设置
 emacs里终端我主要用两个，eshell和vterm。
@@ -383,7 +385,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 说是docker，但其实在ArchLinux上我更喜欢用podman。
 主要设置一下窗口的大小、窗口内的样式等。
 #+begin_src emacs-lisp
-  (use-package docker
+  (use-package! docker
     :config
     (setq docker-command "podman")
     (setq docker-compose-command "podman-compose")
@@ -397,13 +399,8 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
             (:name "Ports" :width 24 :template "{{ json .Ports }}" :sort nil :format nil)
             (:name "Image" :width 40 :template "{{ json .Image }}" :sort nil :format nil)
             (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
-                   (lambda
-                     (x)
-                     (format-time-string "%F %T"
-                                         (date-to-time x))))
-            (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)
-            )
-          )
+                   (lambda (x) (format-time-string "%F %T" (date-to-time x))))
+            (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)))
     )
 #+end_src
 
@@ -418,7 +415,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 * 输入法配置
 配置中英文输入法自动切换。
 #+begin_src emacs-lisp
-  (use-package sis
+  (use-package! sis
     :config
     (sis-ism-lazyman-config "1" "2" 'fcitx5)
     ;; enable the /cursor color/ mode
@@ -604,7 +601,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   #+end_src
 
 适配org-roam
-看起来这么酷炫的方法当然不是我写的，
+这么酷炫的方法当然不是我写的，
 来源：https://github.com/jrblevin/deft/issues/75#issuecomment-905031872
 #+begin_src emacs-lisp
   (defun my/deft-parse-title (file contents)
@@ -660,7 +657,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
 * 翻译工具
 #+begin_src emacs-lisp
-  (use-package fanyi
+  (use-package! fanyi
     :custom
     (fanyi-providers '(;; 海词
                        fanyi-haici-provider
