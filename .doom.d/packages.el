@@ -69,3 +69,5 @@
   :recipe (:host github
            :repo "manateelazycat/lsp-bridge"
 	   :files ("*")))
+;; 翻译工具
+(package! fanyi)

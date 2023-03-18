@@ -27,7 +27,7 @@
 设置alpha是调用系统窗口混合器来实现半透明，文字和图片也会半透明化
 而alpha-background是emacs29新引入的特性，只半透明背景，不会半透明文字和图片。
 #+begin_src emacs-lisp
-  ;; (add-to-list 'default-frame-alist '(alpha-background . 85))
+  ;; (add-to-list 'default-frame-alist '(alpha-background . 90))
   ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
 #+end_src
 
@@ -145,9 +145,28 @@ emacs29新加入的像素滚动模式。
 设置窗口跳转。使用插件ace-window
 #+begin_src emacs-lisp
   (map! :leader
-        :desc "ace-select-window" "w a" #'ace-select-window
-        :desc "ace-select-window" "w w" #'ace-select-window
+        :desc "ace-select-window" "w a"   #'ace-select-window
+        :desc "ace-select-window" "w w"   #'ace-select-window
         )
+#+end_src
+
+* 基础插件变量设置
+undo设置
+#+begin_src emacs-lisp
+  (setq undo-no-redo t)
+#+end_src
+
+设置recentf最大储存项
+doom默认的200个也太少了，至少1000吧
+#+begin_src emacs-lisp
+  (after! recentf
+    (setq recentf-max-saved-items 1000)
+    )
+#+end_src
+
+设置用python-mode打开vpy文件
+#+begin_src emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 #+end_src
 
 * lsp客户端
@@ -193,7 +212,6 @@ emacs29新加入的像素滚动模式。
     (setq lsp-bridge--mode-line-format '())
     (setq lsp-bridge-enable-hover-diagnostic t)
     (setq lsp-bridge-diagnostic-max-number 200)
-    ;; (setq acm-backend-lsp-enable-auto-import nil)
     (global-lsp-bridge-mode))
 #+end_src
 
@@ -329,10 +347,9 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "Jump using fd" "J" #'dirvish-fd-jump
          :desc "Jump recent dir" "j" #'consult-dir
          :desc "Fd find file in dir" "f" #'+vertico/consult-fd
-         :desc "Project searching at Point" "p" #'+default/search-project-for-symbol-at-point
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
-         :desc "toggle tree-sitter-hl-mode" "t" #'tree-sitter-hl-mode
+         :desc "List processes" "l" #'list-processes
          ))
 #+end_src
 
@@ -348,9 +365,10 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 
 设置eshell的主题
 #+begin_src emacs-lisp
-  (after! eshell
+  (defun my/eshell-use-git-prompt-theme()
     (eshell-git-prompt-use-theme 'git-radar)
     )
+  (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
 #+end_src
 
 * magit设置
@@ -424,8 +442,7 @@ magit好用极了，根本不需要设置。
 doom对离开insert模式还做了一些hook，不太清楚作用，但还是在这里加上
 #+begin_src emacs-lisp
   (add-hook 'evil-emacs-state-exit-hook 'doom-modeline-update-buffer-file-name)
-  (add-hook 'evil-emacs-state-exit-hook '+default-disable-delete-selection-mode-h)
-  (add-hook 'evil-emacs-state-exit-hook 'evil-maybe-expand-abbrev)
+  ;; (add-hook 'evil-emacs-state-exit-hook 'evil-maybe-expand-abbrev)
 #+end_src
 
 * Org-Mode设置
@@ -479,7 +496,7 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
         :desc "Zettelkasten by org-roam" "v z" #'org-roam-node-find
         :desc "org-roam node Insert" "v i" #'org-roam-node-insert
         )
-      #+end_src
+#+end_src
 
 设置日志。
 主要是使用模板设置保存的文件夹，来兼容我以前的日志模式。
@@ -501,42 +518,46 @@ doom对离开insert模式还做了一些hook，不太清楚作用，但还是在
 org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+begin_src emacs-lisp
   (setq org-roam-capture-templates '(
-          ("d" "Default" plain "%?"
-          :target (file+head "default/%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: \n")
-          :unnarrowed t)
-          ("b" "Book Notes" plain "%?"
-          :target (file+head "book/book-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: :book: \n\n")
-          :unnarrowed t)
-          ("w" "Work" plain "%?"
-          :target (file+head "work/work-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#filetags: :work: \n\n")
-          :unnarrowed t)
-          ("a" "Anime" plain "%?"
-          :target (file+head "anime/anime-%<%Y%m%d%H>-${slug}.org"
-                          "#+title:${slug}\n#+filetags: :anime: \n\n")
-          :unnarrowed t)
-          ("p" "Project" plain "%?"
-          :target (file+head "project/project-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: :project: \n\n - tag ::")
-          :unnarrowed t)
-          ("c" "Coding" plain "%?"
-          :target (file+head "coding/coding-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: :coding: \n\n - tag ::")
-          :unnarrowed t)
-          ("t" "Thinking" plain "%?"
-          :target (file+head "thinking/thinking-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: :thinking: \n\n - tag ::")
-          :unnarrowed t)
-          ("t" "Inspiration" plain "%?"
-          :target (file+head "inspiration/inspiration-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: :inspiration: \n\n - tag ::")
-          :unnarrowed t)
-          ("r" "Reference" plain "%?"
-          :target (file+head "reference/reference-%<%Y%m%d%H>-${slug}.org"
-                          "#+title: ${title}\n#+filetags: :reference: \n\n - tag ::")
-          :unarrowed t)))
+            ("d" "Default" plain "%?"
+            :target (file+head "default/%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: \n")
+            :unnarrowed t)
+            ("b" "Book Notes" plain "%?"
+            :target (file+head "book/book-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :book: \n\n")
+            :unnarrowed t)
+            ("w" "Work" plain "%?"
+            :target (file+head "work/work-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#filetags: :work: \n\n")
+            :unnarrowed t)
+            ("a" "Anime" plain "%?"
+            :target (file+head "anime/anime-%<%Y%m%d%H>-${slug}.org"
+                                "#+title:${slug}\n#+filetags: :anime: \n\n")
+            :unnarrowed t)
+            ("v" "Video or VCBs" plain "%?"
+            :target (file+head "video/video-%<%Y%m%d%H>-${slug}.org"
+                                "#+title:${slug}\n#+filetags: :video: \n\n")
+            :unnarrowed t)
+            ("p" "Project" plain "%?"
+            :target (file+head "project/project-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :project: \n\n - tag ::")
+            :unnarrowed t)
+            ("c" "Coding" plain "%?"
+            :target (file+head "coding/coding-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :coding: \n\n - tag ::")
+            :unnarrowed t)
+            ("t" "Thinking" plain "%?"
+            :target (file+head "thinking/thinking-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :thinking: \n\n - tag ::")
+            :unnarrowed t)
+            ("t" "Inspiration" plain "%?"
+            :target (file+head "inspiration/inspiration-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :inspiration: \n\n - tag ::")
+            :unnarrowed t)
+            ("r" "Reference" plain "%?"
+            :target (file+head "reference/reference-%<%Y%m%d%H>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :reference: \n\n - tag ::")
+            :unarrowed t)))
 #+end_src
 
 设置按键。
@@ -597,10 +618,29 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 * flycheck设置
 设置错误弹窗为popup
 #+begin_src emacs-lisp
-    (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+  (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
 #+end_src
 
 更改为只在save时检查
 #+begin_src emacs-lisp
   (setq flycheck-check-syntax-automatically '(save mode-enabled idle-buffer-switch))
+#+end_src
+
+* 翻译工具
+#+begin_src emacs-lisp
+  (use-package fanyi
+    :custom
+    (fanyi-providers '(;; 海词
+                       fanyi-haici-provider
+                       ;; 有道同义词词典
+                       fanyi-youdao-thesaurus-provider
+                       ;; Etymonline
+                       ;; fanyi-etymon-provider
+                       ;; Longman
+                       ;; fanyi-longman-provider
+                       )))
+  (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
+  (map! :leader
+        :desc "Translate word" "v t" #'fanyi-dwim2
+        )
 #+end_src
