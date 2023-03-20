@@ -381,6 +381,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
   (after! vterm
     (setq vterm-max-scrollback 10000)
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+    (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
     (remove-hook 'vterm-mode-hook 'hide-mode-line-mode))
 #+end_src
 
@@ -420,6 +421,13 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
             (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
                    (lambda (x) (format-time-string "%F %T" (date-to-time x))))
             (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)))
+    )
+#+end_src
+
+设置docker-tramp以兼容podman
+#+begin_src emacs-lisp
+  (after! docker-tramp
+    (setq docker-tramp-docker-executable "podman")
     )
 #+end_src
 
