@@ -187,7 +187,7 @@ vc设置，因为性能原因被关闭了。
 设置成全名，让我有种在vim的熟悉感，非常爽。
 #+begin_src emacs-lisp
   (after! evil
-    (setq evil-emacs-state-tag "EMACS")
+    (setq evil-emacs-state-tag "EMACS ")
     (setq evil-insert-state-tag "INSERT")
     (setq evil-motion-state-tag "MOTION")
     (setq evil-normal-state-tag "NORMAL")
@@ -197,6 +197,24 @@ vc设置，因为性能原因被关闭了。
     (setq evil-visual-line-tag "V-LINE")
     (setq evil-visual-block-tag "V-BLOCK")
     (setq evil-visual-screen-line-tag "V-SCREEN")
+    )
+#+end_src
+
+** magit
+设置clone的默认文件夹
+#+begin_src emacs-lisp
+  (setq magit-clone-default-directory "~/Codes/Lab/")
+#+end_src
+
+** workspace
+不喜欢workspace。
+但用它来管理窗口布局还挺方便的。
+尝试使用一下吧。
+#+begin_src emacs-lisp
+  (after! persp-mode
+    (setq persp-emacsclient-init-frame-behaviour-override nil)
+    ;; disable create new workspace when switch project
+    ;; (setq +workspaces-on-switch-project-behavior nil)
     )
 #+end_src
 
@@ -257,9 +275,9 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
        ("t" "~/Codes/Try/"                "Try")
        ("p" "~/Codes/Projects/"           "Projects")
        ("r" "~/Codes/Reading/"            "Reading")
-       ("d" "~/Documents/"                "Documents")
-       ("w" "~/工作/"                      "工作")
-       ("D" "~/Downloads/"                "Downloads")
+       ("D" "~/Documents/"                "Documents")
+       ("w" "~/Works/"                    "Works")
+       ("d" "~/Downloads/"                "Downloads")
        ("P" "~/Pictures/"                 "Pictures")
        ("v" "~/Videos/"                   "Videos")
        ("s" "~/Shared/"                   "Shared")
@@ -362,6 +380,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 #+begin_src emacs-lisp
   (after! vterm
     (setq vterm-max-scrollback 10000)
+    (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
     (remove-hook 'vterm-mode-hook 'hide-mode-line-mode))
 #+end_src
 
@@ -525,45 +544,45 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+begin_src emacs-lisp
   (setq org-roam-capture-templates '(
             ("d" "Default" plain "%?"
-            :target (file+head "default/%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: \n")
+            :target (file+head "Default/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: \n\n")
             :unnarrowed t)
+            ("l" "Tech" plain "%?"
+            :target (file+head "Tech/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :tech: \n\n")
+            :unarrowed t)
             ("b" "Book Notes" plain "%?"
-            :target (file+head "book/book-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :book: \n")
+            :target (file+head "Book/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :book: \n\n")
             :unnarrowed t)
             ("w" "Work" plain "%?"
-            :target (file+head "work/work-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#filetags: :work: \n")
+            :target (file+head "Work/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :work: \n\n")
             :unnarrowed t)
             ("a" "Anime" plain "%?"
-            :target (file+head "anime/anime-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :anime: \n")
+            :target (file+head "Anime/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :anime: \n\n")
             :unnarrowed t)
             ("v" "Video or VCBs" plain "%?"
-            :target (file+head "video/video-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :video: \n")
+            :target (file+head "Video/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :video: \n\n")
             :unnarrowed t)
             ("p" "Project" plain "%?"
-            :target (file+head "project/project-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :project: \n")
+            :target (file+head "Project/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :project: \n\n")
             :unnarrowed t)
             ("c" "Coding" plain "%?"
-            :target (file+head "coding/coding-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :coding: \n")
+            :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :coding: \n\n")
             :unnarrowed t)
             ("t" "Thinking" plain "%?"
-            :target (file+head "thinking/thinking-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :thinking: \n")
+            :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :thinking: \n\n")
             :unnarrowed t)
             ("t" "Inspiration" plain "%?"
-            :target (file+head "inspiration/inspiration-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :inspiration: \n")
-            :unnarrowed t)
-            ("r" "Reference" plain "%?"
-            :target (file+head "reference/reference-%<%Y%m%d>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :reference: \n")
-            :unarrowed t)))
+            :target (file+head "Inspiration/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :inspiration: \n\n")
+            :unnarrowed t)))
 #+end_src
 
 设置按键。
