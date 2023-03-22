@@ -1,6 +1,11 @@
 #+title: Samb's Doom Emacs Config
 #+author: Samb
 
+* 启动Server
+#+begin_src emacs-lisp
+  (server-start)
+#+end_src
+
 * 设置大名
 #+begin_src emacs-lisp
   (setq user-full-name "Jie Samb"
@@ -27,7 +32,7 @@
 设置alpha是调用系统窗口混合器来实现半透明，文字和图片也会半透明化
 而alpha-background是emacs29新引入的特性，只半透明背景，不会半透明文字和图片。
 #+begin_src emacs-lisp
-  ;; (add-to-list 'default-frame-alist '(alpha-background . 90))
+  ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
   ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
 #+end_src
 
@@ -187,7 +192,7 @@ vc设置，因为性能原因被关闭了。
 设置成全名，让我有种在vim的熟悉感，非常爽。
 #+begin_src emacs-lisp
   (after! evil
-    (setq evil-emacs-state-tag "EMACS ")
+    (setq evil-emacs-state-tag "INSERT")
     (setq evil-insert-state-tag "INSERT")
     (setq evil-motion-state-tag "MOTION")
     (setq evil-normal-state-tag "NORMAL")
@@ -207,14 +212,15 @@ vc设置，因为性能原因被关闭了。
 #+end_src
 
 ** workspace
-不喜欢workspace。
-但用它来管理窗口布局还挺方便的。
-尝试使用一下吧。
+我不喜欢用workspace。
+我享受所有buffer堆在一块的感觉。
+但用这玩意管理窗口布局确实挺方便的。
 #+begin_src emacs-lisp
   (after! persp-mode
-    (setq persp-emacsclient-init-frame-behaviour-override nil)
-    ;; disable create new workspace when switch project
-    ;; (setq +workspaces-on-switch-project-behavior nil)
+    (map! :leader
+          "," #'consult-buffer
+          "<" #'+vertico/switch-workspace-buffer
+          )
     )
 #+end_src
 
