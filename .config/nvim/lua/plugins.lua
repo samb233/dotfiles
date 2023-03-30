@@ -27,6 +27,8 @@ packer.startup({
 		-- 主题
 		use("rebelot/kanagawa.nvim")
 		use("marko-cerovac/material.nvim")
+		use({ "mcchrish/zenbones.nvim", requires = "rktjmp/lush.nvim" })
+
 		-- lualine
 		use({ "nvim-lualine/lualine.nvim", requires = { "kyazdani42/nvim-web-devicons" } })
 		use("arkav/lualine-lsp-progress")
@@ -79,6 +81,8 @@ packer.startup({
 
 		-- 代码格式化
 		use({ "jose-elias-alvarez/null-ls.nvim", requires = "nvim-lua/plenary.nvim" })
+
+		use({ "ThePrimeagen/vim-be-good" })
 
 		-- 文件浏览
 		-- use({ "kevinhwang91/rnvimr" })

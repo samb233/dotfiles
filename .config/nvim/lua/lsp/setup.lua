@@ -24,7 +24,7 @@ end
   masonlsp.setup({
 	-- 确保安装，根据需要填写
 	ensure_installed = {
-	  "sumneko_lua",
+	  "lua_ls",
 	  "pyright",
 	  "rust_analyzer",
 	  "clangd",
@@ -43,7 +43,7 @@ end
 -- key 必须为下列网址列出的 server name，不可以随便写
 -- https://github.com/williamboman/nvim-lsp-installer#available-lsps
 local servers = {
-	sumneko_lua = require("lsp.config.lua"), -- lua/lsp/config/lua.lua
+	lua_ls = require("lsp.config.lua"), -- lua/lsp/config/lua.lua
 	gopls = require("lsp.config.go"),
 	clangd = require("lsp.config.cpp"),
 	pyright = require("lsp.config.python"),
