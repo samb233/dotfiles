@@ -1,0 +1,782 @@
+#+title: Samb's Doom Emacs Config
+#+author: Samb
+
+* 启动Server
+#+begin_src emacs-lisp
+  (server-start)
+#+end_src
+
+* 设置大名
+#+begin_src emacs-lisp
+  (setq user-full-name "Jie Samb"
+        user-mail-address "samb233@hotmail.com")
+#+end_src
+
+* 文件编码
+将文件编码全部设定为utf-8-unix
+#+begin_src emacs-lisp
+  (setq-default buffer-file-coding-system 'utf-8-unix)
+  (set-default-coding-systems 'utf-8-unix)
+  (prefer-coding-system 'utf-8-unix)
+#+end_src
+
+* 窗口设置
+设置窗口的大小。
+我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
+#+begin_src emacs-lisp
+  (pushnew! default-frame-alist '(width . 80) '(height . 50))
+  ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+#+end_src
+
+设置窗口透明度。
+设置alpha是调用系统窗口混合器来实现半透明，文字和图片也会半透明化
+而alpha-background是emacs29新引入的特性，只半透明背景，不会半透明文字和图片。
+#+begin_src emacs-lisp
+  ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
+  ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
+#+end_src
+
+设置标题栏名称。
+我将其设置为文件路径。
+#+begin_src emacs-lisp
+  (setq frame-title-format
+        '((:eval (if (buffer-file-name)
+                     (abbreviate-file-name (buffer-file-name))
+                   "%b"))))
+#+end_src
+
+* 字体设置
+设置字体与字体大小。
+将doom-unicode-font设置为Sarasa Mono SC即可解决Doom Emacs的中文显示问题。
+Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不再歪歪扭扭。
+并且能兼容Doom的Big Mode。
+#+begin_src emacs-lisp
+  (setq doom-font (font-spec :family "IBM Plex Mono Medm" :size 11.0))
+  (setq doom-variable-pitch-font (font-spec :family "FiraCode Nerd Font"))
+  (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
+#+end_src
+
+* 滚动设置
+设置鼠标滚动。
+#+begin_src emacs-lisp
+  (setq scroll-margin 9)
+  (setq mouse-wheel-scroll-amount '
+        (3
+         ((shift) . hscroll)
+         ((meta))
+         ((control) . text-scale)))
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
+#+end_src
+
+emacs29新加入的像素滚动模式。
+使页面滚动动画流畅了不少，但也增加了cpu开销。
+我觉得原来的滚动其实还行，可能是终端用习惯了吧。
+#+begin_src emacs-lisp
+  ;; (pixel-scroll-precision-mode t)
+#+end_src
+
+* 外观设置
+设置emacs的外观。
+主题设置。
+#+begin_src emacs-lisp
+  (setq doom-theme 'doom-tomorrow-day)
+#+end_src
+
+设置光标样式
+#+begin_src emacs-lisp
+  (setq evil-emacs-state-cursor 'bar)
+#+end_src
+
+设置相对行号。
+使用evil-mode怎么能少了这个！
+#+begin_src emacs-lisp
+  (setq display-line-numbers-type 'relative)
+#+end_src
+
+设置doom-modeline。
+我喜欢简洁一点，去掉了上面的部分图标等。
+#+begin_src emacs-lisp
+  (setq doom-modeline-modal t)
+  (setq doom-modeline-modal-icon nil)
+  (setq doom-modeline-buffer-encoding t)
+  (setq doom-modeline-vcs-max-length 20)
+  (setq doom-modeline-height 28)
+  (setq doom-modeline-buffer-modification-icon nil)
+  (setq doom-modeline-buffer-state-icon nil)
+  (after! doom-modeline
+    (set-face-attribute 'mode-line-active nil :background "#f4f4f4")
+    (setq doom-modeline-buffer-file-name-style 'buffer-name)
+    )
+#+end_src
+
+设置buffer name重复时的处理。
+在前面添加路径
+doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemacs/issues/6205
+#+begin_src emacs-lisp
+  (after! persp-mode
+    (setq-hook! 'persp-mode-hook uniquify-buffer-name-style 'forward)
+    )
+#+end_src
+
+* 基础按键设置
+在insert模式使用emacs的快捷键
+#+begin_src emacs-lisp
+  (defalias 'evil-insert-state 'evil-emacs-state)
+  (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+  ;; (setq evil-disable-insert-state-bindings t)
+#+end_src
+
+设置visual模式下Shift-j和Shift-k上下移动代码块
+#+begin_src emacs-lisp
+  (evil-define-key 'visual 'global
+    (kbd "J") 'drag-stuff-down
+    (kbd "K") 'drag-stuff-up)
+#+end_src
+
+使用consult-line替代I-search
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
+  (map! "C-s" #'consult-line)
+  (setq consult-line-start-from-top t)
+#+end_src
+
+设置Ctrl-v和Alt-v粘贴
+#+begin_src emacs-lisp
+  (map! "C-v" #'yank)
+  (map! "M-v" #'yank)
+#+end_src
+
+设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
+#+begin_src emacs-lisp
+  (evil-ex-define-cmd "q" 'kill-this-buffer)
+  (evil-ex-define-cmd "quit" 'evil-quit)
+#+end_src
+
+取消按键宏。
+我用不到这个功能，但不小心按两次q就弹出来很烦人。
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global
+    (kbd "q") nil)
+#+end_src
+
+设置窗口跳转。使用插件ace-window
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "ace-select-window" "w a"   #'ace-select-window
+        :desc "ace-select-window" "w w"   #'ace-select-window
+        )
+#+end_src
+
+* 基础插件变量设置
+** undo
+默认的undo行为在我看来不能适应。
+写代码是undo是不靠谱的这件事，太可怕了。
+#+begin_src emacs-lisp
+  (setq undo-no-redo t)
+  (setq evil-want-fine-undo t)
+#+end_src
+
+** recentf
+设置recentf最大储存项
+doom默认的200个也太少了，至少1000吧
+#+begin_src emacs-lisp
+  (after! recentf
+    (setq recentf-max-saved-items 1000)
+    )
+#+end_src
+
+** 文件-模式
+设置用python-mode打开vpy文件
+#+begin_src emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+#+end_src
+
+** vc-state
+vc设置，因为性能原因被关闭了。
+但随时随地知道git状态其实是蛮重要的，我把它打开。
+#+begin_src emacs-lisp
+  (setq auto-revert-check-vc-info t)
+#+end_src
+
+** evil
+设置各个模式的tags。
+设置成全名，让我有种在vim的熟悉感，非常爽。
+#+begin_src emacs-lisp
+  (after! evil
+    (setq evil-emacs-state-tag "INSERT")
+    (setq evil-insert-state-tag "INSERT")
+    (setq evil-motion-state-tag "MOTION")
+    (setq evil-normal-state-tag "NORMAL")
+    (setq evil-replace-state-tag "REPLACE")
+    (setq evil-operator-state-tag "OPERATOR")
+    (setq evil-visual-char-tag "VISUAL")
+    (setq evil-visual-line-tag "V-LINE")
+    (setq evil-visual-block-tag "V-BLOCK")
+    (setq evil-visual-screen-line-tag "V-SCREEN")
+    )
+#+end_src
+
+** magit
+设置clone的默认文件夹
+#+begin_src emacs-lisp
+  (setq magit-clone-default-directory "~/Codes/Lab/")
+#+end_src
+
+** workspace
+我不喜欢用workspace。
+我享受所有buffer堆在一块的感觉。
+但用这玩意管理窗口布局确实挺方便的。
+把它改的键改回来即可。
+#+begin_src emacs-lisp
+  (after! persp-mode
+    (map! :leader
+          "," #'consult-buffer
+          "<" #'+vertico/switch-workspace-buffer )
+    )
+#+end_src
+
+* lsp & corfu
+** 设置lsp-mode
+config guide: https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
+#+begin_src emacs-lisp
+  ;; (after! lsp-mode
+  ;;   (setq lsp-lens-enable nil)
+  ;;   (setq lsp-enable-snippet nil)
+  ;;   (setq lsp-signature-doc-lines 5)
+  ;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
+  ;;   )
+#+end_src
+
+设置lsp-mode的一些快捷键
+#+begin_src emacs-lisp
+  ;; (map! :leader
+  ;;       (:prefix-map ("l" . "LSP")
+  ;;        :desc "LSP rename" "n" #'lsp-rename
+  ;;        :desc "LSP find definitions" "f" #'lsp-find-definition
+  ;;        :desc "LSP find reference" "r" #'lsp-find-references
+  ;;        (:prefix ("w" . "workspace")
+  ;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
+  ;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
+  ;;         )
+  ;;        ))
+#+end_src
+
+** 设置eglot
+设置eglot的一些快捷键
+#+begin_src emacs-lisp
+  (map! :leader
+        (:prefix-map ("l" . "LSP")
+         :desc "LSP rename" "n" #'eglot-rename
+         :desc "LSP find definitions" "f" #'xref-find-definitions
+         :desc "LSP find reference" "r" #'xref-find-references
+         (:prefix ("w" . "workspace")
+          ;; :desc "LSP change workspace" "w" #'
+          :desc "LSP restart workspace" "r" #'eglot-reconnect
+          )
+         ))
+#+end_src
+
+#+begin_src emacs-lisp
+  (after! eglot
+    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    (setq eglot-events-buffer-size 0)
+    (setq eldoc-echo-area-use-multiline-p nil)
+    (setq eglot-stay-out-of '(flymake snippet))
+    (set-popup-rule! "^\\*eldoc*" :size 0.3 :modeline t :quit t)
+    (set-lookup-handlers! 'eglot--managed-mode
+      :definition      #'xref-find-definitions
+      :references      #'xref-find-references
+      :implementations #'eglot-find-implementation
+      :type-definition #'eglot-find-typeDefinition
+      :documentation   #'eldoc)
+    )
+#+end_src
+
+** 设置corfu
+#+begin_src emacs-lisp
+  (after! corfu
+    (setq corfu-preselect 'prompt)
+    ;; (setq corfu-preview-current nil)
+    (setq corfu-auto-prefix 1)
+    (setq corfu-auto-delay 0.1)
+    (map! :map corfu-map
+          "TAB" #'corfu-next
+          [tab] #'corfu-next
+          "S-TAB" #'corfu-previous
+          [backtab] #'corfu-previous
+          "C-j" #'corfu-next
+          "C-k" #'corfu-previous
+          "C-l" #'corfu-insert-separator
+          "C-i" #'corfu-info-documentation
+          )
+    (map! :map global-map
+          "C-S-p" #'+corfu-files)
+    )
+#+end_src
+
+并设置在退出emacs-state时关闭补全菜单
+#+begin_src emacs-lisp
+  (add-hook! 'evil-emacs-state-exit-hook #'corfu-quit)
+#+end_src
+
+并设置corfu使用all-the-icon而不是使用kind-icon。
+图标并不好看，而且下载github的图标非常非常耗时间。
+#+begin_src emacs-lisp
+  (use-package! kind-all-the-icons)
+
+  (after! corfu
+    (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
+    )
+#+end_src
+
+* 文件管理器
+配置dirvish。
+Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
+#+begin_src emacs-lisp
+  (use-package! dirvish
+    :init
+    (dirvish-override-dired-mode)
+    :custom
+    (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+     '(("h" "~/"                          "Home")
+       ("c" "~/Codes/"                    "Codes")
+       ("t" "~/Codes/Try/"                "Try")
+       ("p" "~/Codes/Projects/"           "Projects")
+       ("r" "~/Codes/Reading/"            "Reading")
+       ("D" "~/Documents/"                "Documents")
+       ("w" "~/Works/"                    "Works")
+       ("d" "~/Downloads/"                "Downloads")
+       ("P" "~/Pictures/"                 "Pictures")
+       ("v" "~/Videos/"                   "Videos")
+       ("s" "~/Shared/"                   "Shared")
+       ("n" "~/Notes/"                    "Notes")
+       ("b" "~/Books/"                    "Books")
+       ("M" "/mnt/"                       "Drives")
+       ("T" "~/.local/share/Trash/files/" "TrashCan")
+       ))
+    :config
+    ;; (dirvish-peek-mode) ; Preview files in minibuffer
+    (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
+    ;; (setq dirvish-reuse-session nil) ; disable session reuse
+    ;; (setq dirvish--debouncing-delay 2)
+    (setq dirvish-async-listing-threshold 10000)
+    (setq dirvish-use-mode-line nil)
+    ;; (setq dirvish-default-layout '(0 0.4 0.6))
+    ;; (setq dirvish-mode-line-format
+    ;;       '(:left (sort symlink) :right (omit yank index)))
+    (setq dirvish-header-line-height '41)
+    ;; (setq dirvish-mode-line-height '46)
+    (setq dirvish-attributes
+          '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
+    (setq delete-by-moving-to-trash t)
+    (setq dired-listing-switches
+          "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso")
+    (setq dirvish-fd-default-dir "/home/jiesamb/")
+    (setq dirvish-open-with-programs
+          `(
+            (,dirvish-audio-exts . ("mpv" "%f"))
+            (,dirvish-video-exts . ("mpv" "%f"))
+            (,dirvish-image-exts . ("eog" "%f"))
+            (("doc" "docx") . ("wps" "%f"))
+            (("ppt" "pptx") . ("wpp" "%f"))
+            (("xls" "xlsx") . ("et" "%f"))
+            (("pdf") . ("evince" "%f"))
+            (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
+            (("epub") . ("koodo-reader" "%f"))
+            ))
+    (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
+    (setq dirvish-path-separators (list "  ~" "  " "/"))
+    (setq dirvish-side-display-alist `((side . right) (slot . -1)))
+    (setq dirvish-side-width 40)
+    (setq dirvish-side-auto-close t)
+    (map! :map dirvish-mode-map
+          :n "h" #'dired-up-directory
+          :n "l" #'dired-find-file
+          :n "e" #'dired-create-empty-file
+          :n "." #'dired-omit-mode
+          :n "q" #'dirvish-quit
+          :n "s" #'dirvish-quicksort
+          :n "a" #'dirvish-quick-access
+          :n "F" #'dirvish-fd
+          :n "S" #'dirvish-fd-switches-menu
+          :n "y" #'dirvish-yank-menu
+          :n "f" #'dirvish-file-info-menu
+          :n "H" #'dirvish-history-jump
+          :n "TAB" #'dirvish-subtree-toggle
+          :n [backtab] #'dirvish-subtree-up
+          "M-t" #'dirvish-layout-toggle
+          "M-j" #'dirvish-fd-jump
+          "M-m" #'dirvish-mark-menu )
+    )
+#+end_src
+
+以及一些相关的常用操作，我将其绑定到SPC-v-...中
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "Open dired" "N" #'dired-jump
+        :desc "Open dirvish" "V" #'dirvish
+        (:prefix ("v" . "my personal bindings")
+         :desc "Open dirvish" "v" #'dirvish
+         :desc "Open Normal Dired" "n" #'dired-jump
+         :desc "Quit dirvish" "q" #'dirvish-quit
+         :desc "Toggle dirvish-side" "s" #'dirvish-side
+         :desc "Fd in dirvish" "F" #'dirvish-fd
+         :desc "Jump using fd" "J" #'dirvish-fd-jump
+         :desc "Jump recent dir" "j" #'consult-dir
+         :desc "Fd find file in dir" "f" #'+vertico/consult-fd
+         :desc "find Item in the buffer" "i" #'consult-imenu
+         :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
+         :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
+         :desc "List processes" "l" #'list-processes
+         :desc "calc mode" "a" #'literate-calc-mode
+         ))
+#+end_src
+
+设置关闭window后选择的window。
+设置为pos以和dirvish兼容。
+不然如eshell-toggle等操作时会选择到预览窗口中去。
+#+begin_src emacs-lisp
+  (setq delete-window-choose-selected 'pos)
+#+end_src
+
+另外，另一个问题：即在dirvish界面打开另一个窗口，
+如find-file开个新文件或者开个magit，
+新窗口会开在perview的window上，目前还没找到解决办法。
+
+* 终端设置
+emacs里终端我主要用两个，eshell和vterm。
+eshell打开就在当前文件目录下，vterm打开会在当前项目目录下。
+vterm中运行的是zsh，并且性能较好，所以会更常用些。
+#+begin_src emacs-lisp
+  (after! vterm
+    (setq vterm-max-scrollback 10000)
+    (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+    (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
+    (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
+    )
+#+end_src
+
+设置eshell的主题
+#+begin_src emacs-lisp
+  (defun my/eshell-use-git-prompt-theme()
+    (eshell-git-prompt-use-theme 'git-radar)
+    )
+  (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
+#+end_src
+
+设置快捷键
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "Open Vterm" "T" #'+vterm/here
+        :desc "Toggle Eshell" "E" #'+eshell/toggle
+        )
+#+end_src
+
+* Docker设置
+说是docker，但其实在ArchLinux上我更喜欢用podman。
+主要设置一下窗口的大小、窗口内的样式等。
+#+begin_src emacs-lisp
+  (use-package! docker
+    :config
+    (setq docker-command "podman")
+    (setq docker-compose-command "podman-compose")
+    (setq docker-pop-to-buffer-action '(display-buffer-same-window))
+    (setq docker-run-async-with-buffer-function #'docker-run-async-with-buffer-vterm)
+    (setq docker-container-columns
+          '(
+            (:name "Id" :width 14 :template "{{ json .ID }}" :sort nil :format nil)
+            (:name "Names" :width 12 :template "{{ json .Names }}" :sort nil :format nil)
+            (:name "Status" :width 14 :template "{{ json .Status }}" :sort nil :format nil)
+            (:name "Ports" :width 24 :template "{{ json .Ports }}" :sort nil :format nil)
+            (:name "Image" :width 40 :template "{{ json .Image }}" :sort nil :format nil)
+            (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
+                   (lambda (x) (format-time-string "%F %T" (date-to-time x))))
+            (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)))
+    )
+#+end_src
+
+设置docker-tramp以兼容podman
+#+begin_src emacs-lisp
+  (after! docker-tramp
+    (setq docker-tramp-docker-executable "podman")
+    )
+#+end_src
+
+我最常用的操作其实就是打开容器页面，开开关关，看看日志。
+单独设置了一个快捷键。
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "docker Containers" "o c" #'docker-containers
+        )
+#+end_src
+
+* 输入法配置
+配置中英文输入法自动切换。
+#+begin_src emacs-lisp
+  (use-package! sis
+    :config
+    (sis-ism-lazyman-config "1" "2" 'fcitx5)
+    ;; enable the /cursor color/ mode
+    ;; (sis-global-cursor-color-mode t)
+    ;; enable the /respect/ mode
+    (sis-global-respect-mode t)
+    ;; enable the /context/ mode for all buffers
+    (sis-global-context-mode t)
+    ;; enable the /inline english/ mode for all buffers
+    ;; (sis-global-inline-mode t)
+    )
+#+end_src
+
+另外，由于我使用了evil-emacs-state，所以需要额外设置一下输入法切换。
+#+begin_src emacs-lisp
+  (add-hook! 'evil-emacs-state-exit-hook #'sis-set-english)
+  (add-hook! 'evil-emacs-state-entry-hook #'sis-context t)
+#+end_src
+
+doom对离开insert模式还做了一些hook，不太清楚作用，但还是在这里加上
+#+begin_src emacs-lisp
+  (add-hook! 'evil-emacs-state-exit-hook #'doom-modeline-update-buffer-file-name)
+  ;; (add-hook! 'evil-emacs-state-exit-hook #'evil-maybe-expand-abbrev)
+#+end_src
+
+* Org-Mode设置
+** 外观设置
+配置一下Org-Mode的主题颜色、字体大小等。
+最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
+另外做个备忘，org-mode中提升标题等级是M+左箭头，降低是M+右箭头。
+#+begin_src emacs-lisp
+  (setq org-directory "~/Notes")
+  (after! org
+    (defun my/org-colors-tomorrow-night ()
+      (interactive)
+      (dolist
+          (face
+           '((org-level-1 1.3 "#81a2be" ultra-bold)
+             (org-level-2 1.2 "#b294bb" extra-bold)
+             (org-level-3 1.1 "#b5bd68" bold)
+             (org-level-4 1.0 "#e6c547" semi-bold)
+             (org-level-5 1.0 "#cc6666" normal)
+             (org-level-6 1.0 "#70c0ba" normal)
+             (org-level-7 1.0 "#b77ee0" normal)
+             (org-level-8 1.0 "#9ec400" normal)))
+        (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+      (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+    (defun my/org-colors-tomorrow-day()
+      (interactive)
+      (dolist
+          (face
+           '((org-level-1 1.3 "#4271ae" ultra-bold)
+             (org-level-2 1.2 "#8959a8" extra-bold)
+             (org-level-3 1.1 "#b5bd68" bold)
+             (org-level-4 1.0 "#e6c547" semi-bold)
+             (org-level-5 1.0 "#c82829" normal)
+             (org-level-6 1.0 "#70c0ba" normal)
+             (org-level-7 1.0 "#b77ee0" normal)
+             (org-level-8 1.0 "#9ec400" normal)))
+        (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+      (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+    (my/org-colors-tomorrow-day)
+    (setq org-src-preserve-indentation nil)
+    )
+#+end_src
+
+** 设置关闭word-wrap
+中英文一起是word-wrap只会是副作用。
+比如在列表开头给你整一个空行。。
+至于为什么用hook，因为直接设置word-wrap nil没有用。
+关闭后会导致长代码折行时不好看，但我认为不让列表出现空行更重要。
+要看org中的代码自己开！
+#+begin_src emacs-lisp
+  (add-hook! 'org-mode-hook #'toggle-word-wrap)
+#+end_src
+
+** org-roam
+设置笔记文件夹
+#+begin_src emacs-lisp
+  (setq org-roam-directory "~/Notes/Roam")
+  (map! :leader
+        :desc "Zettelkasten by org-roam" "v z" #'org-roam-node-find
+        :desc "org-roam node Insert" "v i" #'org-roam-node-insert
+        )
+#+end_src
+
+设置日志。
+主要是使用模板设置保存的文件夹，来兼容我以前的日志模式。
+我希望我创建日志的时候能一键弹出，而不用选择模板什么的，所以只设置一个模板。
+#+begin_src emacs-lisp
+  (setq org-roam-dailies-directory "~/Notes/Daily")
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y>/%<%Y-%m>/%<%Y-%m-%d>.org"
+                              "#+title: %<%Y-%m-%d %A>\n"))))
+  (map! :leader
+        :desc "my Journal today" "J" #'org-roam-dailies-goto-today
+        )
+#+end_src
+
+设置模板
+同样，也是通过模板来设置保存的文件夹。
+org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
+#+begin_src emacs-lisp
+  (setq org-roam-capture-templates '(
+            ("d" "Default" plain "%?"
+            :target (file+head "Default/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: \n\n")
+            :unnarrowed t)
+            ("t" "Tech" plain "%?"
+            :target (file+head "Tech/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :tech: \n\n")
+            :unarrowed t)
+            ("b" "Book Notes" plain "%?"
+            :target (file+head "Book/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :book: \n\n")
+            :unnarrowed t)
+            ("w" "Work" plain "%?"
+            :target (file+head "Work/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :work: \n\n")
+            :unnarrowed t)
+            ("a" "Anime" plain "%?"
+            :target (file+head "Anime/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :anime: \n\n")
+            :unnarrowed t)
+            ("v" "Video or VCBs" plain "%?"
+            :target (file+head "Video/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :video: \n\n")
+            :unnarrowed t)
+            ("p" "Project" plain "%?"
+            :target (file+head "Project/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :project: \n\n")
+            :unnarrowed t)
+            ("c" "Coding" plain "%?"
+            :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :coding: \n\n")
+            :unnarrowed t)
+            ("h" "Thinking" plain "%?"
+            :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :thinking: \n\n")
+            :unnarrowed t)
+            ("i" "Inspiration" plain "%?"
+            :target (file+head "Inspiration/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :inspiration: \n\n")
+            :unnarrowed t)))
+#+end_src
+
+设置按键。
+我很喜欢Doom给org-capture设置了一个SPC+X的按键。
+但我不用org-capture，所以把它重新绑定给org-roam-capture。
+这个快捷键很好用很大气。所以我给org-roam的node-find设置为SPC+Z
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "org-roam capture" "X" #'org-roam-capture
+        :desc "org-roam find node" "Z" #'org-roam-node-find
+        )
+#+end_src
+
+* markdown设置
+也是设置一下字体大小和颜色。
+在emacs下我也很少写markdown了。
+#+begin_src emacs-lisp
+  (custom-set-faces
+   '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
+   '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
+   '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
+   '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
+   '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
+   '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
+   '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
+#+end_src
+
+* 笔记搜索设置
+设置插件deft。
+设置搜索笔记的文件夹位置，以及让其搜索文件夹中子文件夹。
+#+begin_src emacs-lisp
+  (setq deft-extensions '("txt" "tex" "org" "md"))
+  (setq deft-directory "~/Notes")
+  (setq deft-recursive t)
+  #+end_src
+
+适配org-roam
+这么酷炫的方法当然不是我写的，
+来源：https://github.com/jrblevin/deft/issues/75#issuecomment-905031872
+#+begin_src emacs-lisp
+  (defun my/deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+  If `deft-use-filename-as-title' is nil, the title is taken to
+  be the first non-empty line of the FILE.  Else the base name of the FILE is
+  used as title."
+    (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+      (if begin
+          (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+        (deft-base-filename file))))
+
+  (advice-add 'deft-parse-title :override #'my/deft-parse-title)
+
+  (setq deft-strip-summary-regexp
+        (concat "\\("
+                "[\n\t]" ;; blank
+                "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+                "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+                "\\)"))
+#+end_src
+
+* shell格式化设置
+我已经忘了我为什么要设置这个。
+似乎是不设置会报错。
+#+begin_src emacs-lisp
+  (use-package! sh-script
+    :config
+    (set-formatter! 'shfmt
+      '("shfmt" "-ci"
+        ("-i" "%d" (unless indent-tabs-mode tab-width))
+        ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
+    )
+#+end_src
+
+* go-mode设置
+开启lsp的自动import和format。
+因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
+#+begin_src emacs-lisp
+  (defun lsp-go-install-save-hooks ()
+    ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
+    (defun my-eglot-organize-imports () (interactive)
+           (eglot-code-actions nil nil "source.organizeImports" t))
+    (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+    (add-hook 'before-save-hook 'eglot-format-buffer))
+  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+#+end_src
+
+* flycheck设置
+设置错误弹窗为popup
+#+begin_src emacs-lisp
+  (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+#+end_src
+
+更改为只在save时检查
+#+begin_src emacs-lisp
+  (setq flycheck-check-syntax-automatically '(save mode-enabled idle-change idle-buffer-switch))
+#+end_src
+
+* 翻译工具
+#+begin_src emacs-lisp
+  (use-package! fanyi
+    :custom
+    (fanyi-providers '(;; 海词
+                       fanyi-haici-provider
+                       ;; 有道同义词词典
+                       fanyi-youdao-thesaurus-provider
+                       ;; Etymonline
+                       ;; fanyi-etymon-provider
+                       ;; Longman
+                       ;; fanyi-longman-provider
+                       )))
+  (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
+  (map! :leader
+        :desc "Translate word" "v t" #'fanyi-dwim2
+        )
+#+end_src
