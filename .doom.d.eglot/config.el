@@ -82,6 +82,8 @@
       :desc "ace-select-window" "w w"   #'ace-select-window
       )
 
+(map! :map global-map "C-c k" #'+lookup/documentation)
+
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
 
@@ -114,54 +116,60 @@
         "<" #'+vertico/switch-workspace-buffer )
   )
 
-;; (after! lsp-mode
-;;   (setq lsp-lens-enable nil)
-;;   (setq lsp-enable-snippet nil)
-;;   (setq lsp-signature-doc-lines 5)
-;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
-;;   )
+(after! lsp-mode
+  (setq lsp-lens-enable nil)
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-enable-snippet nil)
+  (setq lsp-signature-doc-lines 3)
+  (setq lsp-ui-sideline-show-symbol nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-ui-sideline-diagnostic-max-lines 2)
 
-;; (map! :leader
-;;       (:prefix-map ("l" . "LSP")
-;;        :desc "LSP rename" "n" #'lsp-rename
-;;        :desc "LSP find definitions" "f" #'lsp-find-definition
-;;        :desc "LSP find reference" "r" #'lsp-find-references
-;;        (:prefix ("w" . "workspace")
-;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
-;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
-;;         )
-;;        ))
+  (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+  )
 
 (map! :leader
       (:prefix-map ("l" . "LSP")
-       :desc "LSP rename" "n" #'eglot-rename
-       :desc "LSP find definitions" "f" #'xref-find-definitions
-       :desc "LSP find reference" "r" #'xref-find-references
+       :desc "LSP rename" "n" #'lsp-rename
+       :desc "LSP find definitions" "f" #'lsp-find-definition
+       :desc "LSP find reference" "r" #'lsp-find-references
        (:prefix ("w" . "workspace")
-        ;; :desc "LSP change workspace" "w" #'
-        :desc "LSP restart workspace" "r" #'eglot-reconnect
+        :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
+        :desc "LSP restart workspace" "r" #'lsp-workspace-restart
         )
        ))
 
-(after! eglot
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-  (setq eglot-events-buffer-size 0)
-  (setq eldoc-echo-area-use-multiline-p nil)
-  (setq eglot-stay-out-of '(flymake snippet))
-  (set-popup-rule! "^\\*eldoc*" :size 0.3 :modeline t :quit t)
-  (set-lookup-handlers! 'eglot--managed-mode
-    :definition      #'xref-find-definitions
-    :references      #'xref-find-references
-    :implementations #'eglot-find-implementation
-    :type-definition #'eglot-find-typeDefinition
-    :documentation   #'eldoc)
-  )
+;; (map! :leader
+;;       (:prefix-map ("l" . "LSP")
+;;        :desc "LSP rename" "n" #'eglot-rename
+;;        :desc "LSP find definitions" "f" #'xref-find-definitions
+;;        :desc "LSP find reference" "r" #'xref-find-references
+;;        :desc "LSP restart workspace" "R" #'eglot-reconnect
+;;        ))
+
+;; (after! eglot
+;;   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+;;   (setq eglot-events-buffer-size 0)
+;;   (setq eglot-stay-out-of '(flymake snippet))
+;;   (set-lookup-handlers! 'eglot--managed-mode
+;;     :definition      #'xref-find-definitions
+;;     :references      #'xref-find-references
+;;     :implementations #'eglot-find-implementation
+;;     :type-definition #'eglot-find-typeDefinition
+;;     :documentation   #'eldoc)
+;;   )
+
+(setq eldoc-echo-area-display-truncation-message nil)
+(setq eldoc-echo-area-use-multiline-p nil)
+(set-popup-rule! "^\\*eldoc*" :size 0.3 :modeline nil :quit t)
 
 (after! corfu
   (setq corfu-preselect 'prompt)
   ;; (setq corfu-preview-current nil)
   (setq corfu-auto-prefix 1)
   (setq corfu-auto-delay 0.1)
+  (setq cape-dict-file "~/.doom.d/dict/words")
   (map! :map corfu-map
         "TAB" #'corfu-next
         [tab] #'corfu-next
@@ -283,6 +291,7 @@
 
 (after! vterm
   (setq vterm-max-scrollback 10000)
+  (setq vterm-timer-delay 0.01)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
   (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
@@ -485,12 +494,12 @@ used as title."
   )
 
 (defun lsp-go-install-save-hooks ()
-  ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
-  (defun my-eglot-organize-imports () (interactive)
-         (eglot-code-actions nil nil "source.organizeImports" t))
-  (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-  (add-hook 'before-save-hook 'eglot-format-buffer))
+  (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  (add-hook 'before-save-hook #'lsp-organize-imports t t))
+  ;; (defun my-eglot-organize-imports () (interactive)
+  ;;        (eglot-code-actions nil nil "source.organizeImports" t))
+  ;; (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+  ;; (add-hook 'before-save-hook 'eglot-format-buffer))
 (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)

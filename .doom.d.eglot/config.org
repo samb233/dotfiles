@@ -169,6 +169,11 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
         )
 #+end_src
 
+设置C-c k打开文档
+#+begin_src emacs-lisp
+  (map! :map global-map "C-c k" #'+lookup/documentation)
+#+end_src
+
 * 基础插件变量设置
 ** undo
 默认的undo行为在我看来不能适应。
@@ -241,57 +246,65 @@ vc设置，因为性能原因被关闭了。
 ** 设置lsp-mode
 config guide: https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
 #+begin_src emacs-lisp
-  ;; (after! lsp-mode
-  ;;   (setq lsp-lens-enable nil)
-  ;;   (setq lsp-enable-snippet nil)
-  ;;   (setq lsp-signature-doc-lines 5)
-  ;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
-  ;;   )
+  (after! lsp-mode
+    (setq lsp-lens-enable nil)
+    (setq lsp-ui-doc-enable nil)
+    (setq lsp-enable-snippet nil)
+    (setq lsp-signature-doc-lines 3)
+    (setq lsp-ui-sideline-show-symbol nil)
+    (setq lsp-modeline-diagnostics-enable nil)
+    (setq lsp-modeline-code-actions-enable nil)
+    (setq lsp-ui-sideline-diagnostic-max-lines 2)
+
+    (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+    )
 #+end_src
 
 设置lsp-mode的一些快捷键
 #+begin_src emacs-lisp
-  ;; (map! :leader
-  ;;       (:prefix-map ("l" . "LSP")
-  ;;        :desc "LSP rename" "n" #'lsp-rename
-  ;;        :desc "LSP find definitions" "f" #'lsp-find-definition
-  ;;        :desc "LSP find reference" "r" #'lsp-find-references
-  ;;        (:prefix ("w" . "workspace")
-  ;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
-  ;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
-  ;;         )
-  ;;        ))
+  (map! :leader
+        (:prefix-map ("l" . "LSP")
+         :desc "LSP rename" "n" #'lsp-rename
+         :desc "LSP find definitions" "f" #'lsp-find-definition
+         :desc "LSP find reference" "r" #'lsp-find-references
+         (:prefix ("w" . "workspace")
+          :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
+          :desc "LSP restart workspace" "r" #'lsp-workspace-restart
+          )
+         ))
 #+end_src
 
 ** 设置eglot
 设置eglot的一些快捷键
 #+begin_src emacs-lisp
-  (map! :leader
-        (:prefix-map ("l" . "LSP")
-         :desc "LSP rename" "n" #'eglot-rename
-         :desc "LSP find definitions" "f" #'xref-find-definitions
-         :desc "LSP find reference" "r" #'xref-find-references
-         (:prefix ("w" . "workspace")
-          ;; :desc "LSP change workspace" "w" #'
-          :desc "LSP restart workspace" "r" #'eglot-reconnect
-          )
-         ))
+  ;; (map! :leader
+  ;;       (:prefix-map ("l" . "LSP")
+  ;;        :desc "LSP rename" "n" #'eglot-rename
+  ;;        :desc "LSP find definitions" "f" #'xref-find-definitions
+  ;;        :desc "LSP find reference" "r" #'xref-find-references
+  ;;        :desc "LSP restart workspace" "R" #'eglot-reconnect
+  ;;        ))
 #+end_src
 
 #+begin_src emacs-lisp
-  (after! eglot
-    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-    (setq eglot-events-buffer-size 0)
-    (setq eldoc-echo-area-use-multiline-p nil)
-    (setq eglot-stay-out-of '(flymake snippet))
-    (set-popup-rule! "^\\*eldoc*" :size 0.3 :modeline t :quit t)
-    (set-lookup-handlers! 'eglot--managed-mode
-      :definition      #'xref-find-definitions
-      :references      #'xref-find-references
-      :implementations #'eglot-find-implementation
-      :type-definition #'eglot-find-typeDefinition
-      :documentation   #'eldoc)
-    )
+  ;; (after! eglot
+  ;;   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  ;;   (setq eglot-events-buffer-size 0)
+  ;;   (setq eglot-stay-out-of '(flymake snippet))
+  ;;   (set-lookup-handlers! 'eglot--managed-mode
+  ;;     :definition      #'xref-find-definitions
+  ;;     :references      #'xref-find-references
+  ;;     :implementations #'eglot-find-implementation
+  ;;     :type-definition #'eglot-find-typeDefinition
+  ;;     :documentation   #'eldoc)
+  ;;   )
+#+end_src
+
+** 设置eldoc
+#+begin_src emacs-lisp
+  (setq eldoc-echo-area-display-truncation-message nil)
+  (setq eldoc-echo-area-use-multiline-p nil)
+  (set-popup-rule! "^\\*eldoc*" :size 0.3 :modeline nil :quit t)
 #+end_src
 
 ** 设置corfu
@@ -301,6 +314,7 @@ config guide: https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
     ;; (setq corfu-preview-current nil)
     (setq corfu-auto-prefix 1)
     (setq corfu-auto-delay 0.1)
+    (setq cape-dict-file "~/.doom.d/dict/words")
     (map! :map corfu-map
           "TAB" #'corfu-next
           [tab] #'corfu-next
@@ -452,6 +466,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 #+begin_src emacs-lisp
   (after! vterm
     (setq vterm-max-scrollback 10000)
+    (setq vterm-timer-delay 0.01)
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
     (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
     (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
@@ -742,12 +757,12 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
   (defun lsp-go-install-save-hooks ()
-    ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
-    (defun my-eglot-organize-imports () (interactive)
-           (eglot-code-actions nil nil "source.organizeImports" t))
-    (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-    (add-hook 'before-save-hook 'eglot-format-buffer))
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t))
+    ;; (defun my-eglot-organize-imports () (interactive)
+    ;;        (eglot-code-actions nil nil "source.organizeImports" t))
+    ;; (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+    ;; (add-hook 'before-save-hook 'eglot-format-buffer))
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 #+end_src
 
