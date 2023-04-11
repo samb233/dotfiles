@@ -24,8 +24,8 @@
 设置窗口的大小。
 我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
 #+begin_src emacs-lisp
-  (pushnew! default-frame-alist '(width . 80) '(height . 50))
-  ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  ;; (pushnew! default-frame-alist '(width . 80) '(height . 50))
+  (add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+end_src
 
 设置窗口透明度。
@@ -71,8 +71,8 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 #+end_src
 
 emacs29新加入的像素滚动模式。
-使页面滚动动画流畅了不少，但也增加了cpu开销。
-我觉得原来的滚动其实还行，可能是终端用习惯了吧。
+mac上适配很好，很有用
+linux上就一般般，还是不开习惯
 #+begin_src emacs-lisp
   ;; (pixel-scroll-precision-mode t)
 #+end_src
@@ -148,6 +148,13 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
   (map! "M-v" #'yank)
 #+end_src
 
+设置Ctrl-z撤销，Ctrl-Z重做
+#+begin_src emacs-lisp
+  (evil-define-key 'emacs 'global (kbd "C-z") 'undo-fu-only-undo)
+  (evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
+  (map! "C-S-z" #'undo-fu-only-redo)
+#+end_src
+
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
 #+begin_src emacs-lisp
   (evil-ex-define-cmd "q" 'kill-this-buffer)
@@ -210,7 +217,7 @@ vc设置，因为性能原因被关闭了。
 设置成全名，让我有种在vim的熟悉感，非常爽。
 #+begin_src emacs-lisp
   (after! evil
-    (setq evil-emacs-state-tag "INSERT")
+    (setq evil-emacs-state-tag "EMACS ")
     (setq evil-insert-state-tag "INSERT")
     (setq evil-motion-state-tag "MOTION")
     (setq evil-normal-state-tag "NORMAL")
@@ -246,58 +253,56 @@ vc设置，因为性能原因被关闭了。
 ** 设置lsp-mode
 config guide: https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
 #+begin_src emacs-lisp
-  (after! lsp-mode
-    (setq lsp-lens-enable nil)
-    (setq lsp-ui-doc-enable nil)
-    (setq lsp-enable-snippet nil)
-    (setq lsp-signature-doc-lines 3)
-    (setq lsp-ui-sideline-show-symbol nil)
-    (setq lsp-modeline-diagnostics-enable nil)
-    (setq lsp-modeline-code-actions-enable nil)
-    (setq lsp-ui-sideline-diagnostic-max-lines 2)
+  ;; (after! lsp-mode
+  ;;   (setq lsp-lens-enable nil)
+  ;;   (setq lsp-ui-doc-enable nil)
+  ;;   (setq lsp-enable-snippet nil)
+  ;;   (setq lsp-signature-doc-lines 3)
+  ;;   (setq lsp-ui-sideline-show-symbol nil)
+  ;;   (setq lsp-modeline-diagnostics-enable nil)
+  ;;   (setq lsp-modeline-code-actions-enable nil)
+  ;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
 
-    (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-    )
+  ;;   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+  ;;   )
 #+end_src
 
 设置lsp-mode的一些快捷键
 #+begin_src emacs-lisp
-  (map! :leader
-        (:prefix-map ("l" . "LSP")
-         :desc "LSP rename" "n" #'lsp-rename
-         :desc "LSP find definitions" "f" #'lsp-find-definition
-         :desc "LSP find reference" "r" #'lsp-find-references
-         (:prefix ("w" . "workspace")
-          :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
-          :desc "LSP restart workspace" "r" #'lsp-workspace-restart
-          )
-         ))
-#+end_src
-
-** 设置eglot
-设置eglot的一些快捷键
-#+begin_src emacs-lisp
   ;; (map! :leader
   ;;       (:prefix-map ("l" . "LSP")
-  ;;        :desc "LSP rename" "n" #'eglot-rename
-  ;;        :desc "LSP find definitions" "f" #'xref-find-definitions
-  ;;        :desc "LSP find reference" "r" #'xref-find-references
-  ;;        :desc "LSP restart workspace" "R" #'eglot-reconnect
+  ;;        :desc "LSP rename" "n" #'lsp-rename
+  ;;        :desc "LSP find definitions" "f" #'lsp-find-definition
+  ;;        :desc "LSP find reference" "r" #'lsp-find-references
+  ;;        (:prefix ("w" . "workspace")
+  ;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
+  ;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
+  ;;         )
   ;;        ))
 #+end_src
 
+** 设置eglot
+eglot写golang时，会对已排序好的候选词再进行一次排序
+导致实际上变成了乱序。故不用。
+设置eglot的一些快捷键
 #+begin_src emacs-lisp
-  ;; (after! eglot
-  ;;   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-  ;;   (setq eglot-events-buffer-size 0)
-  ;;   (setq eglot-stay-out-of '(flymake snippet))
-  ;;   (set-lookup-handlers! 'eglot--managed-mode
-  ;;     :definition      #'xref-find-definitions
-  ;;     :references      #'xref-find-references
-  ;;     :implementations #'eglot-find-implementation
-  ;;     :type-definition #'eglot-find-typeDefinition
-  ;;     :documentation   #'eldoc)
-  ;;   )
+  (map! :leader
+        (:prefix-map ("l" . "LSP")
+         :desc "LSP rename" "n" #'eglot-rename
+         :desc "LSP find definitions" "f" #'xref-find-definitions
+         :desc "LSP find reference" "r" #'xref-find-references
+         :desc "LSP restart workspace" "R" #'eglot-reconnect
+         ))
+#+end_src
+
+#+begin_src emacs-lisp
+  (after! eglot
+    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    (setq eglot-events-buffer-size 0)
+    (setq eglot-stay-out-of '(flymake snippet))
+    ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+    (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+    )
 #+end_src
 
 ** 设置eldoc
@@ -345,6 +350,15 @@ config guide: https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
     )
 #+end_src
 
+** 设置yasnippet
+用于在使用lsp-enable-snippet时解决corfu与yas的tab冲突。
+#+begin_src emacs-lisp
+  ;; (after! yasnippet
+  ;;   (defun my-corfu-frame-visible-h ()
+  ;;     (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+  ;;   (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+  ;;   )
+#+end_src
 * 文件管理器
 配置dirvish。
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
@@ -752,17 +766,18 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     )
 #+end_src
 
-* go-mode设置
+* 各语言设置
+** go-mode
 开启lsp的自动import和format。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
   (defun lsp-go-install-save-hooks ()
-    (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    (add-hook 'before-save-hook #'lsp-organize-imports t t))
-    ;; (defun my-eglot-organize-imports () (interactive)
-    ;;        (eglot-code-actions nil nil "source.organizeImports" t))
-    ;; (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-    ;; (add-hook 'before-save-hook 'eglot-format-buffer))
+    ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
+    (defun my-eglot-organize-imports () (interactive)
+           (eglot-code-actions nil nil "source.organizeImports" t))
+    (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+    (add-hook 'before-save-hook 'eglot-format-buffer))
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 #+end_src
 

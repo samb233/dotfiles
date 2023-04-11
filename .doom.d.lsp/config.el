@@ -7,8 +7,8 @@
 (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
 
-(pushnew! default-frame-alist '(width . 80) '(height . 50))
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (pushnew! default-frame-alist '(width . 80) '(height . 50))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -71,6 +71,10 @@
 (map! "C-v" #'yank)
 (map! "M-v" #'yank)
 
+(evil-define-key 'emacs 'global (kbd "C-z") 'undo-fu-only-undo)
+(evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
+(map! "C-S-z" #'undo-fu-only-redo)
+
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
 
@@ -96,7 +100,7 @@
 (setq auto-revert-check-vc-info t)
 
 (after! evil
-  (setq evil-emacs-state-tag "INSERT")
+  (setq evil-emacs-state-tag "EMACS ")
   (setq evil-insert-state-tag "INSERT")
   (setq evil-motion-state-tag "MOTION")
   (setq evil-normal-state-tag "NORMAL")
@@ -116,49 +120,45 @@
         "<" #'+vertico/switch-workspace-buffer )
   )
 
-(after! lsp-mode
-  (setq lsp-lens-enable nil)
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-enable-snippet nil)
-  (setq lsp-signature-doc-lines 3)
-  (setq lsp-ui-sideline-show-symbol nil)
-  (setq lsp-modeline-diagnostics-enable nil)
-  (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-ui-sideline-diagnostic-max-lines 2)
+;; (after! lsp-mode
+;;   (setq lsp-lens-enable nil)
+;;   (setq lsp-ui-doc-enable nil)
+;;   (setq lsp-enable-snippet nil)
+;;   (setq lsp-signature-doc-lines 3)
+;;   (setq lsp-ui-sideline-show-symbol nil)
+;;   (setq lsp-modeline-diagnostics-enable nil)
+;;   (setq lsp-modeline-code-actions-enable nil)
+;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
 
-  (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-  )
-
-(map! :leader
-      (:prefix-map ("l" . "LSP")
-       :desc "LSP rename" "n" #'lsp-rename
-       :desc "LSP find definitions" "f" #'lsp-find-definition
-       :desc "LSP find reference" "r" #'lsp-find-references
-       (:prefix ("w" . "workspace")
-        :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
-        :desc "LSP restart workspace" "r" #'lsp-workspace-restart
-        )
-       ))
+;;   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+;;   )
 
 ;; (map! :leader
 ;;       (:prefix-map ("l" . "LSP")
-;;        :desc "LSP rename" "n" #'eglot-rename
-;;        :desc "LSP find definitions" "f" #'xref-find-definitions
-;;        :desc "LSP find reference" "r" #'xref-find-references
-;;        :desc "LSP restart workspace" "R" #'eglot-reconnect
+;;        :desc "LSP rename" "n" #'lsp-rename
+;;        :desc "LSP find definitions" "f" #'lsp-find-definition
+;;        :desc "LSP find reference" "r" #'lsp-find-references
+;;        (:prefix ("w" . "workspace")
+;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
+;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
+;;         )
 ;;        ))
 
-;; (after! eglot
-;;   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-;;   (setq eglot-events-buffer-size 0)
-;;   (setq eglot-stay-out-of '(flymake snippet))
-;;   (set-lookup-handlers! 'eglot--managed-mode
-;;     :definition      #'xref-find-definitions
-;;     :references      #'xref-find-references
-;;     :implementations #'eglot-find-implementation
-;;     :type-definition #'eglot-find-typeDefinition
-;;     :documentation   #'eldoc)
-;;   )
+(map! :leader
+      (:prefix-map ("l" . "LSP")
+       :desc "LSP rename" "n" #'eglot-rename
+       :desc "LSP find definitions" "f" #'xref-find-definitions
+       :desc "LSP find reference" "r" #'xref-find-references
+       :desc "LSP restart workspace" "R" #'eglot-reconnect
+       ))
+
+(after! eglot
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  (setq eglot-events-buffer-size 0)
+  (setq eglot-stay-out-of '(flymake snippet))
+  ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+  (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+  )
 
 (setq eldoc-echo-area-display-truncation-message nil)
 (setq eldoc-echo-area-use-multiline-p nil)
@@ -191,6 +191,12 @@
 (after! corfu
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
   )
+
+;; (after! yasnippet
+;;   (defun my-corfu-frame-visible-h ()
+;;     (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+;;   (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+;;   )
 
 (use-package! dirvish
   :init
@@ -494,12 +500,12 @@ used as title."
   )
 
 (defun lsp-go-install-save-hooks ()
-  (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  (add-hook 'before-save-hook #'lsp-organize-imports t t))
-  ;; (defun my-eglot-organize-imports () (interactive)
-  ;;        (eglot-code-actions nil nil "source.organizeImports" t))
-  ;; (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-  ;; (add-hook 'before-save-hook 'eglot-format-buffer))
+  ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
+  ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
+  (defun my-eglot-organize-imports () (interactive)
+         (eglot-code-actions nil nil "source.organizeImports" t))
+  (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+  (add-hook 'before-save-hook 'eglot-format-buffer))
 (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
