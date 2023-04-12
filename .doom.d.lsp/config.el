@@ -313,32 +313,6 @@
       :desc "Toggle Eshell" "E" #'+eshell/toggle
       )
 
-(use-package! docker
-  :config
-  (setq docker-command "podman")
-  (setq docker-compose-command "podman-compose")
-  (setq docker-pop-to-buffer-action '(display-buffer-same-window))
-  (setq docker-run-async-with-buffer-function #'docker-run-async-with-buffer-vterm)
-  (setq docker-container-columns
-        '(
-          (:name "Id" :width 14 :template "{{ json .ID }}" :sort nil :format nil)
-          (:name "Names" :width 12 :template "{{ json .Names }}" :sort nil :format nil)
-          (:name "Status" :width 14 :template "{{ json .Status }}" :sort nil :format nil)
-          (:name "Ports" :width 24 :template "{{ json .Ports }}" :sort nil :format nil)
-          (:name "Image" :width 40 :template "{{ json .Image }}" :sort nil :format nil)
-          (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
-                 (lambda (x) (format-time-string "%F %T" (date-to-time x))))
-          (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)))
-  )
-
-(after! docker-tramp
-  (setq docker-tramp-docker-executable "podman")
-  )
-
-(map! :leader
-      :desc "docker Containers" "o c" #'docker-containers
-      )
-
 (use-package! sis
   :config
   (sis-ism-lazyman-config "1" "2" 'fcitx5)

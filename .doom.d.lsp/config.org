@@ -503,44 +503,6 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
         )
 #+end_src
 
-* Docker设置
-说是docker，但其实在ArchLinux上我更喜欢用podman。
-主要设置一下窗口的大小、窗口内的样式等。
-#+begin_src emacs-lisp
-  (use-package! docker
-    :config
-    (setq docker-command "podman")
-    (setq docker-compose-command "podman-compose")
-    (setq docker-pop-to-buffer-action '(display-buffer-same-window))
-    (setq docker-run-async-with-buffer-function #'docker-run-async-with-buffer-vterm)
-    (setq docker-container-columns
-          '(
-            (:name "Id" :width 14 :template "{{ json .ID }}" :sort nil :format nil)
-            (:name "Names" :width 12 :template "{{ json .Names }}" :sort nil :format nil)
-            (:name "Status" :width 14 :template "{{ json .Status }}" :sort nil :format nil)
-            (:name "Ports" :width 24 :template "{{ json .Ports }}" :sort nil :format nil)
-            (:name "Image" :width 40 :template "{{ json .Image }}" :sort nil :format nil)
-            (:name "Created" :width 21 :template "{{ json .CreatedAt }}" :sort nil :format
-                   (lambda (x) (format-time-string "%F %T" (date-to-time x))))
-            (:name "Command" :width 20 :template "{{ json .Command }}" :sort nil :format nil)))
-    )
-#+end_src
-
-设置docker-tramp以兼容podman
-#+begin_src emacs-lisp
-  (after! docker-tramp
-    (setq docker-tramp-docker-executable "podman")
-    )
-#+end_src
-
-我最常用的操作其实就是打开容器页面，开开关关，看看日志。
-单独设置了一个快捷键。
-#+begin_src emacs-lisp
-  (map! :leader
-        :desc "docker Containers" "o c" #'docker-containers
-        )
-#+end_src
-
 * 输入法配置
 配置中英文输入法自动切换。
 #+begin_src emacs-lisp
