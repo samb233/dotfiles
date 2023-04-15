@@ -56,6 +56,9 @@
   (setq-hook! 'persp-mode-hook uniquify-buffer-name-style 'forward)
   )
 
+(setq highlight-indent-guides-method 'bitmap)
+(setq highlight-indent-guides-responsive 'top)
+
 (defalias 'evil-insert-state 'evil-emacs-state)
 (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
 ;; (setq evil-disable-insert-state-bindings t)
@@ -155,14 +158,14 @@
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
-  (setq eglot-stay-out-of '(flymake snippet))
+  (setq eglot-stay-out-of '(snippet))
   ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   )
 
 (setq eldoc-echo-area-display-truncation-message nil)
 (setq eldoc-echo-area-use-multiline-p nil)
-(set-popup-rule! "^\\*eldoc*" :size 0.3 :modeline nil :quit t)
+(set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
 
 (after! corfu
   (setq corfu-preselect 'prompt)
@@ -300,7 +303,6 @@
   (setq vterm-timer-delay 0.01)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
-  (remove-hook 'vterm-mode-hook 'hide-mode-line-mode)
   )
 
 (defun my/eshell-use-git-prompt-theme()

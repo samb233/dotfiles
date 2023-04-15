@@ -63,3 +63,6 @@
 
 ;; justfile
 (package! just-mode)
+
+;;Sideline
+(package! sideline)
