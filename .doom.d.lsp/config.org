@@ -24,8 +24,8 @@
 设置窗口的大小。
 我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
 #+begin_src emacs-lisp
-  ;; (pushnew! default-frame-alist '(width . 80) '(height . 50))
-  (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  (pushnew! default-frame-alist '(width . 80) '(height . 50))
+  ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+end_src
 
 设置窗口透明度。
@@ -185,6 +185,12 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
 设置C-c k打开文档
 #+begin_src emacs-lisp
   (map! :map global-map "C-c k" #'+lookup/documentation)
+#+end_src
+
+设置]e [e跳转错误
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
+  (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 #+end_src
 
 * 基础插件变量设置

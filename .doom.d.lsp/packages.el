@@ -66,3 +66,5 @@
 
 ;;Sideline
 (package! sideline)
+
+(package! tide :disable t)

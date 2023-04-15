@@ -7,8 +7,8 @@
 (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
 
-;; (pushnew! default-frame-alist '(width . 80) '(height . 50))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(pushnew! default-frame-alist '(width . 80) '(height . 50))
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -90,6 +90,9 @@
       )
 
 (map! :map global-map "C-c k" #'+lookup/documentation)
+
+(evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
+(evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
