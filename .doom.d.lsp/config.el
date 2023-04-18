@@ -166,7 +166,9 @@
 
 (add-hook! 'evil-emacs-state-exit-hook #'corfu-quit)
 
-(use-package! kind-all-the-icons)
+(use-package! kind-all-the-icons
+  :after corfu
+  )
 
 (after! corfu
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
@@ -179,8 +181,9 @@
 ;;   )
 
 (use-package! dirvish
+  :defer t
   :init
-  (dirvish-override-dired-mode)
+  (after! dired (dirvish-override-dired-mode))
   :custom
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
@@ -444,8 +447,7 @@ used as title."
               "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
               "\\)"))
 
-(use-package! sh-script
-  :config
+(after! sh-script
   (set-formatter! 'shfmt
     '("shfmt" "-ci"
       ("-i" "%d" (unless indent-tabs-mode tab-width))
@@ -461,11 +463,18 @@ used as title."
   (add-hook 'before-save-hook 'eglot-format-buffer))
 (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 
+(use-package protobuf-mode
+  :commands (protobuf-mode)
+  :mode("\\.proto\\'" . protobuf-mode)
+  )
+
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
 
 (setq flycheck-check-syntax-automatically '(save mode-enabled idle-change idle-buffer-switch))
 
 (use-package! fanyi
+  :commands (fanyi-dwim
+             fanyi-dwim2)
   :custom
   (fanyi-providers '(;; 海词
                      fanyi-haici-provider

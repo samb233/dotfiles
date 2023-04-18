@@ -320,7 +320,9 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
 并设置corfu使用all-the-icon而不是使用kind-icon。
 图标并不好看，而且下载github的图标非常非常耗时间。
 #+begin_src emacs-lisp
-  (use-package! kind-all-the-icons)
+  (use-package! kind-all-the-icons
+    :after corfu
+    )
 
   (after! corfu
     (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
@@ -341,8 +343,9 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
 #+begin_src emacs-lisp
   (use-package! dirvish
+    :defer t
     :init
-    (dirvish-override-dired-mode)
+    (after! dired (dirvish-override-dired-mode))
     :custom
     (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
      '(("h" "~/"                          "Home")
@@ -695,8 +698,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 我已经忘了我为什么要设置这个。
 似乎是不设置会报错。
 #+begin_src emacs-lisp
-  (use-package! sh-script
-    :config
+  (after! sh-script
     (set-formatter! 'shfmt
       '("shfmt" "-ci"
         ("-i" "%d" (unless indent-tabs-mode tab-width))
@@ -719,6 +721,14 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
 #+end_src
 
+** protobuf-mode
+#+begin_src emacs-lisp
+  (use-package protobuf-mode
+    :commands (protobuf-mode)
+    :mode("\\.proto\\'" . protobuf-mode)
+    )
+#+end_src
+
 * flycheck & flymake设置
 设置错误弹窗为popup
 #+begin_src emacs-lisp
@@ -733,6 +743,8 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 * 翻译工具
 #+begin_src emacs-lisp
   (use-package! fanyi
+    :commands (fanyi-dwim
+               fanyi-dwim2)
     :custom
     (fanyi-providers '(;; 海词
                        fanyi-haici-provider
