@@ -24,6 +24,7 @@
 (use-package sideline
   :when (modulep! +sideline)
   :init
+  (setq sideline-display-backend-name t)
   (setq sideline-backends-right '(sideline-flymake))
   :hook ((flymake-mode . sideline-mode))
   )
@@ -31,5 +32,4 @@
 (use-package sideline-flymake
   :when (modulep! +sideline)
   :init (setq sideline-flymake-display-mode 'line)
-  (setq sideline-flymake-max-lines 5)
   )

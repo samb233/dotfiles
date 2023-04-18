@@ -68,3 +68,6 @@
 (package! sideline)
 
 (package! tide :disable t)
+
+;; org-modern
+;; (package! org-modern)

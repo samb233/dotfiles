@@ -128,10 +128,11 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
 
 * 基础按键设置
 在insert模式使用emacs的快捷键
+在init.el中设置 (setq evil-disable-insert-state-bindings t) 即可
+用emacs-state覆盖insert-state会导致多行编辑等失效
 #+begin_src emacs-lisp
-  (defalias 'evil-insert-state 'evil-emacs-state)
-  (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
-  ;; (setq evil-disable-insert-state-bindings t)
+  ;; (defalias 'evil-insert-state 'evil-emacs-state)
+  ;; (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
 #+end_src
 
 设置visual模式下Shift-j和Shift-k上下移动代码块
@@ -156,22 +157,16 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
 
 设置Ctrl-z撤销，Ctrl-Z重做
 #+begin_src emacs-lisp
-  (evil-define-key 'emacs 'global (kbd "C-z") 'undo-fu-only-undo)
+  (evil-define-key 'insert 'global (kbd "C-z") 'undo-fu-only-undo)
   (evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
-  (map! "C-S-z" #'undo-fu-only-redo)
+  (evil-define-key 'insert 'global (kbd "C-S-z") 'undo-fu-only-redo)
+  (evil-define-key 'normal 'global (kbd "C-S-z") 'undo-fu-only-redo)
 #+end_src
 
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
 #+begin_src emacs-lisp
   (evil-ex-define-cmd "q" 'kill-this-buffer)
   (evil-ex-define-cmd "quit" 'evil-quit)
-#+end_src
-
-取消按键宏。
-我用不到这个功能，但不小心按两次q就弹出来很烦人。
-#+begin_src emacs-lisp
-  (evil-define-key 'normal 'global
-    (kbd "q") nil)
 #+end_src
 
 设置窗口跳转。使用插件ace-window
@@ -256,43 +251,12 @@ vc设置，因为性能原因被关闭了。
 #+begin_src emacs-lisp
   (after! persp-mode
     (map! :leader
-          "," #'consult-buffer
-          "<" #'+vertico/switch-workspace-buffer )
+          :desc "Switch buffer" "," #'consult-buffer
+          :desc "Switch workspace buffer" "<" #'+vertico/switch-workspace-buffer )
     )
 #+end_src
 
-* lsp & corfu
-** 设置lsp-mode
-config guide: https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
-#+begin_src emacs-lisp
-  ;; (after! lsp-mode
-  ;;   (setq lsp-lens-enable nil)
-  ;;   (setq lsp-ui-doc-enable nil)
-  ;;   (setq lsp-enable-snippet nil)
-  ;;   (setq lsp-signature-doc-lines 3)
-  ;;   (setq lsp-ui-sideline-show-symbol nil)
-  ;;   (setq lsp-modeline-diagnostics-enable nil)
-  ;;   (setq lsp-modeline-code-actions-enable nil)
-  ;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
-
-  ;;   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-  ;;   )
-#+end_src
-
-设置lsp-mode的一些快捷键
-#+begin_src emacs-lisp
-  ;; (map! :leader
-  ;;       (:prefix-map ("l" . "LSP")
-  ;;        :desc "LSP rename" "n" #'lsp-rename
-  ;;        :desc "LSP find definitions" "f" #'lsp-find-definition
-  ;;        :desc "LSP find reference" "r" #'lsp-find-references
-  ;;        (:prefix ("w" . "workspace")
-  ;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
-  ;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
-  ;;         )
-  ;;        ))
-#+end_src
-
+* corfu
 ** 设置eglot
 eglot写golang时，会对已排序好的候选词再进行一次排序
 导致实际上变成了乱序。故不用。
@@ -311,6 +275,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
   (after! eglot
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
+    (setq eglot-send-changes-idle-time 0.1)
     (setq eglot-stay-out-of '(snippet))
     ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
@@ -333,17 +298,17 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
     (setq corfu-auto-delay 0.1)
     (setq cape-dict-file "~/.doom.d/dict/words")
     (map! :map corfu-map
-          "TAB" #'corfu-next
-          [tab] #'corfu-next
-          "S-TAB" #'corfu-previous
-          [backtab] #'corfu-previous
-          "C-j" #'corfu-next
-          "C-k" #'corfu-previous
-          "C-l" #'corfu-insert-separator
-          "C-i" #'corfu-info-documentation
+          :i "TAB" #'corfu-next
+          :i [tab] #'corfu-next
+          :i "S-TAB" #'corfu-previous
+          :i [backtab] #'corfu-previous
+          :i "C-j" #'corfu-next
+          :i "C-k" #'corfu-previous
+          :i "C-l" #'corfu-insert-separator
+          :i "C-i" #'corfu-info-documentation
           )
     (map! :map global-map
-          "C-S-p" #'+corfu-files)
+          :i "C-S-p" #'+corfu-files)
     )
 #+end_src
 

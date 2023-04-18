@@ -59,9 +59,8 @@
 (setq highlight-indent-guides-method 'bitmap)
 (setq highlight-indent-guides-responsive 'top)
 
-(defalias 'evil-insert-state 'evil-emacs-state)
-(define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
-;; (setq evil-disable-insert-state-bindings t)
+;; (defalias 'evil-insert-state 'evil-emacs-state)
+;; (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
 
 (evil-define-key 'visual 'global
   (kbd "J") 'drag-stuff-down
@@ -74,15 +73,13 @@
 (map! "C-v" #'yank)
 (map! "M-v" #'yank)
 
-(evil-define-key 'emacs 'global (kbd "C-z") 'undo-fu-only-undo)
+(evil-define-key 'insert 'global (kbd "C-z") 'undo-fu-only-undo)
 (evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
-(map! "C-S-z" #'undo-fu-only-redo)
+(evil-define-key 'insert 'global (kbd "C-S-z") 'undo-fu-only-redo)
+(evil-define-key 'normal 'global (kbd "C-S-z") 'undo-fu-only-redo)
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
-
-(evil-define-key 'normal 'global
-  (kbd "q") nil)
 
 (map! :leader
       :desc "ace-select-window" "w a"   #'ace-select-window
@@ -122,33 +119,9 @@
 
 (after! persp-mode
   (map! :leader
-        "," #'consult-buffer
-        "<" #'+vertico/switch-workspace-buffer )
+        :desc "Switch buffer" "," #'consult-buffer
+        :desc "Switch workspace buffer" "<" #'+vertico/switch-workspace-buffer )
   )
-
-;; (after! lsp-mode
-;;   (setq lsp-lens-enable nil)
-;;   (setq lsp-ui-doc-enable nil)
-;;   (setq lsp-enable-snippet nil)
-;;   (setq lsp-signature-doc-lines 3)
-;;   (setq lsp-ui-sideline-show-symbol nil)
-;;   (setq lsp-modeline-diagnostics-enable nil)
-;;   (setq lsp-modeline-code-actions-enable nil)
-;;   (setq lsp-ui-sideline-diagnostic-max-lines 2)
-
-;;   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-;;   )
-
-;; (map! :leader
-;;       (:prefix-map ("l" . "LSP")
-;;        :desc "LSP rename" "n" #'lsp-rename
-;;        :desc "LSP find definitions" "f" #'lsp-find-definition
-;;        :desc "LSP find reference" "r" #'lsp-find-references
-;;        (:prefix ("w" . "workspace")
-;;         :desc "LSP change workspace" "w" #'lsp-workspace-folders-switch
-;;         :desc "LSP restart workspace" "r" #'lsp-workspace-restart
-;;         )
-;;        ))
 
 (map! :leader
       (:prefix-map ("l" . "LSP")
@@ -161,6 +134,7 @@
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
+  (setq eglot-send-changes-idle-time 0.1)
   (setq eglot-stay-out-of '(snippet))
   ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
@@ -177,17 +151,17 @@
   (setq corfu-auto-delay 0.1)
   (setq cape-dict-file "~/.doom.d/dict/words")
   (map! :map corfu-map
-        "TAB" #'corfu-next
-        [tab] #'corfu-next
-        "S-TAB" #'corfu-previous
-        [backtab] #'corfu-previous
-        "C-j" #'corfu-next
-        "C-k" #'corfu-previous
-        "C-l" #'corfu-insert-separator
-        "C-i" #'corfu-info-documentation
+        :i "TAB" #'corfu-next
+        :i [tab] #'corfu-next
+        :i "S-TAB" #'corfu-previous
+        :i [backtab] #'corfu-previous
+        :i "C-j" #'corfu-next
+        :i "C-k" #'corfu-previous
+        :i "C-l" #'corfu-insert-separator
+        :i "C-i" #'corfu-info-documentation
         )
   (map! :map global-map
-        "C-S-p" #'+corfu-files)
+        :i "C-S-p" #'+corfu-files)
   )
 
 (add-hook! 'evil-emacs-state-exit-hook #'corfu-quit)
