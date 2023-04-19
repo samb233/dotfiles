@@ -50,7 +50,6 @@
 ;(unpin! t)
 
 (add-load-path! "elisp")
-
 (package! sis)
 (package! eshell-git-prompt)
 (package! dirvish)
@@ -58,13 +57,6 @@
 ;; 翻译工具
 (package! fanyi)
 
-;; 计算器
-(package! literate-calc-mode)
-
-;; justfile
-(package! just-mode)
-
-;;Sideline
-(package! sideline)
-
-(package! tide :disable t)
+;; org美化
+(package! org-modern)
+(package! org-appear)

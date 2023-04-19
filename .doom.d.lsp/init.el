@@ -27,8 +27,8 @@
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
+       vertico             ; the search engine of the future
        (corfu +tng)
-       (vertico +icons)    ; the search engine of the future
 
        :ui
        deft                ; notational velocity for Emacs
@@ -51,7 +51,9 @@
        ;;unicode           ; extended unicode support for various languages
        (vc-gutter +pretty) ; vcs diff in the fringe
        vi-tilde-fringe     ; fringe tildes to mark beyond EOB
-       window-select       ; visually switch windows
+       (window-select
+                +switch-window
+                +numbers)  ; visually switch windows
        workspaces          ; tab emulation, persistence & separate workspaces
        ;;zen               ; distraction-free coding or writing
 
@@ -150,7 +152,7 @@
        (javascript +lsp)   ; all(hope(abandon(ye(who(enter(here))))))
        ;;julia             ; a better, faster MATLAB
        ;;kotlin            ; a better, slicker Java(Script)
-       (latex +lsp
+       (latex +fold
               +cdlatex)    ; writing papers in Emacs has never been so fun
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
@@ -160,6 +162,7 @@
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        (org +dragndrop
+            +jupyter
             +pandoc
             +roam2)        ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
@@ -183,8 +186,7 @@
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       (web +lsp
-            +html +css)    ; the tubes
+       ;;web               ; the tubes
        (yaml +lsp)         ; JSON, but readable
        ;;zig               ; C, but simpler
 

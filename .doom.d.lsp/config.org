@@ -51,8 +51,8 @@
 Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不再歪歪扭扭。
 并且能兼容Doom的Big Mode。
 #+begin_src emacs-lisp
-  (setq doom-font (font-spec :family "IBM Plex Mono Medm" :size 11.0))
-  (setq doom-variable-pitch-font (font-spec :family "FiraCode Nerd Font"))
+  (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
+  (setq doom-variable-pitch-font (font-spec :family "Iosevka Medium"))
   (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 #+end_src
 
@@ -169,14 +169,6 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
   (evil-ex-define-cmd "quit" 'evil-quit)
 #+end_src
 
-设置窗口跳转。使用插件ace-window
-#+begin_src emacs-lisp
-  (map! :leader
-        :desc "ace-select-window" "w a"   #'ace-select-window
-        :desc "ace-select-window" "w w"   #'ace-select-window
-        )
-#+end_src
-
 设置C-c k打开文档
 #+begin_src emacs-lisp
   (map! :map global-map "C-c k" #'+lookup/documentation)
@@ -256,7 +248,7 @@ vc设置，因为性能原因被关闭了。
     )
 #+end_src
 
-* corfu
+* eglot & corfu
 ** 设置eglot
 eglot写golang时，会对已排序好的候选词再进行一次排序
 导致实际上变成了乱序。故不用。
@@ -306,15 +298,16 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
           :i "C-k" #'corfu-previous
           :i "C-l" #'corfu-insert-separator
           :i "C-i" #'corfu-info-documentation
+          :i "C-g" #'corfu-quit
           )
     (map! :map global-map
           :i "C-S-p" #'+corfu-files)
     )
 #+end_src
 
-并设置在退出emacs-state时关闭补全菜单
+并设置在退出insert-state时关闭补全菜单
 #+begin_src emacs-lisp
-  (add-hook! 'evil-emacs-state-exit-hook #'corfu-quit)
+  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
 #+end_src
 
 并设置corfu使用all-the-icon而不是使用kind-icon。
@@ -338,6 +331,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
   ;;   (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
   ;;   )
 #+end_src
+
 * 文件管理器
 配置dirvish。
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
@@ -468,18 +462,14 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 
 设置eshell的主题
 #+begin_src emacs-lisp
+  (use-package! eshell-git-prompt
+    :commands (eshell-git-prompt-use-theme)
+    )
+
   (defun my/eshell-use-git-prompt-theme()
     (eshell-git-prompt-use-theme 'git-radar)
     )
   (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
-#+end_src
-
-设置快捷键
-#+begin_src emacs-lisp
-  (map! :leader
-        :desc "Open Vterm" "T" #'+vterm/here
-        :desc "Toggle Eshell" "E" #'+eshell/toggle
-        )
 #+end_src
 
 * 输入法配置
@@ -499,69 +489,83 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
     )
 #+end_src
 
-另外，由于我使用了evil-emacs-state，所以需要额外设置一下输入法切换。
-#+begin_src emacs-lisp
-  (add-hook! 'evil-emacs-state-exit-hook #'sis-set-english)
-  (add-hook! 'evil-emacs-state-entry-hook #'sis-context t)
-#+end_src
-
-doom对离开insert模式还做了一些hook，不太清楚作用，但还是在这里加上
-#+begin_src emacs-lisp
-  (add-hook! 'evil-emacs-state-exit-hook #'doom-modeline-update-buffer-file-name)
-  ;; (add-hook! 'evil-emacs-state-exit-hook #'evil-maybe-expand-abbrev)
-#+end_src
-
 * Org-Mode设置
-** 外观设置
-配置一下Org-Mode的主题颜色、字体大小等。
-最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
-另外做个备忘，org-mode中提升标题等级是M+左箭头，降低是M+右箭头。
-#+begin_src emacs-lisp
-  (setq org-directory "~/Notes")
-  (after! org
-    (defun my/org-colors-tomorrow-night ()
-      (interactive)
-      (dolist
-          (face
-           '((org-level-1 1.3 "#81a2be" ultra-bold)
-             (org-level-2 1.2 "#b294bb" extra-bold)
-             (org-level-3 1.1 "#b5bd68" bold)
-             (org-level-4 1.0 "#e6c547" semi-bold)
-             (org-level-5 1.0 "#cc6666" normal)
-             (org-level-6 1.0 "#70c0ba" normal)
-             (org-level-7 1.0 "#b77ee0" normal)
-             (org-level-8 1.0 "#9ec400" normal)))
-        (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-      (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-
-    (defun my/org-colors-tomorrow-day()
-      (interactive)
-      (dolist
-          (face
-           '((org-level-1 1.3 "#4271ae" ultra-bold)
-             (org-level-2 1.2 "#8959a8" extra-bold)
-             (org-level-3 1.1 "#b5bd68" bold)
-             (org-level-4 1.0 "#e6c547" semi-bold)
-             (org-level-5 1.0 "#c82829" normal)
-             (org-level-6 1.0 "#70c0ba" normal)
-             (org-level-7 1.0 "#b77ee0" normal)
-             (org-level-8 1.0 "#9ec400" normal)))
-        (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-      (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-
-    (my/org-colors-tomorrow-day)
-    (setq org-src-preserve-indentation nil)
-    )
-#+end_src
-
 ** 设置关闭word-wrap
-中英文一起是word-wrap只会是副作用。
+中英文一起时word-wrap只会是副作用。
 比如在列表开头给你整一个空行。。
 至于为什么用hook，因为直接设置word-wrap nil没有用。
 关闭后会导致长代码折行时不好看，但我认为不让列表出现空行更重要。
 要看org中的代码自己开！
 #+begin_src emacs-lisp
   (add-hook! 'org-mode-hook #'toggle-word-wrap)
+#+end_src
+
+** 外观设置
+配置一下Org-Mode的主题颜色、字体大小等。
+最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
+另外做个备忘，org-mode中提升标题等级是M+左箭头，降低是M+右箭头。
+#+begin_src emacs-lisp
+  (setq org-directory "~/Notes")
+
+  (defun my/org-colors-tomorrow-night ()
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.3 "#81a2be" ultra-bold)
+           (org-level-2 1.2 "#b294bb" extra-bold)
+           (org-level-3 1.1 "#b5bd68" bold)
+           (org-level-4 1.0 "#e6c547" semi-bold)
+           (org-level-5 1.0 "#cc6666" normal)
+           (org-level-6 1.0 "#70c0ba" normal)
+           (org-level-7 1.0 "#b77ee0" normal)
+           (org-level-8 1.0 "#9ec400" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+  (defun my/org-colors-tomorrow-day()
+    (interactive)
+    (dolist
+        (face
+         '((org-level-1 1.3 "#4271ae" ultra-bold)
+           (org-level-2 1.2 "#8959a8" extra-bold)
+           (org-level-3 1.1 "#b5bd68" bold)
+           (org-level-4 1.0 "#e6c547" semi-bold)
+           (org-level-5 1.0 "#c82829" normal)
+           (org-level-6 1.0 "#70c0ba" normal)
+           (org-level-7 1.0 "#b77ee0" normal)
+           (org-level-8 1.0 "#9ec400" normal)))
+      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+  (after! org
+    (my/org-colors-tomorrow-day)
+    (setq org-src-preserve-indentation nil)
+    (setq org-image-actual-width 500)
+    )
+#+end_src
+
+** org-modern
+使用org-modern美化org
+#+begin_src emacs-lisp
+  (use-package! org-modern
+    :commands (org-modern-mode)
+    :init
+    (setq org-modern-block-name nil)
+    (setq org-modern-star '("○" "◉" "✸" "✿" "✳" "▶" "◇" "◈"))
+    )
+
+  (add-hook 'org-mode-hook #'org-modern-mode)
+#+end_src
+
+** org-appear
+#+begin_src emacs-lisp
+  (use-package! org-appear
+    :commands (org-appear-mode)
+    :init
+    (setq org-appear-autolinks t)
+    )
+
+  (add-hook 'org-mode-hook 'org-appear-mode)
 #+end_src
 
 ** org-roam
@@ -712,8 +716,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
   (defun lsp-go-install-save-hooks ()
-    ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
-    ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
     (defun my-eglot-organize-imports () (interactive)
            (eglot-code-actions nil nil "source.organizeImports" t))
     (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
@@ -733,11 +735,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 设置错误弹窗为popup
 #+begin_src emacs-lisp
   (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
-#+end_src
-
-更改为只在save时检查
-#+begin_src emacs-lisp
-  (setq flycheck-check-syntax-automatically '(save mode-enabled idle-change idle-buffer-switch))
 #+end_src
 
 * 翻译工具

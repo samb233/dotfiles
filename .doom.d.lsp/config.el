@@ -18,8 +18,8 @@
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
-(setq doom-font (font-spec :family "IBM Plex Mono Medm" :size 11.0))
-(setq doom-variable-pitch-font (font-spec :family "FiraCode Nerd Font"))
+(setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
+(setq doom-variable-pitch-font (font-spec :family "Iosevka Medium"))
 (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 
 (setq scroll-margin 9)
@@ -80,11 +80,6 @@
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
-
-(map! :leader
-      :desc "ace-select-window" "w a"   #'ace-select-window
-      :desc "ace-select-window" "w w"   #'ace-select-window
-      )
 
 (map! :map global-map "C-c k" #'+lookup/documentation)
 
@@ -159,12 +154,13 @@
         :i "C-k" #'corfu-previous
         :i "C-l" #'corfu-insert-separator
         :i "C-i" #'corfu-info-documentation
+        :i "C-g" #'corfu-quit
         )
   (map! :map global-map
         :i "C-S-p" #'+corfu-files)
   )
 
-(add-hook! 'evil-emacs-state-exit-hook #'corfu-quit)
+(add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
 
 (use-package! kind-all-the-icons
   :after corfu
@@ -285,15 +281,14 @@
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
   )
 
+(use-package! eshell-git-prompt
+  :commands (eshell-git-prompt-use-theme)
+  )
+
 (defun my/eshell-use-git-prompt-theme()
   (eshell-git-prompt-use-theme 'git-radar)
   )
 (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
-
-(map! :leader
-      :desc "Open Vterm" "T" #'+vterm/here
-      :desc "Toggle Eshell" "E" #'+eshell/toggle
-      )
 
 (use-package! sis
   :config
@@ -308,49 +303,62 @@
   ;; (sis-global-inline-mode t)
   )
 
-(add-hook! 'evil-emacs-state-exit-hook #'sis-set-english)
-(add-hook! 'evil-emacs-state-entry-hook #'sis-context t)
-
-(add-hook! 'evil-emacs-state-exit-hook #'doom-modeline-update-buffer-file-name)
-;; (add-hook! 'evil-emacs-state-exit-hook #'evil-maybe-expand-abbrev)
+(add-hook! 'org-mode-hook #'toggle-word-wrap)
 
 (setq org-directory "~/Notes")
+
+(defun my/org-colors-tomorrow-night ()
+  (interactive)
+  (dolist
+      (face
+       '((org-level-1 1.3 "#81a2be" ultra-bold)
+         (org-level-2 1.2 "#b294bb" extra-bold)
+         (org-level-3 1.1 "#b5bd68" bold)
+         (org-level-4 1.0 "#e6c547" semi-bold)
+         (org-level-5 1.0 "#cc6666" normal)
+         (org-level-6 1.0 "#70c0ba" normal)
+         (org-level-7 1.0 "#b77ee0" normal)
+         (org-level-8 1.0 "#9ec400" normal)))
+    (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+  (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
+(defun my/org-colors-tomorrow-day()
+  (interactive)
+  (dolist
+      (face
+       '((org-level-1 1.3 "#4271ae" ultra-bold)
+         (org-level-2 1.2 "#8959a8" extra-bold)
+         (org-level-3 1.1 "#b5bd68" bold)
+         (org-level-4 1.0 "#e6c547" semi-bold)
+         (org-level-5 1.0 "#c82829" normal)
+         (org-level-6 1.0 "#70c0ba" normal)
+         (org-level-7 1.0 "#b77ee0" normal)
+         (org-level-8 1.0 "#9ec400" normal)))
+    (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
+  (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+
 (after! org
-  (defun my/org-colors-tomorrow-night ()
-    (interactive)
-    (dolist
-        (face
-         '((org-level-1 1.3 "#81a2be" ultra-bold)
-           (org-level-2 1.2 "#b294bb" extra-bold)
-           (org-level-3 1.1 "#b5bd68" bold)
-           (org-level-4 1.0 "#e6c547" semi-bold)
-           (org-level-5 1.0 "#cc6666" normal)
-           (org-level-6 1.0 "#70c0ba" normal)
-           (org-level-7 1.0 "#b77ee0" normal)
-           (org-level-8 1.0 "#9ec400" normal)))
-      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-
-  (defun my/org-colors-tomorrow-day()
-    (interactive)
-    (dolist
-        (face
-         '((org-level-1 1.3 "#4271ae" ultra-bold)
-           (org-level-2 1.2 "#8959a8" extra-bold)
-           (org-level-3 1.1 "#b5bd68" bold)
-           (org-level-4 1.0 "#e6c547" semi-bold)
-           (org-level-5 1.0 "#c82829" normal)
-           (org-level-6 1.0 "#70c0ba" normal)
-           (org-level-7 1.0 "#b77ee0" normal)
-           (org-level-8 1.0 "#9ec400" normal)))
-      (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-    (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-
   (my/org-colors-tomorrow-day)
   (setq org-src-preserve-indentation nil)
+  (setq org-image-actual-width 500)
   )
 
-(add-hook! 'org-mode-hook #'toggle-word-wrap)
+(use-package! org-modern
+  :commands (org-modern-mode)
+  :init
+  (setq org-modern-block-name nil)
+  (setq org-modern-star '("○" "◉" "✸" "✿" "✳" "▶" "◇" "◈"))
+  )
+
+(add-hook 'org-mode-hook #'org-modern-mode)
+
+(use-package! org-appear
+  :commands (org-appear-mode)
+  :init
+  (setq org-appear-autolinks t)
+  )
+
+(add-hook 'org-mode-hook 'org-appear-mode)
 
 (setq org-roam-directory "~/Notes/Roam")
 (map! :leader
@@ -455,8 +463,6 @@ used as title."
   )
 
 (defun lsp-go-install-save-hooks ()
-  ;; (add-hook 'before-save-hook #'lsp-format-buffer t t)
-  ;; (add-hook 'before-save-hook #'lsp-organize-imports t t))
   (defun my-eglot-organize-imports () (interactive)
          (eglot-code-actions nil nil "source.organizeImports" t))
   (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
@@ -469,8 +475,6 @@ used as title."
   )
 
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
-
-(setq flycheck-check-syntax-automatically '(save mode-enabled idle-change idle-buffer-switch))
 
 (use-package! fanyi
   :commands (fanyi-dwim
