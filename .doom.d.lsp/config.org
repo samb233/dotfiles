@@ -52,7 +52,7 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 并且能兼容Doom的Big Mode。
 #+begin_src emacs-lisp
   (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
-  (setq doom-variable-pitch-font (font-spec :family "Iosevka Medium"))
+  ;; (setq doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC"))
   (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 #+end_src
 
@@ -82,11 +82,6 @@ linux上就一般般，还是不开习惯
 主题设置。
 #+begin_src emacs-lisp
   (setq doom-theme 'doom-tomorrow-day)
-#+end_src
-
-设置光标样式
-#+begin_src emacs-lisp
-  (setq evil-emacs-state-cursor 'bar)
 #+end_src
 
 设置相对行号。
@@ -146,7 +141,7 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
   (map! "C-s" #'consult-line)
-  (setq consult-line-start-from-top t)
+  ;; (setq consult-line-start-from-top t)
 #+end_src
 
 设置Ctrl-v和Alt-v粘贴
@@ -267,7 +262,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
   (after! eglot
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
-    (setq eglot-send-changes-idle-time 0.1)
+    (setq eglot-send-changes-idle-time 0.2)
     (setq eglot-stay-out-of '(snippet))
     ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
@@ -275,6 +270,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
 #+end_src
 
 ** 设置eldoc
+设置eldoc buffer为popup
 #+begin_src emacs-lisp
   (setq eldoc-echo-area-display-truncation-message nil)
   (setq eldoc-echo-area-use-multiline-p nil)
@@ -344,9 +340,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
      '(("h" "~/"                          "Home")
        ("c" "~/Codes/"                    "Codes")
-       ("t" "~/Codes/Try/"                "Try")
-       ("p" "~/Codes/Projects/"           "Projects")
-       ("r" "~/Codes/Reading/"            "Reading")
        ("D" "~/Documents/"                "Documents")
        ("w" "~/Works/"                    "Works")
        ("d" "~/Downloads/"                "Downloads")
@@ -388,7 +381,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
             (("epub") . ("koodo-reader" "%f"))
             ))
-    (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
+    (setq dirvish-header-line-format '(:left (path) :right (yank sort index " ")))
     (setq dirvish-path-separators (list "  ~" "  " "/"))
     (setq dirvish-side-display-alist `((side . right) (slot . -1)))
     (setq dirvish-side-width 40)

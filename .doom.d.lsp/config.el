@@ -19,7 +19,7 @@
                  "%b"))))
 
 (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
-(setq doom-variable-pitch-font (font-spec :family "Iosevka Medium"))
+;; (setq doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC"))
 (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 
 (setq scroll-margin 9)
@@ -35,8 +35,6 @@
 ;; (pixel-scroll-precision-mode t)
 
 (setq doom-theme 'doom-tomorrow-day)
-
-(setq evil-emacs-state-cursor 'bar)
 
 (setq display-line-numbers-type 'relative)
 
@@ -68,7 +66,7 @@
 
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
-(setq consult-line-start-from-top t)
+;; (setq consult-line-start-from-top t)
 
 (map! "C-v" #'yank)
 (map! "M-v" #'yank)
@@ -129,7 +127,7 @@
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
-  (setq eglot-send-changes-idle-time 0.1)
+  (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of '(snippet))
   ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
@@ -184,9 +182,6 @@
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
      ("c" "~/Codes/"                    "Codes")
-     ("t" "~/Codes/Try/"                "Try")
-     ("p" "~/Codes/Projects/"           "Projects")
-     ("r" "~/Codes/Reading/"            "Reading")
      ("D" "~/Documents/"                "Documents")
      ("w" "~/Works/"                    "Works")
      ("d" "~/Downloads/"                "Downloads")
@@ -228,7 +223,7 @@
           (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
           (("epub") . ("koodo-reader" "%f"))
           ))
-  (setq dirvish-header-line-format '(:left (path) :right (yank sort index)))
+  (setq dirvish-header-line-format '(:left (path) :right (yank sort index " ")))
   (setq dirvish-path-separators (list "  ~" "  " "/"))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-side-width 40)

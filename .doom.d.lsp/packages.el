@@ -60,3 +60,5 @@
 ;; org美化
 (package! org-modern)
 (package! org-appear)
+
+(package! tide :disable t)
