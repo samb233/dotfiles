@@ -331,13 +331,18 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
   ;;   )
 #+end_src
 
-* 文件管理器
+* 文件管理
 配置dired
 由于我取消勾选了doom的dired模块，所以需要自己设置一些dired的选项。
 #+begin_src emacs-lisp
   (use-package! dired
     :commands dired-jump
-    :init (setq dired-dwim-target t)
+    :init
+    (setq dired-dwim-target t
+          dired-hide-details-hide-symlink-targets nil
+          dired-recursive-copies  'always
+          dired-recursive-deletes 'top
+          dired-create-destination-dirs 'ask)
     :config
     (setq dired-omit-files
           (concat "\\`[.][.]?\\'"
@@ -589,7 +594,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 #+begin_src emacs-lisp
   (setq org-roam-directory "~/Notes/Roam")
   (map! :leader
-        :desc "Zettelkasten by org-roam" "v z" #'org-roam-node-find
+        :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
         :desc "org-roam node Insert" "v i" #'org-roam-node-insert
         )
 #+end_src

@@ -175,7 +175,12 @@
 
 (use-package! dired
   :commands dired-jump
-  :init (setq dired-dwim-target t)
+  :init
+  (setq dired-dwim-target t
+        dired-hide-details-hide-symlink-targets nil
+        dired-recursive-copies  'always
+        dired-recursive-deletes 'top
+        dired-create-destination-dirs 'ask)
   :config
   (setq dired-omit-files
         (concat "\\`[.][.]?\\'"
@@ -372,7 +377,7 @@
 
 (setq org-roam-directory "~/Notes/Roam")
 (map! :leader
-      :desc "Zettelkasten by org-roam" "v z" #'org-roam-node-find
+      :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
       :desc "org-roam node Insert" "v i" #'org-roam-node-insert
       )
 
