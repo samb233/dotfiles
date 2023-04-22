@@ -127,7 +127,6 @@
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
-  (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of '(snippet))
   ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
@@ -155,7 +154,7 @@
         :i "C-g" #'corfu-quit
         )
   (map! :map global-map
-        :i "C-S-p" #'+corfu-files)
+        :i "C-S-p" #'cape-file)
   )
 
 (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
@@ -174,10 +173,25 @@
 ;;   (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 ;;   )
 
+(use-package! dired
+  :commands dired-jump
+  :init (setq dired-dwim-target t)
+  :config
+  (setq dired-omit-files
+        (concat "\\`[.][.]?\\'"
+                "\\|^\\.DS_Store\\'"
+                "\\|^\\.project\\(?:ile\\)?\\'"
+                "\\|^\\.\\(?:svn\\|git\\)\\'"
+                "\\|^\\.ccls-cache\\'"
+                "\\|\\(?:\\.js\\)?\\.meta\\'"
+                "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
+  (map! :map dired-mode-map :ng "q" #'quit-window)
+  )
+
 (use-package! dirvish
   :defer t
-  :init
-  (after! dired (dirvish-override-dired-mode))
+  :init (after! dired (dirvish-override-dired-mode))
+  :hook (dired-mode . dired-omit-mode)
   :custom
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
@@ -199,6 +213,7 @@
   ;; (setq dirvish-reuse-session nil) ; disable session reuse
   ;; (setq dirvish--debouncing-delay 2)
   (setq dirvish-async-listing-threshold 10000)
+  (setq dirvish-redisplay-debounce 0)
   (setq dirvish-use-mode-line nil)
   ;; (setq dirvish-default-layout '(0 0.4 0.6))
   ;; (setq dirvish-mode-line-format

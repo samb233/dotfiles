@@ -258,11 +258,14 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
          ))
 #+end_src
 
+配置eglot。
+由于eglot只支持了最基础的lsp协议，有一些协议没有支持
+先将其屏蔽，有时间再找实现
+屏蔽列表
 #+begin_src emacs-lisp
   (after! eglot
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
-    (setq eglot-send-changes-idle-time 0.2)
     (setq eglot-stay-out-of '(snippet))
     ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
@@ -297,7 +300,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
           :i "C-g" #'corfu-quit
           )
     (map! :map global-map
-          :i "C-S-p" #'+corfu-files)
+          :i "C-S-p" #'cape-file)
     )
 #+end_src
 
@@ -329,13 +332,32 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
 #+end_src
 
 * 文件管理器
+配置dired
+由于我取消勾选了doom的dired模块，所以需要自己设置一些dired的选项。
+#+begin_src emacs-lisp
+  (use-package! dired
+    :commands dired-jump
+    :init (setq dired-dwim-target t)
+    :config
+    (setq dired-omit-files
+          (concat "\\`[.][.]?\\'"
+                  "\\|^\\.DS_Store\\'"
+                  "\\|^\\.project\\(?:ile\\)?\\'"
+                  "\\|^\\.\\(?:svn\\|git\\)\\'"
+                  "\\|^\\.ccls-cache\\'"
+                  "\\|\\(?:\\.js\\)?\\.meta\\'"
+                  "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
+    (map! :map dired-mode-map :ng "q" #'quit-window)
+    )
+#+end_src
+
 配置dirvish。
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
 #+begin_src emacs-lisp
   (use-package! dirvish
     :defer t
-    :init
-    (after! dired (dirvish-override-dired-mode))
+    :init (after! dired (dirvish-override-dired-mode))
+    :hook (dired-mode . dired-omit-mode)
     :custom
     (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
      '(("h" "~/"                          "Home")
@@ -357,6 +379,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     ;; (setq dirvish-reuse-session nil) ; disable session reuse
     ;; (setq dirvish--debouncing-delay 2)
     (setq dirvish-async-listing-threshold 10000)
+    (setq dirvish-redisplay-debounce 0)
     (setq dirvish-use-mode-line nil)
     ;; (setq dirvish-default-layout '(0 0.4 0.6))
     ;; (setq dirvish-mode-line-format
