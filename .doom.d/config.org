@@ -1,18 +1,19 @@
 #+title: Samb's Doom Emacs Config
 #+author: Samb
 
-* 启动Server
+* 基础行为 & 变量
+** Server
 #+begin_src emacs-lisp
   (server-start)
 #+end_src
 
-* 设置大名
+** 你的名字
 #+begin_src emacs-lisp
   (setq user-full-name "Jie Samb"
         user-mail-address "samb233@hotmail.com")
 #+end_src
 
-* 文件编码
+** 文件编码
 将文件编码全部设定为utf-8-unix
 #+begin_src emacs-lisp
   (setq-default buffer-file-coding-system 'utf-8-unix)
@@ -20,7 +21,7 @@
   (prefer-coding-system 'utf-8-unix)
 #+end_src
 
-* 窗口设置
+** 窗口大小 & 名称
 设置窗口的大小。
 我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
 #+begin_src emacs-lisp
@@ -45,7 +46,14 @@
                    "%b"))))
 #+end_src
 
-* 字体设置
+** 相对行号。
+使用evil-mode怎么能少了这个！
+#+begin_src emacs-lisp
+  (setq display-line-numbers-type 'relative)
+#+end_src
+
+* 外观设置
+** 字体设置
 设置字体与字体大小。
 将doom-unicode-font设置为Sarasa Mono SC即可解决Doom Emacs的中文显示问题。
 Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不再歪歪扭扭。
@@ -56,40 +64,15 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
   (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 #+end_src
 
-* 滚动设置
-设置鼠标滚动。
-#+begin_src emacs-lisp
-  (setq scroll-margin 9)
-  (setq mouse-wheel-scroll-amount '
-        (3
-         ((shift) . hscroll)
-         ((meta))
-         ((control) . text-scale)))
-  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-  (setq scroll-step 1) ;; keyboard scroll one line at a time
-#+end_src
-
-emacs29新加入的像素滚动模式。
-mac上适配很好，很有用
-linux上就一般般，还是不开习惯
-#+begin_src emacs-lisp
-  ;; (pixel-scroll-precision-mode t)
-#+end_src
-
-* 外观设置
+** 主题设置
 设置emacs的外观。
 主题设置。
 #+begin_src emacs-lisp
   (setq doom-theme 'doom-tomorrow-day)
 #+end_src
 
-设置相对行号。
-使用evil-mode怎么能少了这个！
-#+begin_src emacs-lisp
-  (setq display-line-numbers-type 'relative)
-#+end_src
 
+** doom-modeline
 设置doom-modeline。
 我喜欢简洁一点，去掉了上面的部分图标等。
 #+begin_src emacs-lisp
@@ -115,19 +98,38 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
     )
 #+end_src
 
+** indent-guide
 设置indent-guide的样式
 #+begin_src emacs-lisp
   (setq highlight-indent-guides-method 'bitmap)
   (setq highlight-indent-guides-responsive 'top)
 #+end_src
 
-* 基础按键设置
-在insert模式使用emacs的快捷键
-在init.el中设置 (setq evil-disable-insert-state-bindings t) 即可
-用emacs-state覆盖insert-state会导致多行编辑等失效
+** 各类popup
+设置错误弹窗为popup
 #+begin_src emacs-lisp
-  ;; (defalias 'evil-insert-state 'evil-emacs-state)
-  ;; (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+  (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+#+end_src
+
+* 基础按键设置
+设置鼠标滚动。
+#+begin_src emacs-lisp
+  (setq scroll-margin 9)
+  (setq mouse-wheel-scroll-amount '
+        (3
+         ((shift) . hscroll)
+         ((meta))
+         ((control) . text-scale)))
+  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq scroll-step 1) ;; keyboard scroll one line at a time
+#+end_src
+
+emacs29新加入的像素滚动模式。
+mac上适配很好，很有用
+linux上就一般般，还是不开习惯
+#+begin_src emacs-lisp
+  ;; (pixel-scroll-precision-mode t)
 #+end_src
 
 设置visual模式下Shift-j和Shift-k上下移动代码块
@@ -164,12 +166,8 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
   (evil-ex-define-cmd "quit" 'evil-quit)
 #+end_src
 
-设置C-c k打开文档
-#+begin_src emacs-lisp
-  (map! :map global-map "C-c k" #'+lookup/documentation)
-#+end_src
-
 设置]e [e跳转错误
+在doom emacs没有官方支持flymake前的妥协方案
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
   (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
@@ -191,19 +189,6 @@ doom默认的200个也太少了，至少1000吧
   (after! recentf
     (setq recentf-max-saved-items 1000)
     )
-#+end_src
-
-** 文件-模式
-设置用python-mode打开vpy文件
-#+begin_src emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
-#+end_src
-
-** vc-state
-vc设置，因为性能原因被关闭了。
-但随时随地知道git状态其实是蛮重要的，我把它打开。
-#+begin_src emacs-lisp
-  (setq auto-revert-check-vc-info t)
 #+end_src
 
 ** evil
@@ -230,6 +215,13 @@ vc设置，因为性能原因被关闭了。
   (setq magit-clone-default-directory "~/Codes/Lab/")
 #+end_src
 
+** vc-state
+vc设置，因为性能原因被关闭了。
+但随时随地知道git状态其实是蛮重要的，我把它打开。
+#+begin_src emacs-lisp
+  (setq auto-revert-check-vc-info t)
+#+end_src
+
 ** workspace
 我不喜欢用workspace。
 我享受所有buffer堆在一块的感觉。
@@ -243,8 +235,10 @@ vc设置，因为性能原因被关闭了。
     )
 #+end_src
 
-* eglot & corfu
-** 设置eglot
+* 代码补全
+我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
+
+** eglot
 eglot写golang时，会对已排序好的候选词再进行一次排序
 导致实际上变成了乱序。故不用。
 设置eglot的一些快捷键
@@ -272,7 +266,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
     )
 #+end_src
 
-** 设置eldoc
+** eldoc
 设置eldoc buffer为popup
 #+begin_src emacs-lisp
   (setq eldoc-echo-area-display-truncation-message nil)
@@ -280,7 +274,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
 #+end_src
 
-** 设置corfu
+** corfu
 #+begin_src emacs-lisp
   (after! corfu
     (setq corfu-preselect 'prompt)
@@ -321,7 +315,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
     )
 #+end_src
 
-** 设置yasnippet
+** yasnippet
 用于在使用lsp-enable-snippet时解决corfu与yas的tab冲突。
 #+begin_src emacs-lisp
   ;; (after! yasnippet
@@ -332,7 +326,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
 #+end_src
 
 * 文件管理
-配置dired
+** dired
 由于我取消勾选了doom的dired模块，所以需要自己设置一些dired的选项。
 #+begin_src emacs-lisp
   (use-package! dired
@@ -356,7 +350,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
     )
 #+end_src
 
-配置dirvish。
+** dirvish
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
 #+begin_src emacs-lisp
   (use-package! dirvish
@@ -493,7 +487,8 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
   (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
 #+end_src
 
-* 输入法配置
+* 输入法
+** sis
 配置中英文输入法自动切换。
 #+begin_src emacs-lisp
   (use-package! sis
@@ -510,8 +505,8 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
     )
 #+end_src
 
-* Org-Mode设置
-** 设置关闭word-wrap
+* Org-Mode
+** word-wrap
 中英文一起时word-wrap只会是副作用。
 比如在列表开头给你整一个空行。。
 至于为什么用hook，因为直接设置word-wrap nil没有用。
@@ -521,7 +516,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
   (add-hook! 'org-mode-hook #'toggle-word-wrap)
 #+end_src
 
-** 外观设置
+** 基本外观
 配置一下Org-Mode的主题颜色、字体大小等。
 最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
 另外做个备忘，org-mode中提升标题等级是M+左箭头，降低是M+右箭头。
@@ -672,22 +667,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
         )
 #+end_src
 
-* markdown设置
-也是设置一下字体大小和颜色。
-在emacs下我也很少写markdown了。
-#+begin_src emacs-lisp
-  (custom-set-faces
-   '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
-   '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
-   '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
-   '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
-   '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
-   '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
-   '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
-#+end_src
-
-* 笔记搜索设置
-设置插件deft。
+** deft笔记搜索
 设置搜索笔记的文件夹位置，以及让其搜索文件夹中子文件夹。
 #+begin_src emacs-lisp
   (setq deft-extensions '("txt" "tex" "org" "md"))
@@ -719,19 +699,21 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
                 "\\)"))
 #+end_src
 
-* shell格式化设置
-我已经忘了我为什么要设置这个。
-似乎是不设置会报错。
+* 常用语言mode设置
+** markdown-mode
+也是设置一下字体大小和颜色。
+在emacs下我也很少写markdown了。
 #+begin_src emacs-lisp
-  (after! sh-script
-    (set-formatter! 'shfmt
-      '("shfmt" "-ci"
-        ("-i" "%d" (unless indent-tabs-mode tab-width))
-        ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
-    )
+  (custom-set-faces
+   '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
+   '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
+   '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
+   '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
+   '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
+   '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
+   '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
 #+end_src
 
-* 各语言设置
 ** go-mode
 开启lsp的自动import和format。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
@@ -752,13 +734,27 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     )
 #+end_src
 
-* flycheck & flymake设置
-设置错误弹窗为popup
+** shell
+设置shell的formatter
+我已经忘了我为什么要设置这个。
+似乎是不设置会报错。
 #+begin_src emacs-lisp
-  (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+  (after! sh-script
+    (set-formatter! 'shfmt
+      '("shfmt" "-ci"
+        ("-i" "%d" (unless indent-tabs-mode tab-width))
+        ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
+    )
 #+end_src
 
-* 翻译工具
+** python-mode for .vpy files
+设置用python-mode打开vpy文件
+#+begin_src emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+#+end_src
+
+* 工具包
+** 单词翻译
 #+begin_src emacs-lisp
   (use-package! fanyi
     :commands (fanyi-dwim

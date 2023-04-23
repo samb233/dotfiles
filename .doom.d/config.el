@@ -18,25 +18,13 @@
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
+(setq display-line-numbers-type 'relative)
+
 (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
 ;; (setq doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC"))
 (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 
-(setq scroll-margin 9)
-(setq mouse-wheel-scroll-amount '
-      (3
-       ((shift) . hscroll)
-       ((meta))
-       ((control) . text-scale)))
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
-
-;; (pixel-scroll-precision-mode t)
-
 (setq doom-theme 'doom-tomorrow-day)
-
-(setq display-line-numbers-type 'relative)
 
 (setq doom-modeline-modal t)
 (setq doom-modeline-modal-icon nil)
@@ -57,8 +45,19 @@
 (setq highlight-indent-guides-method 'bitmap)
 (setq highlight-indent-guides-responsive 'top)
 
-;; (defalias 'evil-insert-state 'evil-emacs-state)
-;; (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+(set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+
+(setq scroll-margin 9)
+(setq mouse-wheel-scroll-amount '
+      (3
+       ((shift) . hscroll)
+       ((meta))
+       ((control) . text-scale)))
+(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq scroll-step 1) ;; keyboard scroll one line at a time
+
+;; (pixel-scroll-precision-mode t)
 
 (evil-define-key 'visual 'global
   (kbd "J") 'drag-stuff-down
@@ -79,8 +78,6 @@
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
 
-(map! :map global-map "C-c k" #'+lookup/documentation)
-
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 
@@ -90,10 +87,6 @@
 (after! recentf
   (setq recentf-max-saved-items 1000)
   )
-
-(add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
-
-(setq auto-revert-check-vc-info t)
 
 (after! evil
   (setq evil-emacs-state-tag "EMACS ")
@@ -109,6 +102,8 @@
   )
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
+
+(setq auto-revert-check-vc-info t)
 
 (after! persp-mode
   (map! :leader
@@ -438,15 +433,6 @@
       :desc "org-roam find node" "Z" #'org-roam-node-find
       )
 
-(custom-set-faces
- '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
- '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
- '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
-
 (setq deft-extensions '("txt" "tex" "org" "md"))
 (setq deft-directory "~/Notes")
 (setq deft-recursive t)
@@ -470,12 +456,14 @@ used as title."
               "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
               "\\)"))
 
-(after! sh-script
-  (set-formatter! 'shfmt
-    '("shfmt" "-ci"
-      ("-i" "%d" (unless indent-tabs-mode tab-width))
-      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
-  )
+(custom-set-faces
+ '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
+ '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
 
 (defun lsp-go-install-save-hooks ()
   (defun my-eglot-organize-imports () (interactive)
@@ -489,7 +477,14 @@ used as title."
   :mode("\\.proto\\'" . protobuf-mode)
   )
 
-(set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+(after! sh-script
+  (set-formatter! 'shfmt
+    '("shfmt" "-ci"
+      ("-i" "%d" (unless indent-tabs-mode tab-width))
+      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
+  )
+
+(add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
 (use-package! fanyi
   :commands (fanyi-dwim
