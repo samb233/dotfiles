@@ -52,8 +52,8 @@
   (setq display-line-numbers-type 'relative)
 #+end_src
 
-* 外观设置
-** 字体设置
+* 基础外观
+** 字体
 设置字体与字体大小。
 将doom-unicode-font设置为Sarasa Mono SC即可解决Doom Emacs的中文显示问题。
 Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不再歪歪扭扭。
@@ -64,7 +64,7 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
   (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 #+end_src
 
-** 主题设置
+** 主题
 设置emacs的外观。
 主题设置。
 #+begin_src emacs-lisp
@@ -111,7 +111,7 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
   (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
 #+end_src
 
-* 基础按键设置
+* 基础按键
 设置鼠标滚动。
 #+begin_src emacs-lisp
   (setq scroll-margin 9)
@@ -173,7 +173,7 @@ linux上就一般般，还是不开习惯
   (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 #+end_src
 
-* 基础插件变量设置
+* 基础插件
 ** undo
 默认的undo行为在我看来不能适应。
 写代码是undo是不靠谱的这件事，太可怕了。
@@ -462,7 +462,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 如find-file开个新文件或者开个magit，
 新窗口会开在perview的window上，目前还没找到解决办法。
 
-* 终端设置
+* 终端
 emacs里终端我主要用两个，eshell和vterm。
 eshell打开就在当前文件目录下，vterm打开会在当前项目目录下。
 vterm中运行的是zsh，并且性能较好，所以会更常用些。
@@ -699,7 +699,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
                 "\\)"))
 #+end_src
 
-* 常用语言mode设置
+* 常用语言mode
 ** markdown-mode
 也是设置一下字体大小和颜色。
 在emacs下我也很少写markdown了。
