@@ -27,6 +27,7 @@ packer.startup({
 		-- 主题
 		use("rebelot/kanagawa.nvim")
 		use("marko-cerovac/material.nvim")
+        use("chriskempson/vim-tomorrow-theme")
 		use({ "mcchrish/zenbones.nvim", requires = "rktjmp/lush.nvim" })
 
 		-- lualine
@@ -85,7 +86,7 @@ packer.startup({
 		use({ "ThePrimeagen/vim-be-good" })
 
 		-- 文件浏览
-		-- use({ "kevinhwang91/rnvimr" })
+		-- use({ "mcchrish/nnn.vim" })
 	end,
 	config = {
 		-- 并发数限制

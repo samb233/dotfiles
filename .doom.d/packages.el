@@ -49,25 +49,16 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-;; 在默认不使用lsp时doom会装这些包
-;; 但我实际上用的lsp-bridge
-(package! irony :disable t)
-(package! irony-eldoc :disable t)
-(package! flycheck-irony :disable t)
-(package! rtags :disable t)
-
-;; go-eldoc性能很差，经常卡手
-(package! go-eldoc :disable t)
-
-;; 已经有dirvish了，不需要fd-dired这种包了
-(package! fd-dired :disable t)
-
+(add-load-path! "elisp")
 (package! sis)
 (package! eshell-git-prompt)
 (package! dirvish)
-(package! lsp-bridge
-  :recipe (:host github
-           :repo "manateelazycat/lsp-bridge"
-	   :files ("*")))
+
 ;; 翻译工具
 (package! fanyi)
+
+;; org美化
+(package! org-modern)
+(package! org-appear)
+
+(package! tide :disable t)

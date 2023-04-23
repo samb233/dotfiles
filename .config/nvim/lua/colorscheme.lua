@@ -111,7 +111,7 @@
 
 vim.cmd([[set background=light]])
 
-local colorscheme = "zenbones"
+local colorscheme = "Tomorrow"
 
 local status_ok, _ = pcall(vim.cmd, "colorscheme " .. colorscheme)
 if not status_ok then
