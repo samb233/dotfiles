@@ -357,7 +357,7 @@
   :commands (org-modern-mode)
   :init
   (setq org-modern-block-name nil)
-  (setq org-modern-star '("○" "◉" "✸" "✿" "✳" "▶" "◇" "◈"))
+  (setq org-modern-star '("○" "◉" "✸" "✿" "◇" "◈"))
   )
 
 (add-hook 'org-mode-hook #'org-modern-mode)
@@ -375,6 +375,10 @@
       :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
       :desc "org-roam node Insert" "v i" #'org-roam-node-insert
       )
+
+(after! org-roam
+  (setq org-roam-completion-everywhere nil)
+  )
 
 (setq org-roam-dailies-directory "~/Notes/Daily")
 (setq org-roam-dailies-capture-templates
@@ -465,12 +469,12 @@ used as title."
  '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
 
-(defun lsp-go-install-save-hooks ()
-  (defun my-eglot-organize-imports () (interactive)
-         (eglot-code-actions nil nil "source.organizeImports" t))
-  (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-  (add-hook 'before-save-hook 'eglot-format-buffer))
-(add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+(defun my/eglot-organize-imports ()
+  (call-interactively 'eglot-code-action-organize-imports))
+(defun my/before-saving-go ()
+  (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
+  (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
+(add-hook 'go-mode-hook #'my/before-saving-go)
 
 (use-package protobuf-mode
   :commands (protobuf-mode)

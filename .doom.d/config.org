@@ -65,16 +65,12 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 #+end_src
 
 ** 主题
-设置emacs的外观。
-主题设置。
 #+begin_src emacs-lisp
   (setq doom-theme 'doom-tomorrow-day)
 #+end_src
 
-
 ** doom-modeline
-设置doom-modeline。
-我喜欢简洁一点，去掉了上面的部分图标等。
+简洁一点，去掉部分图标
 #+begin_src emacs-lisp
   (setq doom-modeline-modal t)
   (setq doom-modeline-modal-icon nil)
@@ -193,6 +189,7 @@ doom默认的200个也太少了，至少1000吧
 
 ** evil
 设置各个模式的tags。
+会显示在doom-modelien上。
 设置成全名，让我有种在vim的熟悉感，非常爽。
 #+begin_src emacs-lisp
   (after! evil
@@ -567,7 +564,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
     :commands (org-modern-mode)
     :init
     (setq org-modern-block-name nil)
-    (setq org-modern-star '("○" "◉" "✸" "✿" "✳" "▶" "◇" "◈"))
+    (setq org-modern-star '("○" "◉" "✸" "✿" "◇" "◈"))
     )
 
   (add-hook 'org-mode-hook #'org-modern-mode)
@@ -592,6 +589,13 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
         :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
         :desc "org-roam node Insert" "v i" #'org-roam-node-insert
         )
+#+end_src
+
+org-roam的一些设置
+#+begin_src emacs-lisp
+  (after! org-roam
+    (setq org-roam-completion-everywhere nil)
+    )
 #+end_src
 
 设置日志。
@@ -718,12 +722,12 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 开启lsp的自动import和format。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
-  (defun lsp-go-install-save-hooks ()
-    (defun my-eglot-organize-imports () (interactive)
-           (eglot-code-actions nil nil "source.organizeImports" t))
-    (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-    (add-hook 'before-save-hook 'eglot-format-buffer))
-  (add-hook 'go-mode-hook #'lsp-go-install-save-hooks)
+  (defun my/eglot-organize-imports ()
+    (call-interactively 'eglot-code-action-organize-imports))
+  (defun my/before-saving-go ()
+    (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
+    (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
+  (add-hook 'go-mode-hook #'my/before-saving-go)
 #+end_src
 
 ** protobuf-mode
