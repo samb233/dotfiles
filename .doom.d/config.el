@@ -222,6 +222,7 @@
   ;; (setq dirvish-mode-line-height '46)
   (setq dirvish-attributes
         '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
+  (setq dirvish-all-the-icons-height 0.9)
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso")
@@ -242,6 +243,7 @@
   (setq dirvish-path-separators (list "  ~" "  " "/"))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-side-width 40)
+  (setq dirvish-subtree-file-viewer 'dired-find-file)
   (setq dirvish-side-auto-close t)
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
@@ -258,6 +260,13 @@
         :n "H" #'dirvish-history-jump
         :n "TAB" #'dirvish-subtree-toggle
         :n [backtab] #'dirvish-subtree-up
+        :n "<mouse-1>" #'dirvish-subtree-toggle
+        :n "<mouse-2>" #'dirvish-subtree-toggle
+        :n "<mouse-3>" #'dired-find-file
+        :n "<mouse-8>" #'dired-up-directory
+        :n "<mouse-9>" #'dired-find-file
+        :n "<double-mouse-1>" #'dired-find-file
+        :n "<double-mouse-3>" #'dired-up-directory
         "M-t" #'dirvish-layout-toggle
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu )
@@ -287,6 +296,7 @@
 (after! vterm
   (setq vterm-max-scrollback 10000)
   (setq vterm-timer-delay 0.01)
+  ;; (setq vterm-buffer-name-string "vterm: %s")
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
   )

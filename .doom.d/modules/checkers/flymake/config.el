@@ -24,7 +24,6 @@
 (use-package sideline
   :when (modulep! +sideline)
   :init
-  (setq sideline-display-backend-name t)
   (setq sideline-backends-right '(sideline-flymake))
   :hook ((flymake-mode . sideline-mode))
   )
