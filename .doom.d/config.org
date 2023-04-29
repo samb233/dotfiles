@@ -219,19 +219,6 @@ vc设置，因为性能原因被关闭了。
   (setq auto-revert-check-vc-info t)
 #+end_src
 
-** workspace
-我不喜欢用workspace。
-我享受所有buffer堆在一块的感觉。
-但用这玩意管理窗口布局确实挺方便的。
-把它改的键改回来即可。
-#+begin_src emacs-lisp
-  (after! persp-mode
-    (map! :leader
-          :desc "Switch buffer" "," #'consult-buffer
-          :desc "Switch workspace buffer" "<" #'+vertico/switch-workspace-buffer )
-    )
-#+end_src
-
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 
@@ -574,7 +561,7 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
     :commands (org-modern-mode)
     :init
     (setq org-modern-block-name nil)
-    (setq org-modern-star '("○" "◉" "✸" "✿" "◇" "◈"))
+    (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
     )
 
   (add-hook 'org-mode-hook #'org-modern-mode)
@@ -601,14 +588,14 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
         )
 #+end_src
 
-org-roam的一些设置
+禁用补全
 #+begin_src emacs-lisp
   (after! org-roam
     (setq org-roam-completion-everywhere nil)
     )
 #+end_src
 
-设置日志。
+日志模板。
 主要是使用模板设置保存的文件夹，来兼容我以前的日志模式。
 我希望我创建日志的时候能一键弹出，而不用选择模板什么的，所以只设置一个模板。
 #+begin_src emacs-lisp
@@ -632,21 +619,25 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             :target (file+head "Default/%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: \n\n")
             :unnarrowed t)
-            ("t" "Tech" plain "%?"
-            :target (file+head "Tech/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :tech: \n\n")
+            ("i" "Inspiration" plain "%?"
+            :target (file+head "Inspiration/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :inspiration: \n\n")
+            :unnarrowed t)
+            ("l" "Learning" plain "%?"
+            :target (file+head "Learning/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :learning: \n\n")
             :unarrowed t)
-            ("b" "Book Notes" plain "%?"
-            :target (file+head "Book/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :book: \n\n")
+            ("r" "Reading" plain "%?"
+            :target (file+head "Reading/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :reading: \n\n")
             :unnarrowed t)
-            ("w" "Work" plain "%?"
-            :target (file+head "Work/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :work: \n\n")
+            ("t" "Thinking" plain "%?"
+            :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :thinking: \n\n")
             :unnarrowed t)
-            ("a" "Anime" plain "%?"
-            :target (file+head "Anime/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :anime: \n\n")
+            ("w" "Working" plain "%?"
+            :target (file+head "Working/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :working: \n\n")
             :unnarrowed t)
             ("v" "Video or VCBs" plain "%?"
             :target (file+head "Video/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -660,14 +651,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: :coding: \n\n")
             :unnarrowed t)
-            ("h" "Thinking" plain "%?"
-            :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :thinking: \n\n")
-            :unnarrowed t)
-            ("i" "Inspiration" plain "%?"
-            :target (file+head "Inspiration/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :inspiration: \n\n")
-            :unnarrowed t)))
+            ))
 #+end_src
 
 设置按键。
@@ -679,38 +663,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
         :desc "org-roam capture" "X" #'org-roam-capture
         :desc "org-roam find node" "Z" #'org-roam-node-find
         )
-#+end_src
-
-** deft笔记搜索
-设置搜索笔记的文件夹位置，以及让其搜索文件夹中子文件夹。
-#+begin_src emacs-lisp
-  (setq deft-extensions '("txt" "tex" "org" "md"))
-  (setq deft-directory "~/Notes")
-  (setq deft-recursive t)
-  #+end_src
-
-适配org-roam
-这么酷炫的方法当然不是我写的，
-来源：https://github.com/jrblevin/deft/issues/75#issuecomment-905031872
-#+begin_src emacs-lisp
-  (defun my/deft-parse-title (file contents)
-    "Parse the given FILE and CONTENTS and determine the title.
-  If `deft-use-filename-as-title' is nil, the title is taken to
-  be the first non-empty line of the FILE.  Else the base name of the FILE is
-  used as title."
-    (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
-      (if begin
-          (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
-        (deft-base-filename file))))
-
-  (advice-add 'deft-parse-title :override #'my/deft-parse-title)
-
-  (setq deft-strip-summary-regexp
-        (concat "\\("
-                "[\n\t]" ;; blank
-                "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-                "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
-                "\\)"))
 #+end_src
 
 * 常用语言mode
@@ -783,8 +735,26 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
                        ;; Longman
                        ;; fanyi-longman-provider
                        )))
+
   (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
   (map! :leader
         :desc "Translate word" "v t" #'fanyi-dwim2
+        )
+#+end_src
+
+** 窗口布局记录
+#+begin_src emacs-lisp
+  (use-package! burly
+    :commands (burly-bookmark-frames
+               burly-bookmark-windows
+               burly-open-bookmark
+               burly-open-last-bookmark)
+    )
+
+  (map! :leader
+        :desc "bookmark this window" "v m" #'burly-bookmark-windows
+        :desc "bookmark this frame" "v M" #'burly-bookmark-frames
+        :desc "bookmark this window" "b w" #'burly-bookmark-windows
+        :desc "bookmark this frame" "b f" #'burly-bookmark-frames
         )
 #+end_src
