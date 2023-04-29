@@ -51,8 +51,8 @@
 
 (add-load-path! "elisp")
 (package! sis)
-(package! eshell-git-prompt)
 (package! dirvish)
+(package! vterm-toggle)
 
 ;; 翻译工具
 (package! fanyi)

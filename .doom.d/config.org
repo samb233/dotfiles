@@ -463,22 +463,26 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
   (after! vterm
     (setq vterm-max-scrollback 10000)
     (setq vterm-timer-delay 0.01)
-    ;; (setq vterm-buffer-name-string "vterm: %s")
+    (setq vterm-buffer-name-string "vterm: %s")
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
     (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
     )
 #+end_src
 
-设置eshell的主题
+使用vterm-toggle
 #+begin_src emacs-lisp
-  (use-package! eshell-git-prompt
-    :commands (eshell-git-prompt-use-theme)
+  (use-package! vterm-toggle
+    :commands (vterm-toggle)
+    :config
+    (setq vterm-toggle-reset-window-configration-after-exit nil)
     )
 
-  (defun my/eshell-use-git-prompt-theme()
-    (eshell-git-prompt-use-theme 'git-radar)
-    )
-  (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
+  (map! :map vterm-mode-map [f4] nil)
+  (map! [f4] #'vterm-toggle
+        "C-`" #'vterm-toggle
+        :leader
+        :desc "toggle vterm" "o t" #'vterm-toggle
+        )
 #+end_src
 
 * 输入法
