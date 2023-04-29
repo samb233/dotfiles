@@ -467,6 +467,8 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
     (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
     )
+  (map! :leader
+        :desc "open vterm here" "T" #'+vterm/here)
 #+end_src
 
 使用vterm-toggle
@@ -479,7 +481,6 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
 
   (map! :map vterm-mode-map [f4] nil)
   (map! [f4] #'vterm-toggle
-        "C-`" #'vterm-toggle
         :leader
         :desc "toggle vterm" "o t" #'vterm-toggle
         )
@@ -717,7 +718,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     )
 #+end_src
 
-** python-mode for .vpy files
+** .vpy文件
 设置用python-mode打开vpy文件
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
@@ -761,4 +762,22 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
         :desc "bookmark this window" "b w" #'burly-bookmark-windows
         :desc "bookmark this frame" "b f" #'burly-bookmark-frames
         )
+#+end_src
+
+** restclient
+配置restclient，使之与vscode的restclient兼容。
+代码来源：[[https://github.com/yurifrl/restclient/blob/b025b6f87fb85a3e6471e475aca8ffb7005f6163/restclient.el#LL187C1-L201C1][restclient-vscode-compatible]]
+#+begin_src emacs-lisp
+  (after! restclient
+    (setq restclient-use-var-regexp
+          "{{\([^{ \n]+\)}}$")
+    (setq restclient-var-regexp
+          (concat "^\\(@[^@= ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
+    (setq restclient-svar-regexp
+          "^\\(@[^@= ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
+    (setq restclient-evar-regexp
+          "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
+    (setq restclient-mvar-regexp
+          "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$")
+    )
 #+end_src

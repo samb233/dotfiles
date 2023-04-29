@@ -294,6 +294,8 @@
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
   )
+(map! :leader
+      :desc "open vterm here" "T" #'+vterm/here)
 
 (use-package! vterm-toggle
   :commands (vterm-toggle)
@@ -303,7 +305,6 @@
 
 (map! :map vterm-mode-map [f4] nil)
 (map! [f4] #'vterm-toggle
-      "C-`" #'vterm-toggle
       :leader
       :desc "toggle vterm" "o t" #'vterm-toggle
       )
@@ -504,3 +505,16 @@
       :desc "bookmark this window" "b w" #'burly-bookmark-windows
       :desc "bookmark this frame" "b f" #'burly-bookmark-frames
       )
+
+(after! restclient
+  (setq restclient-use-var-regexp
+        "{{\([^{ \n]+\)}}$")
+  (setq restclient-var-regexp
+        (concat "^\\(@[^@= ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
+  (setq restclient-svar-regexp
+        "^\\(@[^@= ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
+  (setq restclient-evar-regexp
+        "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
+  (setq restclient-mvar-regexp
+        "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$")
+  )
