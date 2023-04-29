@@ -234,6 +234,7 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
          :desc "LSP find reference" "r" #'xref-find-references
          :desc "LSP restart workspace" "R" #'eglot-reconnect
          ))
+  (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 #+end_src
 
 配置eglot。
@@ -245,7 +246,6 @@ eglot写golang时，会对已排序好的候选词再进行一次排序
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
     (setq eglot-stay-out-of '(snippet))
-    ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
     )
 #+end_src
@@ -443,17 +443,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "calc mode" "a" #'literate-calc-mode
          ))
 #+end_src
-
-设置关闭window后选择的window。
-设置为pos以和dirvish兼容。
-不然如eshell-toggle等操作时会选择到预览窗口中去。
-#+begin_src emacs-lisp
-  (setq delete-window-choose-selected 'pos)
-#+end_src
-
-另外，另一个问题：即在dirvish界面打开另一个窗口，
-如find-file开个新文件或者开个magit，
-新窗口会开在perview的window上，目前还没找到解决办法。
 
 * 终端
 emacs里终端我主要用两个，eshell和vterm。

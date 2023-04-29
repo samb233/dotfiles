@@ -112,12 +112,12 @@
        :desc "LSP find reference" "r" #'xref-find-references
        :desc "LSP restart workspace" "R" #'eglot-reconnect
        ))
+(evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
   (setq eglot-stay-out-of '(snippet))
-  ;; (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   )
 
@@ -284,8 +284,6 @@
        :desc "List processes" "l" #'list-processes
        :desc "calc mode" "a" #'literate-calc-mode
        ))
-
-(setq delete-window-choose-selected 'pos)
 
 (after! vterm
   (setq vterm-max-scrollback 10000)

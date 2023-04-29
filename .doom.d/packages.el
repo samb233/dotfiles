@@ -61,7 +61,7 @@
 (package! org-modern)
 (package! org-appear)
 
-(package! tide :disable t)
-
 ;; 窗口管理
 (package! burly)
+
+(package! tide :disable t)
