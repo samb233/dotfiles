@@ -285,39 +285,32 @@
        :desc "calc mode" "a" #'literate-calc-mode
        ))
 
+(setq delete-window-choose-selected 'pos)
+
+(setq vterm-always-compile-module t)
 (after! vterm
   (setq vterm-max-scrollback 10000)
   (setq vterm-timer-delay 0.01)
-  (setq vterm-buffer-name-string "vterm: %s")
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
   )
-(map! :leader
-      :desc "open vterm here" "T" #'+vterm/here)
 
-(use-package! vterm-toggle
-  :commands (vterm-toggle)
-  :config
-  (setq vterm-toggle-reset-window-configration-after-exit nil)
+(use-package! doom-vterm-toggle
+  :commands (doom-vterm-toggle-directory
+             doom-vterm-toggle-project)
   )
 
 (map! :map vterm-mode-map [f4] nil)
-(map! [f4] #'vterm-toggle
-      :leader
-      :desc "toggle vterm" "o t" #'vterm-toggle
+(map! [f4] #'doom-vterm-toggle-directory
+      [S-f4] #'+vterm/here
+      "C-`" #'doom-vterm-toggle-project
       )
 
 (use-package! sis
   :config
   (sis-ism-lazyman-config "1" "2" 'fcitx5)
-  ;; enable the /cursor color/ mode
-  ;; (sis-global-cursor-color-mode t)
-  ;; enable the /respect/ mode
   (sis-global-respect-mode t)
-  ;; enable the /context/ mode for all buffers
   (sis-global-context-mode t)
-  ;; enable the /inline english/ mode for all buffers
-  ;; (sis-global-inline-mode t)
   )
 
 (add-hook! 'org-mode-hook #'toggle-word-wrap)

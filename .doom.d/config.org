@@ -444,34 +444,37 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          ))
 #+end_src
 
+解决在dirvish中toggle shell返回时聚焦在预览窗口。
+#+begin_src emacs-lisp
+  (setq delete-window-choose-selected 'pos)
+#+end_src
+
 * 终端
 emacs里终端我主要用两个，eshell和vterm。
 eshell打开就在当前文件目录下，vterm打开会在当前项目目录下。
 vterm中运行的是zsh，并且性能较好，所以会更常用些。
 #+begin_src emacs-lisp
+  (setq vterm-always-compile-module t)
   (after! vterm
     (setq vterm-max-scrollback 10000)
     (setq vterm-timer-delay 0.01)
-    (setq vterm-buffer-name-string "vterm: %s")
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
     (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
     )
-  (map! :leader
-        :desc "open vterm here" "T" #'+vterm/here)
 #+end_src
 
-使用vterm-toggle
+使用自定义的vterm-toggle。
+doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一个。
 #+begin_src emacs-lisp
-  (use-package! vterm-toggle
-    :commands (vterm-toggle)
-    :config
-    (setq vterm-toggle-reset-window-configration-after-exit nil)
+  (use-package! doom-vterm-toggle
+    :commands (doom-vterm-toggle-directory
+               doom-vterm-toggle-project)
     )
 
   (map! :map vterm-mode-map [f4] nil)
-  (map! [f4] #'vterm-toggle
-        :leader
-        :desc "toggle vterm" "o t" #'vterm-toggle
+  (map! [f4] #'doom-vterm-toggle-directory
+        [S-f4] #'+vterm/here
+        "C-`" #'doom-vterm-toggle-project
         )
 #+end_src
 
@@ -482,14 +485,8 @@ vterm中运行的是zsh，并且性能较好，所以会更常用些。
   (use-package! sis
     :config
     (sis-ism-lazyman-config "1" "2" 'fcitx5)
-    ;; enable the /cursor color/ mode
-    ;; (sis-global-cursor-color-mode t)
-    ;; enable the /respect/ mode
     (sis-global-respect-mode t)
-    ;; enable the /context/ mode for all buffers
     (sis-global-context-mode t)
-    ;; enable the /inline english/ mode for all buffers
-    ;; (sis-global-inline-mode t)
     )
 #+end_src
 
