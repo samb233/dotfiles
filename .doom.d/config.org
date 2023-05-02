@@ -94,6 +94,15 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
     )
 #+end_src
 
+** 行号
+更改行号的字重，不然在不高的分辨率下会有锯齿
+#+begin_src emacs-lisp
+  (custom-set-faces
+   '(line-number ((t (:weight medium))))
+   '(line-number-current-line ((t (:weight medium))))
+   )
+#+end_src
+
 ** 各类popup
 设置错误弹窗为popup
 #+begin_src emacs-lisp
@@ -514,7 +523,11 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
 关闭后会导致长代码折行时不好看，但我认为不让列表出现空行更重要。
 要看org中的代码自己开！
 #+begin_src emacs-lisp
-  (add-hook! 'org-mode-hook #'toggle-word-wrap)
+  (defun my-disable-word-wrap-h()
+    (setq-local word-wrap nil)
+    )
+
+  (add-hook! 'org-mode-hook #'my-disable-word-wrap-h)
 #+end_src
 
 ** 基本外观
@@ -775,18 +788,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
         (unless (< level 1)
           (highlight-indent-guides--highlighter-default level responsive display)))
       (setq highlight-indent-guides-highlighter-function
-            #'my-indent-guides-for-all-but-first-column)
-
-      ;; Disable in `macrostep' expanding
-      (with-eval-after-load 'macrostep
-        (advice-add #'macrostep-expand
-                    :after (lambda (&rest _)
-                             (when highlight-indent-guides-mode
-                               (highlight-indent-guides-mode -1))))
-        (advice-add #'macrostep-collapse
-                    :after (lambda (&rest _)
-                             (when (derived-mode-p 'prog-mode 'text-mode 'conf-mode)
-                               (highlight-indent-guides-mode 1))))))
+            #'my-indent-guides-for-all-but-first-column))
     )
 #+end_src
 

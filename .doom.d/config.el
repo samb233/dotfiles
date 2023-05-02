@@ -42,6 +42,11 @@
   (setq-hook! 'persp-mode-hook uniquify-buffer-name-style 'forward)
   )
 
+(custom-set-faces
+ '(line-number ((t (:weight medium))))
+ '(line-number-current-line ((t (:weight medium))))
+ )
+
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
 
 (setq scroll-margin 9)
@@ -322,7 +327,11 @@
   (sis-global-context-mode t)
   )
 
-(add-hook! 'org-mode-hook #'toggle-word-wrap)
+(defun my-disable-word-wrap-h()
+  (setq-local word-wrap nil)
+  )
+
+(add-hook! 'org-mode-hook #'my-disable-word-wrap-h)
 
 (setq org-directory "~/Notes")
 
@@ -511,18 +520,7 @@
       (unless (< level 1)
         (highlight-indent-guides--highlighter-default level responsive display)))
     (setq highlight-indent-guides-highlighter-function
-          #'my-indent-guides-for-all-but-first-column)
-
-    ;; Disable in `macrostep' expanding
-    (with-eval-after-load 'macrostep
-      (advice-add #'macrostep-expand
-                  :after (lambda (&rest _)
-                           (when highlight-indent-guides-mode
-                             (highlight-indent-guides-mode -1))))
-      (advice-add #'macrostep-collapse
-                  :after (lambda (&rest _)
-                           (when (derived-mode-p 'prog-mode 'text-mode 'conf-mode)
-                             (highlight-indent-guides-mode 1))))))
+          #'my-indent-guides-for-all-but-first-column))
   )
 
 (defun my-disable-indent-guides-h()
