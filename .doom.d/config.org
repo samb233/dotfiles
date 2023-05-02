@@ -135,6 +135,13 @@ linux上就一般般，还是不开习惯
     (kbd "K") 'drag-stuff-up)
 #+end_src
 
+取消按键宏。
+我用不上vim的按键宏功能。
+但他总是在我狂按q是弹出来，很烦。
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "q") nil)
+#+end_src
+
 使用consult-line替代I-search
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
@@ -167,6 +174,29 @@ linux上就一般般，还是不开习惯
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
   (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
+#+end_src
+
+取消一些快捷键。
+这是一些我用不上的插件。没在init.el中勾选却还是显示在了快捷键中。
+故在此将其取消。
+#+begin_src emacs-lisp
+  (map! :leader
+        "f c" nil
+        "n d" nil)
+#+end_src
+
+以及取消一些关于emacs配置文件的快捷键
+我可能有一些洁癖，就是不喜欢见到这些我不会用到的快捷键。
+其他软件里我可能拿他们没办法，但在emacs里我可以当家作主，全部取消！
+#+begin_src emacs-lisp
+  (map! :leader
+        "f e" nil
+        "f E" nil
+        "f p" nil
+        "f P" nil
+        "o d" nil
+        "s e" nil
+        "s t" nil)
 #+end_src
 
 * 基础插件
@@ -223,17 +253,11 @@ vc设置，因为性能原因被关闭了。
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 
 ** eglot
-eglot写golang时，会对已排序好的候选词再进行一次排序
-导致实际上变成了乱序。故不用。
-设置eglot的一些快捷键
+快捷键设置
 #+begin_src emacs-lisp
   (map! :leader
-        (:prefix-map ("l" . "LSP")
-         :desc "LSP rename" "n" #'eglot-rename
-         :desc "LSP find definitions" "f" #'xref-find-definitions
-         :desc "LSP find reference" "r" #'xref-find-references
-         :desc "LSP restart workspace" "R" #'eglot-reconnect
-         ))
+         :desc "LSP restart workspace" "c R" #'eglot-reconnect
+         )
   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 #+end_src
 
@@ -450,9 +474,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+end_src
 
 * 终端
-emacs里终端我主要用两个，eshell和vterm。
-eshell打开就在当前文件目录下，vterm打开会在当前项目目录下。
-vterm中运行的是zsh，并且性能较好，所以会更常用些。
+设置性能更好的vterm
 #+begin_src emacs-lisp
   (setq vterm-always-compile-module t)
   (after! vterm
@@ -682,6 +704,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (after! markdown-mode
     (setq markdown-fontify-code-blocks-natively t)
     (setq markdown-fontify-whole-heading-line nil)
+    (setq markdown-max-image-size '(500 . 500))
     )
 #+end_src
 
@@ -742,6 +765,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
                        )))
 
   (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
+  (add-hook 'fanyi-mode-hook #'display-line-numbers-mode)
   (map! :leader
         :desc "Translate word" "v t" #'fanyi-dwim2
         )

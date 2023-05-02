@@ -63,6 +63,8 @@
   (kbd "J") 'drag-stuff-down
   (kbd "K") 'drag-stuff-up)
 
+(evil-define-key 'normal 'global (kbd "q") nil)
+
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
 ;; (setq consult-line-start-from-top t)
@@ -80,6 +82,19 @@
 
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
+
+(map! :leader
+      "f c" nil
+      "n d" nil)
+
+(map! :leader
+      "f e" nil
+      "f E" nil
+      "f p" nil
+      "f P" nil
+      "o d" nil
+      "s e" nil
+      "s t" nil)
 
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
@@ -106,12 +121,8 @@
 (setq auto-revert-check-vc-info t)
 
 (map! :leader
-      (:prefix-map ("l" . "LSP")
-       :desc "LSP rename" "n" #'eglot-rename
-       :desc "LSP find definitions" "f" #'xref-find-definitions
-       :desc "LSP find reference" "r" #'xref-find-references
-       :desc "LSP restart workspace" "R" #'eglot-reconnect
-       ))
+       :desc "LSP restart workspace" "c R" #'eglot-reconnect
+       )
 (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 
 (after! eglot
@@ -455,6 +466,7 @@
 (after! markdown-mode
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-fontify-whole-heading-line nil)
+  (setq markdown-max-image-size '(500 . 500))
   )
 
 (defun my/eglot-organize-imports ()
@@ -493,6 +505,7 @@
                      )))
 
 (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
+(add-hook 'fanyi-mode-hook #'display-line-numbers-mode)
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2
       )
