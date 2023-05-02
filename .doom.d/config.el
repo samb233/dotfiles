@@ -42,9 +42,6 @@
   (setq-hook! 'persp-mode-hook uniquify-buffer-name-style 'forward)
   )
 
-(setq highlight-indent-guides-method 'bitmap)
-(setq highlight-indent-guides-responsive 'top)
-
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
 
 (setq scroll-margin 9)
@@ -476,6 +473,19 @@
   (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
 (add-hook 'go-mode-hook #'my/before-saving-go)
 
+(after! go-mode
+  (map! :map go-mode-map
+        :localleader
+        "h" nil
+        "e" nil
+        "i" nil
+        (:prefix ("i" . "imports")
+                 "i" #'go-goto-imports
+                 "a" #'go-import-add
+                 "r" #'go-remove-unused-imports)
+        )
+  )
+
 (use-package protobuf-mode
   :commands (protobuf-mode)
   :mode("\\.proto\\'" . protobuf-mode)
@@ -489,6 +499,36 @@
   )
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+(after! highlight-indent-guides
+  :init
+  (setq highlight-indent-guides-responsive 'top
+        highlight-indent-guides-suppress-auto-error t)
+  :config
+  (with-no-warnings
+    ;; Don't display first level of indentation
+    (defun my-indent-guides-for-all-but-first-column (level responsive display)
+      (unless (< level 1)
+        (highlight-indent-guides--highlighter-default level responsive display)))
+    (setq highlight-indent-guides-highlighter-function
+          #'my-indent-guides-for-all-but-first-column)
+
+    ;; Disable in `macrostep' expanding
+    (with-eval-after-load 'macrostep
+      (advice-add #'macrostep-expand
+                  :after (lambda (&rest _)
+                           (when highlight-indent-guides-mode
+                             (highlight-indent-guides-mode -1))))
+      (advice-add #'macrostep-collapse
+                  :after (lambda (&rest _)
+                           (when (derived-mode-p 'prog-mode 'text-mode 'conf-mode)
+                             (highlight-indent-guides-mode 1))))))
+  )
+
+(defun my-disable-indent-guides-h()
+  (highlight-indent-guides-mode -1))
+
+(add-hook! 'markdown-mode-hook #'my-disable-indent-guides-h)
 
 (use-package! fanyi
   :commands (fanyi-dwim
@@ -505,7 +545,7 @@
                      )))
 
 (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
-(add-hook 'fanyi-mode-hook #'display-line-numbers-mode)
+(add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2
       )

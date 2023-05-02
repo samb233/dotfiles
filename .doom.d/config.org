@@ -94,13 +94,6 @@ doom里需要注意和persp-mode的冲突: https://github.com/doomemacs/doomemac
     )
 #+end_src
 
-** indent-guide
-设置indent-guide的样式
-#+begin_src emacs-lisp
-  (setq highlight-indent-guides-method 'bitmap)
-  (setq highlight-indent-guides-responsive 'top)
-#+end_src
-
 ** 各类popup
 设置错误弹窗为popup
 #+begin_src emacs-lisp
@@ -720,6 +713,22 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (add-hook 'go-mode-hook #'my/before-saving-go)
 #+end_src
 
+禁用没用的快捷键，以免按错
+#+begin_src emacs-lisp
+  (after! go-mode
+    (map! :map go-mode-map
+          :localleader
+          "h" nil
+          "e" nil
+          "i" nil
+          (:prefix ("i" . "imports")
+                   "i" #'go-goto-imports
+                   "a" #'go-import-add
+                   "r" #'go-remove-unused-imports)
+          )
+    )
+#+end_src
+
 ** protobuf-mode
 #+begin_src emacs-lisp
   (use-package protobuf-mode
@@ -748,6 +757,47 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+end_src
 
 * 工具包
+** indent-guides
+缩进提示是一个很好用的功能。
+奈何emacs无可救药的单线程，描绘缩进会造成卡顿...
+所以抄了一些优化代码试一试。
+来源: https://github.com/seagle0128/.emacs.d/blob/aba20787f13f54ee144e6e3d2abb1d6560f7f0e2/lisp/init-highlight.el#L136
+修改了mode名，因为doom里在prog-mode, text-mode, conf-mode里都开了indent-guide
+#+begin_src emacs-lisp
+  (after! highlight-indent-guides
+    :init
+    (setq highlight-indent-guides-responsive 'top
+          highlight-indent-guides-suppress-auto-error t)
+    :config
+    (with-no-warnings
+      ;; Don't display first level of indentation
+      (defun my-indent-guides-for-all-but-first-column (level responsive display)
+        (unless (< level 1)
+          (highlight-indent-guides--highlighter-default level responsive display)))
+      (setq highlight-indent-guides-highlighter-function
+            #'my-indent-guides-for-all-but-first-column)
+
+      ;; Disable in `macrostep' expanding
+      (with-eval-after-load 'macrostep
+        (advice-add #'macrostep-expand
+                    :after (lambda (&rest _)
+                             (when highlight-indent-guides-mode
+                               (highlight-indent-guides-mode -1))))
+        (advice-add #'macrostep-collapse
+                    :after (lambda (&rest _)
+                             (when (derived-mode-p 'prog-mode 'text-mode 'conf-mode)
+                               (highlight-indent-guides-mode 1))))))
+    )
+#+end_src
+
+不在markdown-mode中打开indent-guides
+#+begin_src emacs-lisp
+  (defun my-disable-indent-guides-h()
+    (highlight-indent-guides-mode -1))
+
+  (add-hook! 'markdown-mode-hook #'my-disable-indent-guides-h)
+#+end_src
+
 ** 单词翻译
 #+begin_src emacs-lisp
   (use-package! fanyi
@@ -765,7 +815,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
                        )))
 
   (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
-  (add-hook 'fanyi-mode-hook #'display-line-numbers-mode)
+  (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
   (map! :leader
         :desc "Translate word" "v t" #'fanyi-dwim2
         )

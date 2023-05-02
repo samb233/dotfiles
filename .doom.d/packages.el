@@ -66,3 +66,6 @@
 (package! burly)
 
 (package! tide :disable t)
+(package! gorepl-mode :disable t)
+(package! go-guru :disable t)
+(package! go-eldoc :disable t)
