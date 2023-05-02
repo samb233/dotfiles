@@ -49,6 +49,8 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
+(unpin! eglot consult-eglot)
+
 (add-load-path! "elisp")
 (package! sis)
 (package! dirvish)

@@ -303,7 +303,8 @@
 (map! :map vterm-mode-map [f4] nil)
 (map! [f4] #'doom-vterm-toggle-directory
       [S-f4] #'+vterm/here
-      "C-`" #'doom-vterm-toggle-project
+      :leader
+      "o t" #'doom-vterm-toggle-project
       )
 
 (use-package! sis
@@ -352,6 +353,11 @@
   (setq org-src-preserve-indentation nil)
   (setq org-image-actual-width 500)
   )
+
+(map! :map org-mode-map
+      :localleader
+      "-" #'org-emphasize
+      )
 
 (use-package! org-modern
   :commands (org-modern-mode)
@@ -435,13 +441,21 @@
       )
 
 (custom-set-faces
- '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0))))
- '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0))))
- '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0)))))
+ '(markdown-code-face ((t (:background "#f5f5f5"))))
+ '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
+ '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2 :foreground "#8959a8" :weight extra-bold))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1 :foreground "#b5bd68" :weight bold))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :foreground "#e6c547" :weight semi-bold))))
+ '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0 :foreground "#c82829" :weight normal))))
+ '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :foreground "#70c0ba" :weight normal))))
+ '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal))))
+ )
+
+(after! markdown-mode
+  (setq markdown-fontify-code-blocks-natively t)
+  (setq markdown-fontify-whole-heading-line nil)
+  )
 
 (defun my/eglot-organize-imports ()
   (call-interactively 'eglot-code-action-organize-imports))
