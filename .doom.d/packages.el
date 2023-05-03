@@ -49,7 +49,7 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(unpin! eglot consult-eglot)
+(unpin! org eglot consult-eglot)
 
 (add-load-path! "elisp")
 (package! sis)
@@ -61,9 +61,6 @@
 ;; org美化
 (package! org-modern)
 (package! org-appear)
-
-;; 窗口管理
-(package! burly)
 
 (package! tide :disable t)
 (package! gorepl-mode :disable t)

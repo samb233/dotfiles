@@ -20,8 +20,9 @@
 
 (setq display-line-numbers-type 'relative)
 
-(setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
+;; (setq doom-font (font-spec :family "Sarasa Mono SC" :size 13.0))
 ;; (setq doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC"))
+(setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
 (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
 
 (setq doom-theme 'doom-tomorrow-day)
@@ -67,6 +68,9 @@
 
 (evil-define-key 'normal 'global (kbd "q") nil)
 
+(evil-ex-define-cmd "q" 'kill-this-buffer)
+(evil-ex-define-cmd "quit" 'evil-quit)
+
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
 ;; (setq consult-line-start-from-top t)
@@ -78,18 +82,20 @@
 (evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
 (evil-define-key 'insert 'global (kbd "C-S-z") 'undo-fu-only-redo)
 (evil-define-key 'normal 'global (kbd "C-S-z") 'undo-fu-only-redo)
-
-(evil-ex-define-cmd "q" 'kill-this-buffer)
-(evil-ex-define-cmd "quit" 'evil-quit)
+(evil-define-key 'normal 'global (kbd "U") 'evil-redo)
 
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 
 (map! :leader
-      "f c" nil
-      "n d" nil)
+      :desc "format buffer" "b f" #'+format/buffer)
 
 (map! :leader
+      :desc "bookmark list" "b w" #'list-bookmarks)
+
+(map! :leader
+      "f c" nil
+      "n d" nil
       "f e" nil
       "f E" nil
       "f p" nil
@@ -102,8 +108,8 @@
 (setq evil-want-fine-undo t)
 
 (after! recentf
-  (setq recentf-max-saved-items 1000)
-  )
+  :config
+  (setq recentf-max-saved-items 1000))
 
 (after! evil
   (setq evil-emacs-state-tag "EMACS ")
@@ -334,47 +340,25 @@
 (add-hook! 'org-mode-hook #'my-disable-word-wrap-h)
 
 (setq org-directory "~/Notes")
-
-(defun my/org-colors-tomorrow-night ()
-  (interactive)
-  (dolist
-      (face
-       '((org-level-1 1.3 "#81a2be" ultra-bold)
-         (org-level-2 1.2 "#b294bb" extra-bold)
-         (org-level-3 1.1 "#b5bd68" bold)
-         (org-level-4 1.0 "#e6c547" semi-bold)
-         (org-level-5 1.0 "#cc6666" normal)
-         (org-level-6 1.0 "#70c0ba" normal)
-         (org-level-7 1.0 "#b77ee0" normal)
-         (org-level-8 1.0 "#9ec400" normal)))
-    (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-  (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
-
-(defun my/org-colors-tomorrow-day()
-  (interactive)
-  (dolist
-      (face
-       '((org-level-1 1.3 "#4271ae" ultra-bold)
-         (org-level-2 1.2 "#8959a8" extra-bold)
-         (org-level-3 1.1 "#b5bd68" bold)
-         (org-level-4 1.0 "#e6c547" semi-bold)
-         (org-level-5 1.0 "#c82829" normal)
-         (org-level-6 1.0 "#70c0ba" normal)
-         (org-level-7 1.0 "#b77ee0" normal)
-         (org-level-8 1.0 "#9ec400" normal)))
-    (set-face-attribute (nth 0 face) nil :weight (nth 3 face) :height (nth 1 face) :foreground (nth 2 face)))
-  (set-face-attribute 'org-table nil :weight 'normal :height 1.0 :foreground "#bfafdf"))
+(custom-set-faces
+ '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
+ '(org-level-2 ((t (:height 1.2 :foreground "#8959a8" :weight extra-bold))))
+ '(org-level-3 ((t (:height 1.1 :foreground "#b5bd68" :weight bold))))
+ '(org-level-4 ((t (:height 1.0 :foreground "#e6c547" :weight semi-bold))))
+ '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
+ '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
+ '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
+ '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal))))
+ )
 
 (after! org
-  (my/org-colors-tomorrow-day)
   (setq org-src-preserve-indentation nil)
   (setq org-image-actual-width 500)
+  (map! :map org-mode-map
+        :localleader
+        "-" #'org-emphasize
+        )
   )
-
-(map! :map org-mode-map
-      :localleader
-      "-" #'org-emphasize
-      )
 
 (use-package! org-modern
   :commands (org-modern-mode)
@@ -509,25 +493,6 @@
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
-(after! highlight-indent-guides
-  :init
-  (setq highlight-indent-guides-responsive 'top
-        highlight-indent-guides-suppress-auto-error t)
-  :config
-  (with-no-warnings
-    ;; Don't display first level of indentation
-    (defun my-indent-guides-for-all-but-first-column (level responsive display)
-      (unless (< level 1)
-        (highlight-indent-guides--highlighter-default level responsive display)))
-    (setq highlight-indent-guides-highlighter-function
-          #'my-indent-guides-for-all-but-first-column))
-  )
-
-(defun my-disable-indent-guides-h()
-  (highlight-indent-guides-mode -1))
-
-(add-hook! 'markdown-mode-hook #'my-disable-indent-guides-h)
-
 (use-package! fanyi
   :commands (fanyi-dwim
              fanyi-dwim2)
@@ -546,20 +511,6 @@
 (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2
-      )
-
-(use-package! burly
-  :commands (burly-bookmark-frames
-             burly-bookmark-windows
-             burly-open-bookmark
-             burly-open-last-bookmark)
-  )
-
-(map! :leader
-      :desc "bookmark this window" "v m" #'burly-bookmark-windows
-      :desc "bookmark this frame" "v M" #'burly-bookmark-frames
-      :desc "bookmark this window" "b w" #'burly-bookmark-windows
-      :desc "bookmark this frame" "b f" #'burly-bookmark-frames
       )
 
 (after! restclient
