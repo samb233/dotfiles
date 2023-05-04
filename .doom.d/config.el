@@ -39,9 +39,7 @@
   (setq doom-modeline-buffer-file-name-style 'buffer-name)
   )
 
-(after! persp-mode
-  (setq-hook! 'persp-mode-hook uniquify-buffer-name-style 'forward)
-  )
+(setq uniquify-buffer-name-style 'forward)
 
 (custom-set-faces
  '(line-number ((t (:weight medium))))
@@ -112,7 +110,7 @@
   (setq recentf-max-saved-items 1000))
 
 (after! evil
-  (setq evil-emacs-state-tag "EMACS ")
+  (setq evil-emacs-state-tag "EMACS")
   (setq evil-insert-state-tag "INSERT")
   (setq evil-motion-state-tag "MOTION")
   (setq evil-normal-state-tag "NORMAL")
@@ -341,14 +339,14 @@
 
 (setq org-directory "~/Notes")
 (custom-set-faces
- '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
- '(org-level-2 ((t (:height 1.2 :foreground "#8959a8" :weight extra-bold))))
- '(org-level-3 ((t (:height 1.1 :foreground "#b5bd68" :weight bold))))
- '(org-level-4 ((t (:height 1.0 :foreground "#e6c547" :weight semi-bold))))
- '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
- '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
- '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
- '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal))))
+ '(org-level-1 ((t (:inherit normal :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
+ '(org-level-2 ((t (:inherit normal :height 1.2 :foreground "#8959a8" :weight extra-bold))))
+ '(org-level-3 ((t (:inherit normal :height 1.1 :foreground "#b5bd68" :weight bold))))
+ '(org-level-4 ((t (:inherit normal :height 1.0 :foreground "#e6c547" :weight semi-bold))))
+ '(org-level-5 ((t (:inherit normal :height 1.0 :foreground "#c82829" :weight normal))))
+ '(org-level-6 ((t (:inherit normal :height 1.0 :foreground "#70c0ba" :weight normal))))
+ '(org-level-7 ((t (:inherit normal :height 1.0 :foreground "#b77ee0" :weight normal))))
+ '(org-level-8 ((t (:inherit normal :height 1.0 :foreground "#9ec400" :weight normal))))
  )
 
 (after! org
@@ -492,6 +490,13 @@
   )
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+(use-package! bookmark-view
+  :commands (bookmark-view)
+  )
+
+(map! :leader
+      :desc "bookmark view" "b v" #'bookmark-view)
 
 (use-package! fanyi
   :commands (fanyi-dwim
