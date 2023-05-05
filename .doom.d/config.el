@@ -173,19 +173,14 @@
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
   )
 
-;; (after! yasnippet
-;;   (defun my-corfu-frame-visible-h ()
-;;     (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-;;   (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
-;;   )
-
 (use-package! dired
   :commands dired-jump
+  :hook (dired-mode . dired-omit-mode)
   :init
   (setq dired-dwim-target t
         dired-hide-details-hide-symlink-targets nil
         dired-recursive-copies  'always
-        dired-recursive-deletes 'top
+        dired-recursive-deletes 'always
         dired-create-destination-dirs 'ask)
   :config
   (setq dired-omit-files
@@ -202,7 +197,6 @@
 (use-package! dirvish
   :defer t
   :init (after! dired (dirvish-override-dired-mode))
-  :hook (dired-mode . dired-omit-mode)
   :custom
   (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
    '(("h" "~/"                          "Home")
@@ -302,8 +296,6 @@
        :desc "calc mode" "a" #'literate-calc-mode
        ))
 
-(setq delete-window-choose-selected 'pos)
-
 (setq vterm-always-compile-module t)
 (after! vterm
   (setq vterm-max-scrollback 10000)
@@ -339,14 +331,14 @@
 
 (setq org-directory "~/Notes")
 (custom-set-faces
- '(org-level-1 ((t (:inherit normal :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
- '(org-level-2 ((t (:inherit normal :height 1.2 :foreground "#8959a8" :weight extra-bold))))
- '(org-level-3 ((t (:inherit normal :height 1.1 :foreground "#b5bd68" :weight bold))))
- '(org-level-4 ((t (:inherit normal :height 1.0 :foreground "#e6c547" :weight semi-bold))))
- '(org-level-5 ((t (:inherit normal :height 1.0 :foreground "#c82829" :weight normal))))
- '(org-level-6 ((t (:inherit normal :height 1.0 :foreground "#70c0ba" :weight normal))))
- '(org-level-7 ((t (:inherit normal :height 1.0 :foreground "#b77ee0" :weight normal))))
- '(org-level-8 ((t (:inherit normal :height 1.0 :foreground "#9ec400" :weight normal))))
+ '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
+ '(org-level-2 ((t (:height 1.2 :foreground "#8959a8" :weight extra-bold))))
+ '(org-level-3 ((t (:height 1.1 :foreground "#b5bd68" :weight bold))))
+ '(org-level-4 ((t (:height 1.0 :foreground "#e6c547" :weight semi-bold))))
+ '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
+ '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
+ '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
+ '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal))))
  )
 
 (after! org
@@ -373,7 +365,7 @@
   (setq org-appear-autolinks t)
   )
 
-(add-hook 'org-mode-hook 'org-appear-mode)
+(add-hook 'org-mode-hook #'org-appear-mode)
 
 (setq org-roam-directory "~/Notes/Roam")
 (map! :leader
@@ -393,16 +385,14 @@
                             "#+title: %<%Y-%m-%d %A>\n"))))
 (map! :leader
       :desc "my Journal today" "J" #'org-roam-dailies-goto-today
+      :desc "org-roam capture" "X" #'org-roam-capture
+      :desc "org-roam find node" "Z" #'org-roam-node-find
       )
 
 (setq org-roam-capture-templates '(
           ("d" "Default" plain "%?"
           :target (file+head "Default/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: \n\n")
-          :unnarrowed t)
-          ("i" "Inspiration" plain "%?"
-          :target (file+head "Inspiration/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :inspiration: \n\n")
           :unnarrowed t)
           ("l" "Learning" plain "%?"
           :target (file+head "Learning/%<%Y%m%d%H%M%S>-${slug}.org"
@@ -420,24 +410,11 @@
           :target (file+head "Working/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :working: \n\n")
           :unnarrowed t)
-          ("v" "Video or VCBs" plain "%?"
-          :target (file+head "Video/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :video: \n\n")
-          :unnarrowed t)
-          ("p" "Project" plain "%?"
-          :target (file+head "Project/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :project: \n\n")
-          :unnarrowed t)
           ("c" "Coding" plain "%?"
           :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :coding: \n\n")
           :unnarrowed t)
           ))
-
-(map! :leader
-      :desc "org-roam capture" "X" #'org-roam-capture
-      :desc "org-roam find node" "Z" #'org-roam-node-find
-      )
 
 (custom-set-faces
  '(markdown-code-face ((t (:background "#f5f5f5"))))
@@ -498,6 +475,18 @@
 (map! :leader
       :desc "bookmark view" "b v" #'bookmark-view)
 
+(after! bookmark-view
+  (defun bookmark-view--make-record ()
+    "Return a new bookmark record for the current buffer.
+The current buffer must not have a backing file."
+    (if (and (not (ignore-errors (bookmark-buffer-file-name)))
+             (eq bookmark-make-record-function #'bookmark-make-record-default))
+        `(,(bookmark-buffer-name)
+          (buffer . ,(buffer-name))
+          (handler . ,#'bookmark-view-handler-fallback))
+      (bookmark-make-record)))
+  )
+
 (use-package! fanyi
   :commands (fanyi-dwim
              fanyi-dwim2)
@@ -512,7 +501,7 @@
                      ;; fanyi-longman-provider
                      )))
 
-(set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline t :quit t)
+(set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline nil :quit t)
 (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2

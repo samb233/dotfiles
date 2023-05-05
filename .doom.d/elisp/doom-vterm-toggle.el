@@ -42,6 +42,9 @@ Returns the vterm buffer."
              (setq-local doom-vterm--id buffer-name)
              (unless (eq major-mode 'vterm-mode)
                (vterm-mode)))
+           ;; HACK forces vterm to redraw, fixing strange artefacting in the tty.
+           (save-window-excursion
+             (pop-to-buffer "*scratch*"))
            (pop-to-buffer buffer)))
        (get-buffer buffer-name)))))
 
@@ -81,6 +84,9 @@ Returns the vterm buffer."
              (setq-local doom-vterm--id buffer-name)
              (unless (eq major-mode 'vterm-mode)
                (vterm-mode)))
+           ;; HACK forces vterm to redraw, fixing strange artefacting in the tty.
+           (save-window-excursion
+             (pop-to-buffer "*scratch*"))
            (pop-to-buffer buffer)))
        (get-buffer buffer-name)))))
 
@@ -94,9 +100,9 @@ Returns the vterm buffer."
     (user-error "Your build of Emacs lacks dynamic modules support and cannot load vterm"))
   (let* ((project-root (or (doom-project-root) default-directory))
          (default-directory
-           (if arg
-               default-directory
-             project-root)))
+          (if arg
+              default-directory
+            project-root)))
     (setenv "PROOT" project-root)
     (funcall display-fn)))
 
