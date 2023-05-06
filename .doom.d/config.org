@@ -102,7 +102,7 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 #+end_src
 
 ** 各类popup
-设置错误弹窗为popup
+错误弹窗
 #+begin_src emacs-lisp
   (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
 #+end_src
@@ -186,7 +186,8 @@ linux上就一般般，还是不开习惯
 设置书签列表快捷键
 #+begin_src emacs-lisp
   (map! :leader
-        :desc "bookmark list" "b w" #'list-bookmarks)
+        :desc "bookmark list" "b w" #'list-bookmarks
+        :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 #+end_src
 
 取消doom中设置的一些快捷键。
@@ -263,8 +264,9 @@ vc设置，因为性能原因被关闭了。
 快捷键设置
 #+begin_src emacs-lisp
   (map! :leader
-         :desc "LSP restart workspace" "c R" #'eglot-reconnect
+         :desc "LSP start/restart" "c R" #'eglot
          )
+
   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 #+end_src
 
@@ -336,13 +338,16 @@ vc设置，因为性能原因被关闭了。
 #+begin_src emacs-lisp
   (use-package! dired
     :commands dired-jump
-    :hook (dired-mode . dired-omit-mode)
+    :hook
+    (dired-mode . dired-omit-mode)
+    (dired-mode . dired-async-mode)
     :init
     (setq dired-dwim-target t
           dired-hide-details-hide-symlink-targets nil
           dired-recursive-copies  'always
           dired-recursive-deletes 'always
-          dired-create-destination-dirs 'ask)
+          dired-create-destination-dirs 'ask
+          dired-clean-confirm-killing-deleted-buffers nil)
     :config
     (setq dired-omit-files
           (concat "\\`[.][.]?\\'"
@@ -409,6 +414,13 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
             (("epub") . ("koodo-reader" "%f"))
             ))
+    (setq dirvish-emerge-groups
+    '(("最近使用" (predicate . recent-files-2h))
+       ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
+       ("视频" (extensions "mp4" "mkv" "webm"))
+       ("图片" (extensions "jpg" "png" "svg" "gif"))
+       ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
+       ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
     (setq dirvish-header-line-format '(:left (path) :right (yank sort index " ")))
     (setq dirvish-path-separators (list "  ~" "  " "/"))
     (setq dirvish-side-display-alist `((side . right) (slot . -1)))
@@ -420,6 +432,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "l" #'dired-find-file
           :n "e" #'dired-create-empty-file
           :n "." #'dired-omit-mode
+          :n "C-." #'dirvish-emerge-mode
           :n "q" #'dirvish-quit
           :n "s" #'dirvish-quicksort
           :n "a" #'dirvish-quick-access
@@ -717,31 +730,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+end_src
 
 * 工具包
-** bookmark-view
-#+begin_src emacs-lisp
-  (use-package! bookmark-view
-    :commands (bookmark-view)
-    )
-
-  (map! :leader
-        :desc "bookmark view" "b v" #'bookmark-view)
-#+end_src
-
-使dired支持bookmark-view
-#+begin_src emacs-lisp
-  (after! bookmark-view
-    (defun bookmark-view--make-record ()
-      "Return a new bookmark record for the current buffer.
-  The current buffer must not have a backing file."
-      (if (and (not (ignore-errors (bookmark-buffer-file-name)))
-               (eq bookmark-make-record-function #'bookmark-make-record-default))
-          `(,(bookmark-buffer-name)
-            (buffer . ,(buffer-name))
-            (handler . ,#'bookmark-view-handler-fallback))
-        (bookmark-make-record)))
-    )
-#+end_src
-
 ** 单词翻译
 #+begin_src emacs-lisp
   (use-package! fanyi

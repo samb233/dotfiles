@@ -89,7 +89,8 @@
       :desc "format buffer" "b f" #'+format/buffer)
 
 (map! :leader
-      :desc "bookmark list" "b w" #'list-bookmarks)
+      :desc "bookmark list" "b w" #'list-bookmarks
+      :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 
 (map! :leader
       "f c" nil
@@ -127,8 +128,9 @@
 (setq auto-revert-check-vc-info t)
 
 (map! :leader
-       :desc "LSP restart workspace" "c R" #'eglot-reconnect
+       :desc "LSP start/restart" "c R" #'eglot
        )
+
 (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 
 (after! eglot
@@ -175,13 +177,16 @@
 
 (use-package! dired
   :commands dired-jump
-  :hook (dired-mode . dired-omit-mode)
+  :hook
+  (dired-mode . dired-omit-mode)
+  (dired-mode . dired-async-mode)
   :init
   (setq dired-dwim-target t
         dired-hide-details-hide-symlink-targets nil
         dired-recursive-copies  'always
         dired-recursive-deletes 'always
-        dired-create-destination-dirs 'ask)
+        dired-create-destination-dirs 'ask
+        dired-clean-confirm-killing-deleted-buffers nil)
   :config
   (setq dired-omit-files
         (concat "\\`[.][.]?\\'"
@@ -244,6 +249,13 @@
           (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
           (("epub") . ("koodo-reader" "%f"))
           ))
+  (setq dirvish-emerge-groups
+  '(("最近使用" (predicate . recent-files-2h))
+     ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
+     ("视频" (extensions "mp4" "mkv" "webm"))
+     ("图片" (extensions "jpg" "png" "svg" "gif"))
+     ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
+     ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
   (setq dirvish-header-line-format '(:left (path) :right (yank sort index " ")))
   (setq dirvish-path-separators (list "  ~" "  " "/"))
   (setq dirvish-side-display-alist `((side . right) (slot . -1)))
@@ -255,6 +267,7 @@
         :n "l" #'dired-find-file
         :n "e" #'dired-create-empty-file
         :n "." #'dired-omit-mode
+        :n "C-." #'dirvish-emerge-mode
         :n "q" #'dirvish-quit
         :n "s" #'dirvish-quicksort
         :n "a" #'dirvish-quick-access
@@ -467,25 +480,6 @@
   )
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
-
-(use-package! bookmark-view
-  :commands (bookmark-view)
-  )
-
-(map! :leader
-      :desc "bookmark view" "b v" #'bookmark-view)
-
-(after! bookmark-view
-  (defun bookmark-view--make-record ()
-    "Return a new bookmark record for the current buffer.
-The current buffer must not have a backing file."
-    (if (and (not (ignore-errors (bookmark-buffer-file-name)))
-             (eq bookmark-make-record-function #'bookmark-make-record-default))
-        `(,(bookmark-buffer-name)
-          (buffer . ,(buffer-name))
-          (handler . ,#'bookmark-view-handler-fallback))
-      (bookmark-make-record)))
-  )
 
 (use-package! fanyi
   :commands (fanyi-dwim

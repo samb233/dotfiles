@@ -62,9 +62,6 @@
 (package! org-modern)
 (package! org-appear)
 
-;; bookmark窗口
-(package! bookmark-view)
-
 (package! tide :disable t)
 (package! gorepl-mode :disable t)
 (package! go-guru :disable t)
