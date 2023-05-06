@@ -27,13 +27,13 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
-(setq doom-modeline-modal t)
-(setq doom-modeline-modal-icon nil)
-(setq doom-modeline-buffer-encoding t)
-(setq doom-modeline-vcs-max-length 20)
-(setq doom-modeline-height 28)
-(setq doom-modeline-buffer-modification-icon nil)
-(setq doom-modeline-buffer-state-icon nil)
+(setq doom-modeline-modal t
+      doom-modeline-modal-icon nil
+      doom-modeline-buffer-encoding t
+      doom-modeline-vcs-max-length 20
+      doom-modeline-height 28
+      doom-modeline-buffer-modification-icon nil
+      doom-modeline-buffer-state-icon nil)
 (after! doom-modeline
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4")
   (setq doom-modeline-buffer-file-name-style 'buffer-name)
@@ -250,7 +250,7 @@
           (("epub") . ("koodo-reader" "%f"))
           ))
   (setq dirvish-emerge-groups
-  '(("最近使用" (predicate . recent-files-2h))
+  '(("今日" (predicate . recent-files-today))
      ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
      ("视频" (extensions "mp4" "mkv" "webm"))
      ("图片" (extensions "jpg" "png" "svg" "gif"))
@@ -313,8 +313,14 @@
 (after! vterm
   (setq vterm-max-scrollback 10000)
   (setq vterm-timer-delay 0.01)
+  (setq vterm-min-window-width 70)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
+  )
+
+(setq-hook! 'vterm-mode-hook
+  +popup-margin-width nil
+  kill-buffer-query-functions nil
   )
 
 (use-package! doom-vterm-toggle
