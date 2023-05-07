@@ -21,9 +21,9 @@
 (setq display-line-numbers-type 'relative)
 
 ;; (setq doom-font (font-spec :family "Sarasa Mono SC" :size 13.0))
-;; (setq doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC"))
 (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
-(setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
+(setq doom-unicode-font (font-spec :family "Sarasa Mono SC"))
+;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (setq doom-theme 'doom-tomorrow-day)
 
@@ -105,6 +105,9 @@
 
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
+(setq evil-undo-system 'undo-redo
+      evil-undo-function 'undo-only
+      evil-redo-function 'undo-redo)
 
 (after! recentf
   :config

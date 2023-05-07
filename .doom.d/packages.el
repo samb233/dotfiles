@@ -49,26 +49,29 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(unpin! org eglot consult-eglot)
-
+;; 一些网上复制粘贴的包
 (add-load-path! "elisp")
+
+;; Emacs自带的包就不要再去下载了
+(package! org :built-in 'prefer)
+(package! eglot :built-in 'prefer)
+(package! project :built-in 'prefer)
+
+;; 输入法管理
 (package! sis)
+
+;; 文件管理
 (package! dirvish)
 
-;;undo
-(package! undo-fu-session)
-(package! vundo)
-
-;; 翻译工具
-(package! fanyi)
-
-;; org美化
+;; Org-Mode
 (package! org-modern)
 (package! org-appear)
 
-;; 记录窗口
+;; 工具包
 (package! bookmark-view)
+(package! fanyi)
 
+;; 过于老旧，取消使用的包
 (package! tide :disable t)
 (package! gorepl-mode :disable t)
 (package! go-guru :disable t)

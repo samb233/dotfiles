@@ -60,9 +60,9 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 并且能兼容Doom的Big Mode。
 #+begin_src emacs-lisp
   ;; (setq doom-font (font-spec :family "Sarasa Mono SC" :size 13.0))
-  ;; (setq doom-variable-pitch-font (font-spec :family "Noto Serif CJK SC"))
   (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
-  (setq doom-unicode-font (font-spec :family "Sarasa Mono SC" ))
+  (setq doom-unicode-font (font-spec :family "Sarasa Mono SC"))
+  ;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 #+end_src
 
 ** 主题
@@ -214,6 +214,9 @@ linux上就一般般，还是不开习惯
 #+begin_src emacs-lisp
   (setq undo-no-redo t)
   (setq evil-want-fine-undo t)
+  (setq evil-undo-system 'undo-redo
+        evil-undo-function 'undo-only
+        evil-redo-function 'undo-redo)
 #+end_src
 
 ** recentf
