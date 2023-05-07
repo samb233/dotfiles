@@ -196,7 +196,8 @@
                 "\\|^\\.ccls-cache\\'"
                 "\\|\\(?:\\.js\\)?\\.meta\\'"
                 "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
-  (map! :map dired-mode-map :ng "q" #'quit-window)
+  (map! :map dired-mode-map
+        :ng "q" #'quit-window )
   )
 
 (use-package! dirvish
@@ -225,7 +226,7 @@
   (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-redisplay-debounce 0.01)
   (setq dirvish-use-mode-line nil)
-  ;; (setq dirvish-default-layout '(0 0.4 0.6))
+  ;; (setq dirvish-default-layout '(0 0.5 0.5))
   ;; (setq dirvish-mode-line-format
   ;;       '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-header-line-height '41)
@@ -250,7 +251,7 @@
           (("epub") . ("koodo-reader" "%f"))
           ))
   (setq dirvish-emerge-groups
-  '(("今日" (predicate . recent-files-today))
+  '(("24h" (predicate . recent-files-today))
      ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
      ("视频" (extensions "mp4" "mkv" "webm"))
      ("图片" (extensions "jpg" "png" "svg" "gif"))
@@ -313,7 +314,6 @@
 (after! vterm
   (setq vterm-max-scrollback 10000)
   (setq vterm-timer-delay 0.01)
-  (setq vterm-min-window-width 70)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
   )
@@ -486,6 +486,25 @@
   )
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+(use-package! bookmark-view
+  :commands (bookmark-view)
+  )
+
+(map! :leader
+      :desc "bookmark view" "b v" #'bookmark-view)
+
+(after! bookmark-view
+  (defun bookmark-view--make-record ()
+  "Return a new bookmark record for the current buffer.
+The current buffer must not have a backing file."
+  (if (and (not (bookmark-buffer-file-name))
+           (eq bookmark-make-record-function #'bookmark-make-record-default))
+      `(,(bookmark-buffer-name)
+        (buffer . ,(buffer-name))
+        (handler . ,#'bookmark-view-handler-fallback))
+    (bookmark-make-record)))
+  )
 
 (use-package! fanyi
   :commands (fanyi-dwim
