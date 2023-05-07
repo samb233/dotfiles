@@ -3,32 +3,25 @@
 ;;
 ;;; Flymake
 
-(use-package flymake
-  :defer t
-  :init
+(use-package! flymake
+  :commands (flymake-mode)
   ;; as flymakes fail silently there is no need to activate it on a per major mode basis
-  (add-hook! (prog-mode text-mode) #'flymake-mode)
+  :hook ((prog-mode text-mode) . flymake-mode)
   :config
   (setq flymake-fringe-indicator-position 'right-fringe))
 
-(use-package flymake-popon
-  :when (modulep! +popon)
-  :hook (flymake-mode . flymake-popon-mode)
-  :config
-  (setq flymake-popon-method
-        (if (modulep! +childframe)
-            'postframe
-          'popon)))
-
-
-(use-package sideline
+(use-package! sideline
   :when (modulep! +sideline)
+  :hook (flymake-mode . sideline-mode)
   :init
-  (setq sideline-backends-right '(sideline-flymake))
-  :hook ((flymake-mode . sideline-mode))
+  (setq sideline-backends-right '(sideline-flymake)
+        sideline-display-backend-name t
+        sideline-display-backend-type 'left)
   )
 
-(use-package sideline-flymake
+(use-package! sideline-flymake
   :when (modulep! +sideline)
-  :init (setq sideline-flymake-display-mode 'line)
+  :after sideline
+  :init
+  (setq sideline-flymake-display-mode 'line)
   )
