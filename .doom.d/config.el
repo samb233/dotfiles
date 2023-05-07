@@ -42,8 +42,8 @@
 (setq uniquify-buffer-name-style 'forward)
 
 (custom-set-faces
- '(line-number ((t (:weight medium))))
- '(line-number-current-line ((t (:weight medium))))
+ '(line-number ((t (:weight medium :slant normal))))
+ '(line-number-current-line ((t (:weight medium :slant normal))))
  )
 
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
@@ -76,10 +76,10 @@
 (map! "C-v" #'yank)
 (map! "M-v" #'yank)
 
-(evil-define-key 'insert 'global (kbd "C-z") 'undo-fu-only-undo)
-(evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
-(evil-define-key 'insert 'global (kbd "C-S-z") 'undo-fu-only-redo)
-(evil-define-key 'normal 'global (kbd "C-S-z") 'undo-fu-only-redo)
+(evil-define-key 'insert 'global (kbd "C-z") 'undo-only)
+(evil-define-key 'normal 'global (kbd "C-z") 'undo-only)
+(evil-define-key 'insert 'global (kbd "C-S-z") 'undo-redo)
+(evil-define-key 'normal 'global (kbd "C-S-z") 'undo-redo)
 (evil-define-key 'normal 'global (kbd "U") 'evil-redo)
 
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)

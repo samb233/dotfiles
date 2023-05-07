@@ -96,8 +96,8 @@ Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(line-number ((t (:weight medium))))
-   '(line-number-current-line ((t (:weight medium))))
+   '(line-number ((t (:weight medium :slant normal))))
+   '(line-number-current-line ((t (:weight medium :slant normal))))
    )
 #+end_src
 
@@ -163,10 +163,10 @@ linux上就一般般，还是不开习惯
 
 设置Ctrl-z撤销，Ctrl-Z重做
 #+begin_src emacs-lisp
-  (evil-define-key 'insert 'global (kbd "C-z") 'undo-fu-only-undo)
-  (evil-define-key 'normal 'global (kbd "C-z") 'undo-fu-only-undo)
-  (evil-define-key 'insert 'global (kbd "C-S-z") 'undo-fu-only-redo)
-  (evil-define-key 'normal 'global (kbd "C-S-z") 'undo-fu-only-redo)
+  (evil-define-key 'insert 'global (kbd "C-z") 'undo-only)
+  (evil-define-key 'normal 'global (kbd "C-z") 'undo-only)
+  (evil-define-key 'insert 'global (kbd "C-S-z") 'undo-redo)
+  (evil-define-key 'normal 'global (kbd "C-S-z") 'undo-redo)
   (evil-define-key 'normal 'global (kbd "U") 'evil-redo)
 #+end_src
 

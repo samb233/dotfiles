@@ -55,6 +55,10 @@
 (package! sis)
 (package! dirvish)
 
+;;undo
+(package! undo-fu-session)
+(package! vundo)
+
 ;; 翻译工具
 (package! fanyi)
 
