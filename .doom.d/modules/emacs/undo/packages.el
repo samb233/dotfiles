@@ -1,5 +1,5 @@
 ;; -*- no-byte-compile: t; -*-
-;;; emacs/vundo/packages.el
+;;; emacs/undo/packages.el
 
 (package! undo-fu-session)
 (package! vundo)

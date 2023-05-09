@@ -1,7 +1,7 @@
-;;; emacs/vundo/config.el -*- lexical-binding: t; -*-
+;;; emacs/undo/config.el -*- lexical-binding: t; -*-
 
 ;;
-;;; Vundo
+;;; undo
 
 
 (use-package! undo-fu-session
