@@ -131,7 +131,10 @@
 (setq auto-revert-check-vc-info t)
 
 (map! :leader
-       :desc "LSP start/restart" "c R" #'eglot
+       :desc "LSP start/restart" "c S" #'eglot
+       :desc "LSP reconnect" "c R" #'eglot-reconnect
+       :desc "LSP rename" "c n" #'eglot-rename
+       :desc "Jump to references" "c r" #'+lookup/references
        )
 
 (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
@@ -141,6 +144,7 @@
   (setq eglot-events-buffer-size 0)
   (setq eglot-stay-out-of '(snippet))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+  (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   )
 
 (setq eldoc-echo-area-display-truncation-message nil)
@@ -152,6 +156,7 @@
   ;; (setq corfu-preview-current nil)
   (setq corfu-auto-prefix 1)
   (setq corfu-auto-delay 0.1)
+  (setq corfu-popupinfo-max-height 20)
   (setq cape-dict-file "~/.doom.d/dict/words")
   (map! :map corfu-map
         :i "TAB" #'corfu-next
@@ -191,6 +196,7 @@
         dired-create-destination-dirs 'ask
         dired-clean-confirm-killing-deleted-buffers nil)
   :config
+  (setq dired-async-skip-fast t)
   (setq dired-omit-files
         (concat "\\`[.][.]?\\'"
                 "\\|^\\.DS_Store\\'"
@@ -201,6 +207,7 @@
                 "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
   (map! :map dired-mode-map
         :ng "q" #'quit-window )
+  (custom-set-faces '(dired-async-message ((t (:inherit success)))))
   )
 
 (use-package! dirvish
@@ -454,6 +461,7 @@
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-max-image-size '(500 . 500))
+  (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil)
   )
 
 (defun my/eglot-organize-imports ()
