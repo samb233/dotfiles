@@ -55,14 +55,16 @@
 * 基础外观
 ** 字体
 设置字体与字体大小。
-将doom-unicode-font设置为Sarasa Mono SC即可解决Doom Emacs的中文显示问题。
-Sarasa这个字体能在一定程度上与英文对齐，能让代码的80线不再歪歪扭扭。
-并且能兼容Doom的Big Mode。
+使用after-setting-font-hook来设置中文字体
 #+begin_src emacs-lisp
-  ;; (setq doom-font (font-spec :family "Sarasa Mono SC" :size 13.0))
-  (setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
-  (setq doom-unicode-font (font-spec :family "Sarasa Mono SC"))
-  ;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
+  (setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
+
+  (defun my-cjk-font()
+    (dolist (charset '(kana han cjk-misc symbol bopomofo))
+      (set-fontset-font t charset (font-spec :family "Sarasa Mono SC")))
+    )
+
+  (add-hook 'after-setting-font-hook #'my-cjk-font)
 #+end_src
 
 ** 主题
@@ -171,7 +173,6 @@ linux上就一般般，还是不开习惯
 #+end_src
 
 设置]e [e跳转错误
-在doom emacs没有官方支持flymake前的妥协方案
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
   (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
@@ -290,6 +291,17 @@ vc设置，因为性能原因被关闭了。
     )
 #+end_src
 
+** flymake
+#+begin_src emacs-lisp
+  (use-package! flymake
+    :commands (flymake-mode)
+    :hook ((prog-mode text-mode) . flymake-mode)
+    :config
+    (setq flymake-fringe-indicator-position 'right-fringe)
+    (setq flymake-no-changes-timeout 1.0)
+    )
+#+end_src
+
 ** eldoc
 设置eldoc buffer为popup
 也可以配置flymake约eldoc同时显示，见[[https://github.com/joaotavora/eglot/issues/1171][issue]]， 但我不喜欢这种形式
@@ -305,8 +317,9 @@ vc设置，因为性能原因被关闭了。
     (setq corfu-preselect 'prompt)
     ;; (setq corfu-preview-current nil)
     (setq corfu-auto-prefix 1)
-    (setq corfu-auto-delay 0.1)
+    (setq corfu-auto-delay 0.15)
     (setq corfu-popupinfo-max-height 20)
+    (setq corfu-count 10)
     (setq cape-dict-file "~/.doom.d/dict/words")
     (map! :map corfu-map
           :i "TAB" #'corfu-next
@@ -581,6 +594,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
           )
     )
 #+end_src
+
 
 ** org-modern
 使用org-modern美化org

@@ -20,10 +20,14 @@
 
 (setq display-line-numbers-type 'relative)
 
-;; (setq doom-font (font-spec :family "Sarasa Mono SC" :size 13.0))
-(setq doom-font (font-spec :family "Iosevka Medium" :size 13.0))
-(setq doom-unicode-font (font-spec :family "Sarasa Mono SC"))
-;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
+(setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
+
+(defun my-cjk-font()
+  (dolist (charset '(kana han cjk-misc symbol bopomofo))
+    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC")))
+  )
+
+(add-hook 'after-setting-font-hook #'my-cjk-font)
 
 (setq doom-theme 'doom-tomorrow-day)
 
@@ -147,6 +151,14 @@
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   )
 
+(use-package! flymake
+  :commands (flymake-mode)
+  :hook ((prog-mode text-mode) . flymake-mode)
+  :config
+  (setq flymake-fringe-indicator-position 'right-fringe)
+  (setq flymake-no-changes-timeout 1.0)
+  )
+
 (setq eldoc-echo-area-display-truncation-message nil)
 (setq eldoc-echo-area-use-multiline-p nil)
 (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
@@ -155,8 +167,9 @@
   (setq corfu-preselect 'prompt)
   ;; (setq corfu-preview-current nil)
   (setq corfu-auto-prefix 1)
-  (setq corfu-auto-delay 0.1)
+  (setq corfu-auto-delay 0.15)
   (setq corfu-popupinfo-max-height 20)
+  (setq corfu-count 10)
   (setq cape-dict-file "~/.doom.d/dict/words")
   (map! :map corfu-map
         :i "TAB" #'corfu-next
