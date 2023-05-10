@@ -46,12 +46,6 @@
                    "%b"))))
 #+end_src
 
-** 相对行号。
-使用evil-mode怎么能少了这个！
-#+begin_src emacs-lisp
-  (setq display-line-numbers-type 'relative)
-#+end_src
-
 * 基础外观
 ** 字体
 设置字体与字体大小。
@@ -75,16 +69,15 @@
 ** doom-modeline
 简洁一点，去掉部分图标
 #+begin_src emacs-lisp
-  (setq doom-modeline-modal t
-        doom-modeline-modal-icon nil
-        doom-modeline-buffer-encoding t
-        doom-modeline-vcs-max-length 20
-        doom-modeline-height 28
-        doom-modeline-buffer-modification-icon nil
-        doom-modeline-buffer-state-icon nil)
   (after! doom-modeline
+    (setq doom-modeline-modal t
+          doom-modeline-modal-icon nil
+          doom-modeline-buffer-encoding t
+          doom-modeline-vcs-max-length 20
+          doom-modeline-height 28
+          doom-modeline-buffer-modification-icon nil
+          doom-modeline-buffer-state-icon nil)
     (set-face-attribute 'mode-line-active nil :background "#f4f4f4")
-    (setq doom-modeline-buffer-file-name-style 'buffer-name)
     )
 #+end_src
 
@@ -106,7 +99,7 @@
 ** 各类popup
 错误弹窗
 #+begin_src emacs-lisp
-  (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+  (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
 #+end_src
 
 * 基础按键
@@ -119,7 +112,7 @@
          ((meta))
          ((control) . text-scale)))
   (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-  (setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+  (setq mouse-wheel-follow-mouse t) ;; scroll window under mouse
   (setq scroll-step 1) ;; keyboard scroll one line at a time
 #+end_src
 
@@ -147,6 +140,7 @@ linux上就一般般，还是不开习惯
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
 #+begin_src emacs-lisp
   (evil-ex-define-cmd "q" 'kill-this-buffer)
+  (evil-ex-define-cmd "Q" 'kill-this-buffer)
   (evil-ex-define-cmd "quit" 'evil-quit)
 #+end_src
 
@@ -154,7 +148,6 @@ linux上就一般般，还是不开习惯
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
   (map! "C-s" #'consult-line)
-  ;; (setq consult-line-start-from-top t)
 #+end_src
 
 设置Ctrl-v和Alt-v粘贴
@@ -218,13 +211,34 @@ linux上就一般般，还是不开习惯
 * 基础插件
 ** undo
 默认的undo行为在我看来不能适应。
-写代码是undo是不靠谱的这件事，太可怕了。
+好在emacs28后有了undo-only和undo-redo。
+显示指定一下evil的undo。
 #+begin_src emacs-lisp
   (setq undo-no-redo t)
   (setq evil-want-fine-undo t)
   (setq evil-undo-system 'undo-redo
         evil-undo-function 'undo-only
         evil-redo-function 'undo-redo)
+#+end_src
+
+** projectile
+修改projectile查找project-root的方式
+先从上到下，后从下到上。
+#+begin_src emacs-lisp
+  (after! projectile
+    (add-to-list 'projectile-project-root-files "go.mod")
+    (setq projectile-project-root-functions '(projectile-root-local
+                                              projectile-root-marked
+                                              projectile-root-top-down
+                                              projectile-root-bottom-up
+                                              projectile-root-top-down-recurring)))
+
+  (defun project-projectile (dir)
+    "Return Projectile project of form ('projectile . root-dir) for DIR."
+    (let ((root (projectile-project-root dir)))
+      (when root
+        (cons 'projectile root))))
+  (setq project-find-functions '(project-projectile project-try-vc))
 #+end_src
 
 ** recentf
@@ -261,13 +275,6 @@ doom默认的200个也太少了，至少1000吧
   (setq magit-clone-default-directory "~/Codes/Lab/")
 #+end_src
 
-** vc-state
-vc设置，因为性能原因被关闭了。
-但随时随地知道git状态其实是蛮重要的，我把它打开。
-#+begin_src emacs-lisp
-  (setq auto-revert-check-vc-info t)
-#+end_src
-
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 
@@ -285,14 +292,11 @@ vc设置，因为性能原因被关闭了。
 #+end_src
 
 配置eglot。
-由于eglot只支持了最基础的lsp协议，有一些协议没有支持
-先将其屏蔽，有时间再找实现
-屏蔽列表
 #+begin_src emacs-lisp
   (after! eglot
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
-    (setq eglot-stay-out-of '(snippet))
+    (setq eglot-stay-out-of '(yasnippet))
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
     )
@@ -324,8 +328,6 @@ flymake和eglot一起用时就不用设置什么了
   (after! corfu
     (setq corfu-preselect 'prompt)
     ;; (setq corfu-preview-current nil)
-    (setq corfu-auto-prefix 1)
-    (setq corfu-auto-delay 0.15)
     (setq corfu-popupinfo-max-height 20)
     (setq corfu-count 10)
     (setq cape-dict-file "~/.doom.d/dict/words")
@@ -563,17 +565,9 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
 
 * Org-Mode
 ** word-wrap
-中英文一起时word-wrap只会是副作用。
-比如在列表开头给你整一个空行。。
-至于为什么用hook，因为直接设置word-wrap nil没有用。
-关闭后会导致长代码折行时不好看，但我认为不让列表出现空行更重要。
-要看org中的代码自己开！
+关闭。中英文一起时word-wrap只会是副作用。
 #+begin_src emacs-lisp
-  (defun my-disable-word-wrap-h()
-    (setq-local word-wrap nil)
-    )
-
-  (add-hook! 'org-mode-hook #'my-disable-word-wrap-h)
+  (add-hook! 'org-mode-hook (setq-local word-wrap nil))
 #+end_src
 
 ** 基本外观

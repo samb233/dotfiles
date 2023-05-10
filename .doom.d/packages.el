@@ -70,8 +70,11 @@
 ;; 工具包
 (package! fanyi)
 
-;; 过于老旧，取消使用的包
+;; 不需要这些功能，取消使用
+(package! evil-escape :disable t)
 (package! tide :disable t)
+
+;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
 (package! ob-go :disable t)
 (package! go-guru :disable t)

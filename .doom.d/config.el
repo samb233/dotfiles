@@ -18,8 +18,6 @@
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
-(setq display-line-numbers-type 'relative)
-
 (setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
 
 (defun my-cjk-font()
@@ -31,16 +29,15 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
-(setq doom-modeline-modal t
-      doom-modeline-modal-icon nil
-      doom-modeline-buffer-encoding t
-      doom-modeline-vcs-max-length 20
-      doom-modeline-height 28
-      doom-modeline-buffer-modification-icon nil
-      doom-modeline-buffer-state-icon nil)
 (after! doom-modeline
+  (setq doom-modeline-modal t
+        doom-modeline-modal-icon nil
+        doom-modeline-buffer-encoding t
+        doom-modeline-vcs-max-length 20
+        doom-modeline-height 28
+        doom-modeline-buffer-modification-icon nil
+        doom-modeline-buffer-state-icon nil)
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4")
-  (setq doom-modeline-buffer-file-name-style 'buffer-name)
   )
 
 (setq uniquify-buffer-name-style 'forward)
@@ -50,7 +47,7 @@
  '(line-number-current-line ((t (:weight medium))))
  )
 
-(set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
+(set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
 
 (setq scroll-margin 9)
 (setq mouse-wheel-scroll-amount '
@@ -59,7 +56,7 @@
        ((meta))
        ((control) . text-scale)))
 (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ;; scroll window under mouse
+(setq mouse-wheel-follow-mouse t) ;; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
 
 ;; (pixel-scroll-precision-mode t)
@@ -71,11 +68,11 @@
 (evil-define-key 'normal 'global (kbd "q") nil)
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
+(evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
 
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
-;; (setq consult-line-start-from-top t)
 
 (map! "C-v" #'yank)
 (map! "M-v" #'yank)
@@ -117,6 +114,21 @@
       evil-undo-function 'undo-only
       evil-redo-function 'undo-redo)
 
+(after! projectile
+  (add-to-list 'projectile-project-root-files "go.mod")
+  (setq projectile-project-root-functions '(projectile-root-local
+                                            projectile-root-marked
+                                            projectile-root-top-down
+                                            projectile-root-bottom-up
+                                            projectile-root-top-down-recurring)))
+
+(defun project-projectile (dir)
+  "Return Projectile project of form ('projectile . root-dir) for DIR."
+  (let ((root (projectile-project-root dir)))
+    (when root
+      (cons 'projectile root))))
+(setq project-find-functions '(project-projectile project-try-vc))
+
 (after! recentf
   :config
   (setq recentf-max-saved-items 1000))
@@ -136,8 +148,6 @@
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
-(setq auto-revert-check-vc-info t)
-
 (map! :leader
        :desc "LSP start/restart" "c S" #'eglot
        :desc "LSP reconnect" "c R" #'eglot-reconnect
@@ -150,7 +160,7 @@
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
-  (setq eglot-stay-out-of '(snippet))
+  (setq eglot-stay-out-of '(yasnippet))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   )
@@ -170,8 +180,6 @@
 (after! corfu
   (setq corfu-preselect 'prompt)
   ;; (setq corfu-preview-current nil)
-  (setq corfu-auto-prefix 1)
-  (setq corfu-auto-delay 0.15)
   (setq corfu-popupinfo-max-height 20)
   (setq corfu-count 10)
   (setq cape-dict-file "~/.doom.d/dict/words")
@@ -369,11 +377,7 @@
   (sis-global-context-mode t)
   )
 
-(defun my-disable-word-wrap-h()
-  (setq-local word-wrap nil)
-  )
-
-(add-hook! 'org-mode-hook #'my-disable-word-wrap-h)
+(add-hook! 'org-mode-hook (setq-local word-wrap nil))
 
 (setq org-directory "~/Notes")
 (custom-set-faces
