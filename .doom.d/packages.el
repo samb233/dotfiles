@@ -68,11 +68,11 @@
 (package! org-appear)
 
 ;; 工具包
-(package! bookmark-view)
 (package! fanyi)
 
 ;; 过于老旧，取消使用的包
 (package! tide :disable t)
 (package! gorepl-mode :disable t)
+(package! ob-go :disable t)
 (package! go-guru :disable t)
 (package! go-eldoc :disable t)

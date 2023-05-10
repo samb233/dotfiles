@@ -46,8 +46,8 @@
 (setq uniquify-buffer-name-style 'forward)
 
 (custom-set-faces
- '(line-number ((t (:weight medium :slant normal))))
- '(line-number-current-line ((t (:weight medium :slant normal))))
+ '(line-number ((t (:weight medium))))
+ '(line-number-current-line ((t (:weight medium))))
  )
 
 (set-popup-rule! "^\\*format-all-errors*" :size 0.3 :modeline t :quit t)
@@ -89,6 +89,9 @@
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 
+(map! :n "<mouse-8>" #'better-jumper-jump-backward
+      :n "<mouse-9>" #'better-jumper-jump-forward)
+
 (map! :leader
       :desc "format buffer" "b f" #'+format/buffer)
 
@@ -97,6 +100,7 @@
       :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 
 (map! :leader
+      "i e" nil
       "f c" nil
       "n d" nil
       "f e" nil
@@ -517,18 +521,6 @@
 
 (map! :leader
       :desc "bookmark view" "b v" #'bookmark-view)
-
-(after! bookmark-view
-  (defun bookmark-view--make-record ()
-  "Return a new bookmark record for the current buffer.
-The current buffer must not have a backing file."
-  (if (and (not (bookmark-buffer-file-name))
-           (eq bookmark-make-record-function #'bookmark-make-record-default))
-      `(,(bookmark-buffer-name)
-        (buffer . ,(buffer-name))
-        (handler . ,#'bookmark-view-handler-fallback))
-    (bookmark-make-record)))
-  )
 
 (use-package! fanyi
   :commands (fanyi-dwim

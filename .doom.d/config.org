@@ -98,8 +98,8 @@
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(line-number ((t (:weight medium :slant normal))))
-   '(line-number-current-line ((t (:weight medium :slant normal))))
+   '(line-number ((t (:weight medium))))
+   '(line-number-current-line ((t (:weight medium))))
    )
 #+end_src
 
@@ -178,6 +178,12 @@ linux上就一般般，还是不开习惯
   (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 #+end_src
 
+设置鼠标侧键跳转
+#+begin_src emacs-lisp
+  (map! :n "<mouse-8>" #'better-jumper-jump-backward
+        :n "<mouse-9>" #'better-jumper-jump-forward)
+#+end_src
+
 设置format-buffer的快捷键
 #+begin_src emacs-lisp
   (map! :leader
@@ -197,6 +203,7 @@ linux上就一般般，还是不开习惯
 其他软件里我可能拿他们没办法，但在emacs里我可以当家作主，全部取消！
 #+begin_src emacs-lisp
   (map! :leader
+        "i e" nil
         "f c" nil
         "n d" nil
         "f e" nil
@@ -292,6 +299,7 @@ vc设置，因为性能原因被关闭了。
 #+end_src
 
 ** flymake
+flymake和eglot一起用时就不用设置什么了
 #+begin_src emacs-lisp
   (use-package! flymake
     :commands (flymake-mode)
@@ -775,22 +783,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
   (map! :leader
         :desc "bookmark view" "b v" #'bookmark-view)
-#+end_src
-
-HACK
-使bookmark-view支持dired-buffer，并在无法bookmark时报错
-#+begin_src emacs-lisp
-  (after! bookmark-view
-    (defun bookmark-view--make-record ()
-    "Return a new bookmark record for the current buffer.
-  The current buffer must not have a backing file."
-    (if (and (not (bookmark-buffer-file-name))
-             (eq bookmark-make-record-function #'bookmark-make-record-default))
-        `(,(bookmark-buffer-name)
-          (buffer . ,(buffer-name))
-          (handler . ,#'bookmark-view-handler-fallback))
-      (bookmark-make-record)))
-    )
 #+end_src
 
 ** 单词翻译
