@@ -296,7 +296,7 @@ doom默认的200个也太少了，至少1000吧
   (after! eglot
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
-    (setq eglot-stay-out-of '(yasnippet))
+    (setq eglot-stay-out-of nil)
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
     )
@@ -311,6 +311,7 @@ flymake和eglot一起用时就不用设置什么了
     :config
     (setq flymake-fringe-indicator-position 'right-fringe)
     (setq flymake-no-changes-timeout 1.0)
+    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
     )
 #+end_src
 
@@ -329,6 +330,7 @@ flymake和eglot一起用时就不用设置什么了
     (setq corfu-preselect 'prompt)
     ;; (setq corfu-preview-current nil)
     (setq corfu-popupinfo-max-height 20)
+    (setq corfu-on-exact-match nil)
     (setq corfu-count 10)
     (setq cape-dict-file "~/.doom.d/dict/words")
     (map! :map corfu-map
@@ -361,6 +363,44 @@ flymake和eglot一起用时就不用设置什么了
 
   (after! corfu
     (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
+    )
+#+end_src
+
+** corfu-tng 与 eglot 的兼容性
+corfu 的作者认为 =:exit-function= 的 =exact= 状态表示什么都不做，而 =finished= 表示进行操作。
+但是 eglot 和 lsp-mode 都认为 =exact= 与 =finish= 一样，都会进行操作（比如 expand-snippet ）。
+
+这就导致了 corfu 开启 corfu-preview-current 后，会自动触发 lsp server 的 snippet。
+这并不是代码不能实现，或者有什么离奇的实现，而是类似“意识形态”的不同导致的系统间对接的bug
+不是没法改，而是不想改。参见[[https://github.com/minad/corfu/issues/145][Corfu Issue#145]]
+
+修改 corfu 的代码使它连 =exact= 状态都不传就能解决问题。
+#+begin_src emacs-lisp
+  (after! corfu
+    (cl-defgeneric corfu--prepare ()
+      "Insert selected candidate unless command is marked to continue completion."
+      (when corfu--preview-ov
+        (delete-overlay corfu--preview-ov)
+        (setq corfu--preview-ov nil))
+      ;; Ensure that state is initialized before next Corfu command
+      (when (and (symbolp this-command) (string-prefix-p "corfu-" (symbol-name this-command)))
+        (corfu--update))
+      (when (and (eq corfu-preview-current 'insert)
+                 (/= corfu--index corfu--preselect)
+                 ;; See the comment about `overriding-local-map' in `corfu--post-command'.
+                 (not (or overriding-terminal-local-map
+                          (corfu--match-symbol-p corfu-continue-commands this-command))))
+        (corfu--insert nil))))
+#+end_src
+
+** yasnippet
+兼容yas和corfu的按键
+仅在不开启tab-on-go时使用
+#+begin_src emacs-lisp
+  (after! yasnippet
+    (defun my-corfu-frame-visible-h ()
+      (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+    (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
     )
 #+end_src
 
@@ -509,7 +549,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
          :desc "List processes" "l" #'list-processes
-         :desc "calc mode" "a" #'literate-calc-mode
+         :desc "VC Refresh state" "r" #'vc-refresh-state
          ))
 #+end_src
 
@@ -596,7 +636,6 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
           )
     )
 #+end_src
-
 
 ** org-modern
 使用org-modern美化org
@@ -718,11 +757,12 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
   (defun my/eglot-organize-imports ()
-    (call-interactively 'eglot-code-action-organize-imports))
+    (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
   (defun my/before-saving-go ()
     (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
     (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
   (add-hook 'go-mode-hook #'my/before-saving-go)
+  (add-hook! 'go-mode-hook (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t))))
 #+end_src
 
 禁用没用的快捷键，以免按错

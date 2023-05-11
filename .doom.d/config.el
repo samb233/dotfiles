@@ -160,7 +160,7 @@
 (after! eglot
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
-  (setq eglot-stay-out-of '(yasnippet))
+  (setq eglot-stay-out-of nil)
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   )
@@ -171,6 +171,7 @@
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-no-changes-timeout 1.0)
+  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
   )
 
 (setq eldoc-echo-area-display-truncation-message nil)
@@ -181,6 +182,7 @@
   (setq corfu-preselect 'prompt)
   ;; (setq corfu-preview-current nil)
   (setq corfu-popupinfo-max-height 20)
+  (setq corfu-on-exact-match nil)
   (setq corfu-count 10)
   (setq cape-dict-file "~/.doom.d/dict/words")
   (map! :map corfu-map
@@ -206,6 +208,28 @@
 
 (after! corfu
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
+  )
+
+(after! corfu
+  (cl-defgeneric corfu--prepare ()
+    "Insert selected candidate unless command is marked to continue completion."
+    (when corfu--preview-ov
+      (delete-overlay corfu--preview-ov)
+      (setq corfu--preview-ov nil))
+    ;; Ensure that state is initialized before next Corfu command
+    (when (and (symbolp this-command) (string-prefix-p "corfu-" (symbol-name this-command)))
+      (corfu--update))
+    (when (and (eq corfu-preview-current 'insert)
+               (/= corfu--index corfu--preselect)
+               ;; See the comment about `overriding-local-map' in `corfu--post-command'.
+               (not (or overriding-terminal-local-map
+                        (corfu--match-symbol-p corfu-continue-commands this-command))))
+      (corfu--insert nil))))
+
+(after! yasnippet
+  (defun my-corfu-frame-visible-h ()
+    (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
   )
 
 (use-package! dired
@@ -342,7 +366,7 @@
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
        :desc "List processes" "l" #'list-processes
-       :desc "calc mode" "a" #'literate-calc-mode
+       :desc "VC Refresh state" "r" #'vc-refresh-state
        ))
 
 (setq vterm-always-compile-module t)
@@ -486,11 +510,12 @@
   )
 
 (defun my/eglot-organize-imports ()
-  (call-interactively 'eglot-code-action-organize-imports))
+  (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
 (defun my/before-saving-go ()
   (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
   (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
 (add-hook 'go-mode-hook #'my/before-saving-go)
+(add-hook! 'go-mode-hook (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t))))
 
 (after! go-mode
   (map! :map go-mode-map
