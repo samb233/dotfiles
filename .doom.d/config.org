@@ -1,6 +1,8 @@
 #+title: Samb's Doom Emacs Config
 #+author: Samb
 
+/多花时间编程，少花时间折腾/
+
 * 基础行为 & 变量
 ** Server
 #+begin_src emacs-lisp
@@ -93,14 +95,9 @@
    '(line-number-current-line ((t (:weight medium)))))
 #+end_src
 
-** 各类popup
-错误弹窗
-#+begin_src emacs-lisp
-  (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
-#+end_src
-
 * 基础按键
-设置鼠标滚动。
+** 鼠标
+滚轮
 #+begin_src emacs-lisp
   (setq scroll-margin 9)
   (setq mouse-wheel-scroll-amount '
@@ -127,13 +124,13 @@ linux上就一般般，还是不开习惯
     (kbd "K") 'drag-stuff-up)
 #+end_src
 
-取消按键宏。
-我用不上vim的按键宏功能。
-但他总是在我狂按q是弹出来，很烦。
+侧键
 #+begin_src emacs-lisp
-  (evil-define-key 'normal 'global (kbd "q") nil)
+  (map! :n "<mouse-8>" #'better-jumper-jump-backward
+        :n "<mouse-9>" #'better-jumper-jump-forward)
 #+end_src
 
+** evil
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
 #+begin_src emacs-lisp
   (evil-ex-define-cmd "q" 'kill-this-buffer)
@@ -141,6 +138,14 @@ linux上就一般般，还是不开习惯
   (evil-ex-define-cmd "quit" 'evil-quit)
 #+end_src
 
+取消按键宏。
+我用不上vim的按键宏功能。
+但他总是在我狂按q是弹出来，很烦。
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "q") nil)
+#+end_src
+
+** 常用命令
 使用consult-line替代I-search
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
@@ -168,12 +173,6 @@ linux上就一般般，还是不开习惯
   (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 #+end_src
 
-设置鼠标侧键跳转
-#+begin_src emacs-lisp
-  (map! :n "<mouse-8>" #'better-jumper-jump-backward
-        :n "<mouse-9>" #'better-jumper-jump-forward)
-#+end_src
-
 设置format-buffer的快捷键
 #+begin_src emacs-lisp
   (map! :leader
@@ -192,6 +191,7 @@ linux上就一般般，还是不开习惯
   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 #+end_src
 
+** 取消预设键位
 取消doom中设置的一些快捷键。
 以及取消一些关于emacs配置文件的快捷键
 我可能有一些洁癖，就是不喜欢见到这些我不会用到的快捷键。
@@ -248,7 +248,6 @@ linux上就一般般，还是不开习惯
 doom默认的200个也太少了，至少1000吧
 #+begin_src emacs-lisp
   (after! recentf
-    :config
     (setq recentf-max-saved-items 1000))
 #+end_src
 
@@ -258,17 +257,16 @@ doom默认的200个也太少了，至少1000吧
 设置成全名，让我有种在vim的熟悉感，非常爽。
 #+begin_src emacs-lisp
   (after! evil
-    (setq evil-emacs-state-tag "EMACS")
-    (setq evil-insert-state-tag "INSERT")
-    (setq evil-motion-state-tag "MOTION")
-    (setq evil-normal-state-tag "NORMAL")
-    (setq evil-replace-state-tag "REPLACE")
-    (setq evil-operator-state-tag "OPERATOR")
-    (setq evil-visual-char-tag "VISUAL")
-    (setq evil-visual-line-tag "V-LINE")
-    (setq evil-visual-block-tag "V-BLOCK")
-    (setq evil-visual-screen-line-tag "V-SCREEN")
-    )
+    (setq evil-emacs-state-tag "EMACS"
+          evil-insert-state-tag "INSERT"
+          evil-motion-state-tag "MOTION"
+          evil-normal-state-tag "NORMAL"
+          evil-replace-state-tag "REPLACE"
+          evil-operator-state-tag "OPERATOR"
+          evil-visual-char-tag "VISUAL"
+          evil-visual-line-tag "V-LINE"
+          evil-visual-block-tag "V-BLOCK"
+          evil-visual-screen-line-tag "V-SCREEN"))
 #+end_src
 
 ** magit
@@ -324,6 +322,7 @@ flymake和eglot一起用时就不用设置什么了
     :config
     (setq flymake-fringe-indicator-position 'right-fringe)
     (setq flymake-no-changes-timeout 1.0)
+    (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 #+end_src
 
@@ -470,7 +469,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           "M-m" #'dirvish-mark-menu ))
 #+end_src
 
-以及一些相关的常用操作，我将其绑定到SPC-v-...中
+** 文件管理常用快捷键
 #+begin_src emacs-lisp
   (map! :leader
         :desc "Open dired" "N" #'dired-jump

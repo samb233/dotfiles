@@ -44,8 +44,6 @@
  '(line-number ((t (:weight medium))))
  '(line-number-current-line ((t (:weight medium)))))
 
-(set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
-
 (setq scroll-margin 9)
 (setq mouse-wheel-scroll-amount '
       (3
@@ -62,11 +60,14 @@
   (kbd "J") 'drag-stuff-down
   (kbd "K") 'drag-stuff-up)
 
-(evil-define-key 'normal 'global (kbd "q") nil)
+(map! :n "<mouse-8>" #'better-jumper-jump-backward
+      :n "<mouse-9>" #'better-jumper-jump-forward)
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
+
+(evil-define-key 'normal 'global (kbd "q") nil)
 
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
@@ -82,9 +83,6 @@
 
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
-
-(map! :n "<mouse-8>" #'better-jumper-jump-backward
-      :n "<mouse-9>" #'better-jumper-jump-forward)
 
 (map! :leader
       :desc "format buffer" "b f" #'+format/buffer)
@@ -129,21 +127,19 @@
 (setq project-find-functions '(project-projectile project-try-vc))
 
 (after! recentf
-  :config
   (setq recentf-max-saved-items 1000))
 
 (after! evil
-  (setq evil-emacs-state-tag "EMACS")
-  (setq evil-insert-state-tag "INSERT")
-  (setq evil-motion-state-tag "MOTION")
-  (setq evil-normal-state-tag "NORMAL")
-  (setq evil-replace-state-tag "REPLACE")
-  (setq evil-operator-state-tag "OPERATOR")
-  (setq evil-visual-char-tag "VISUAL")
-  (setq evil-visual-line-tag "V-LINE")
-  (setq evil-visual-block-tag "V-BLOCK")
-  (setq evil-visual-screen-line-tag "V-SCREEN")
-  )
+  (setq evil-emacs-state-tag "EMACS"
+        evil-insert-state-tag "INSERT"
+        evil-motion-state-tag "MOTION"
+        evil-normal-state-tag "NORMAL"
+        evil-replace-state-tag "REPLACE"
+        evil-operator-state-tag "OPERATOR"
+        evil-visual-char-tag "VISUAL"
+        evil-visual-line-tag "V-LINE"
+        evil-visual-block-tag "V-BLOCK"
+        evil-visual-screen-line-tag "V-SCREEN"))
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
@@ -183,6 +179,7 @@
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-no-changes-timeout 1.0)
+  (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 
 (setq eldoc-echo-area-display-truncation-message nil)
