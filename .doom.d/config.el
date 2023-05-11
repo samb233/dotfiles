@@ -22,8 +22,7 @@
 
 (defun my-cjk-font()
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC")))
-  )
+    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -37,15 +36,13 @@
         doom-modeline-height 28
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-state-icon nil)
-  (set-face-attribute 'mode-line-active nil :background "#f4f4f4")
-  )
+  (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 
 (setq uniquify-buffer-name-style 'forward)
 
 (custom-set-faces
  '(line-number ((t (:weight medium))))
- '(line-number-current-line ((t (:weight medium))))
- )
+ '(line-number-current-line ((t (:weight medium)))))
 
 (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
 
@@ -95,6 +92,8 @@
 (map! :leader
       :desc "bookmark list" "b w" #'list-bookmarks
       :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
+
+(evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
 
 (map! :leader
       "i e" nil
@@ -148,22 +147,35 @@
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
-(map! :leader
-       :desc "LSP start/restart" "c S" #'eglot
-       :desc "LSP reconnect" "c R" #'eglot-reconnect
-       :desc "LSP rename" "c n" #'eglot-rename
-       :desc "Jump to references" "c r" #'+lookup/references
-       )
-
-(evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-
 (after! eglot
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (setq eglot-events-buffer-size 0)
   (setq eglot-stay-out-of nil)
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+  (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
+  (map! :leader
+         :desc "LSP start/restart" "c S" #'eglot
+         :desc "LSP reconnect" "c R" #'eglot-reconnect
+         :desc "LSP rename" "c n" #'eglot-rename
+         :desc "Jump to references" "c r" #'+lookup/references)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  )
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
+
+(after! corfu
+  (setq corfu-auto-prefix 1
+        corfu-auto-delay 0.1
+        corfu-popupinfo-max-height 20
+        corfu-count 10
+        cape-dict-file "~/.doom.d/dict/words")
+  (map! :map corfu-map
+        :i "C-j" #'corfu-next
+        :i "C-k" #'corfu-previous
+        :i "C-l" #'corfu-insert-separator
+        :i "C-i" #'corfu-info-documentation
+        :i "C-g" #'corfu-quit)
+  (map! :i "C-S-p" #'cape-file)
+  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
+  (use-package! kind-all-the-icons)
+  (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
 
 (use-package! flymake
   :commands (flymake-mode)
@@ -171,66 +183,16 @@
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-no-changes-timeout 1.0)
-  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
-  )
+  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 
 (setq eldoc-echo-area-display-truncation-message nil)
 (setq eldoc-echo-area-use-multiline-p nil)
 (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
 
-(after! corfu
-  (setq corfu-preselect 'prompt)
-  ;; (setq corfu-preview-current nil)
-  (setq corfu-popupinfo-max-height 20)
-  (setq corfu-on-exact-match nil)
-  (setq corfu-count 10)
-  (setq cape-dict-file "~/.doom.d/dict/words")
-  (map! :map corfu-map
-        :i "TAB" #'corfu-next
-        :i [tab] #'corfu-next
-        :i "S-TAB" #'corfu-previous
-        :i [backtab] #'corfu-previous
-        :i "C-j" #'corfu-next
-        :i "C-k" #'corfu-previous
-        :i "C-l" #'corfu-insert-separator
-        :i "C-i" #'corfu-info-documentation
-        :i "C-g" #'corfu-quit
-        )
-  (map! :map global-map
-        :i "C-S-p" #'cape-file)
-  )
-
-(add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
-
-(use-package! kind-all-the-icons
-  :after corfu
-  )
-
-(after! corfu
-  (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
-  )
-
-(after! corfu
-  (cl-defgeneric corfu--prepare ()
-    "Insert selected candidate unless command is marked to continue completion."
-    (when corfu--preview-ov
-      (delete-overlay corfu--preview-ov)
-      (setq corfu--preview-ov nil))
-    ;; Ensure that state is initialized before next Corfu command
-    (when (and (symbolp this-command) (string-prefix-p "corfu-" (symbol-name this-command)))
-      (corfu--update))
-    (when (and (eq corfu-preview-current 'insert)
-               (/= corfu--index corfu--preselect)
-               ;; See the comment about `overriding-local-map' in `corfu--post-command'.
-               (not (or overriding-terminal-local-map
-                        (corfu--match-symbol-p corfu-continue-commands this-command))))
-      (corfu--insert nil))))
-
 (after! yasnippet
   (defun my-corfu-frame-visible-h ()
     (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
-  )
+  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h))
 
 (use-package! dired
   :commands dired-jump
@@ -256,8 +218,7 @@
                 "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
   (map! :map dired-mode-map
         :ng "q" #'quit-window )
-  (custom-set-faces '(dired-async-message ((t (:inherit success)))))
-  )
+  (custom-set-faces '(dired-async-message ((t (:inherit success))))))
 
 (use-package! dirvish
   :defer t
@@ -347,8 +308,7 @@
         :n "<double-mouse-3>" #'dired-up-directory
         "M-t" #'dirvish-layout-toggle
         "M-j" #'dirvish-fd-jump
-        "M-m" #'dirvish-mark-menu )
-  )
+        "M-m" #'dirvish-mark-menu ))
 
 (map! :leader
       :desc "Open dired" "N" #'dired-jump
@@ -366,40 +326,34 @@
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
        :desc "List processes" "l" #'list-processes
-       :desc "VC Refresh state" "r" #'vc-refresh-state
-       ))
+       :desc "VC Refresh state" "r" #'vc-refresh-state))
 
 (setq vterm-always-compile-module t)
 (after! vterm
   (setq vterm-max-scrollback 10000)
   (setq vterm-timer-delay 0.01)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-  (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
-  )
+  (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 
 (setq-hook! 'vterm-mode-hook
   +popup-margin-width nil
-  kill-buffer-query-functions nil
-  )
+  kill-buffer-query-functions nil)
 
 (use-package! doom-vterm-toggle
   :commands (doom-vterm-toggle-directory
-             doom-vterm-toggle-project)
-  )
+             doom-vterm-toggle-project))
 
 (map! :map vterm-mode-map [f4] nil)
 (map! [f4] #'doom-vterm-toggle-directory
       [S-f4] #'+vterm/here
       :leader
-      "o t" #'doom-vterm-toggle-project
-      )
+      "o t" #'doom-vterm-toggle-project)
 
 (use-package! sis
   :config
   (sis-ism-lazyman-config "1" "2" 'fcitx5)
   (sis-global-respect-mode t)
-  (sis-global-context-mode t)
-  )
+  (sis-global-context-mode t))
 
 (add-hook! 'org-mode-hook (setq-local word-wrap nil))
 
@@ -412,44 +366,37 @@
  '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
  '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
  '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
- '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal))))
- )
+ '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal)))))
 
 (after! org
   (setq org-src-preserve-indentation nil)
   (setq org-image-actual-width 500)
   (map! :map org-mode-map
         :localleader
-        "-" #'org-emphasize
-        )
-  )
+        "-" #'org-emphasize))
 
 (use-package! org-modern
   :commands (org-modern-mode)
   :init
   (setq org-modern-block-name nil)
-  (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
-  )
+  (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇")))
 
 (add-hook 'org-mode-hook #'org-modern-mode)
 
 (use-package! org-appear
   :commands (org-appear-mode)
   :init
-  (setq org-appear-autolinks t)
-  )
+  (setq org-appear-autolinks t))
 
 (add-hook 'org-mode-hook #'org-appear-mode)
 
 (setq org-roam-directory "~/Notes/Roam")
 (map! :leader
       :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
-      :desc "org-roam node Insert" "v i" #'org-roam-node-insert
-      )
+      :desc "org-roam node Insert" "v i" #'org-roam-node-insert)
 
 (after! org-roam
-  (setq org-roam-completion-everywhere nil)
-  )
+  (setq org-roam-completion-everywhere nil))
 
 (setq org-roam-dailies-directory "~/Notes/Daily")
 (setq org-roam-dailies-capture-templates
@@ -460,8 +407,7 @@
 (map! :leader
       :desc "my Journal today" "J" #'org-roam-dailies-goto-today
       :desc "org-roam capture" "X" #'org-roam-capture
-      :desc "org-roam find node" "Z" #'org-roam-node-find
-      )
+      :desc "org-roam find node" "Z" #'org-roam-node-find)
 
 (setq org-roam-capture-templates '(
           ("d" "Default" plain "%?"
@@ -487,8 +433,7 @@
           ("c" "Coding" plain "%?"
           :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :coding: \n\n")
-          :unnarrowed t)
-          ))
+          :unnarrowed t)))
 
 (custom-set-faces
  '(markdown-code-face ((t (:background "#f5f5f5"))))
@@ -499,23 +444,20 @@
  '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :foreground "#e6c547" :weight semi-bold))))
  '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0 :foreground "#c82829" :weight normal))))
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :foreground "#70c0ba" :weight normal))))
- '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal))))
- )
+ '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
 
 (after! markdown-mode
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-max-image-size '(500 . 500))
-  (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil)
-  )
+  (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
-(defun my/eglot-organize-imports ()
+(defun my-eglot-organize-imports ()
   (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
-(defun my/before-saving-go ()
+(defun my-go-mode-init ()
   (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
-  (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
-(add-hook 'go-mode-hook #'my/before-saving-go)
-(add-hook! 'go-mode-hook (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t))))
+  (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
+(add-hook 'go-mode-hook #'my-go-mode-init)
 
 (after! go-mode
   (map! :map go-mode-map
@@ -526,27 +468,22 @@
         (:prefix ("i" . "imports")
                  "i" #'go-goto-imports
                  "a" #'go-import-add
-                 "r" #'go-remove-unused-imports)
-        )
-  )
+                 "r" #'go-remove-unused-imports)))
 
 (use-package protobuf-mode
   :commands (protobuf-mode)
-  :mode("\\.proto\\'" . protobuf-mode)
-  )
+  :mode("\\.proto\\'" . protobuf-mode))
 
 (after! sh-script
   (set-formatter! 'shfmt
     '("shfmt" "-ci"
       ("-i" "%d" (unless indent-tabs-mode tab-width))
-      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
-  )
+      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
 (use-package! bookmark-view
-  :commands (bookmark-view)
-  )
+  :commands (bookmark-view))
 
 (map! :leader
       :desc "bookmark view" "b v" #'bookmark-view)
@@ -568,8 +505,7 @@
 (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline nil :quit t)
 (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
 (map! :leader
-      :desc "Translate word" "v t" #'fanyi-dwim2
-      )
+      :desc "Translate word" "v t" #'fanyi-dwim2)
 
 (after! restclient
   (setq restclient-use-var-regexp
@@ -581,5 +517,4 @@
   (setq restclient-evar-regexp
         "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
   (setq restclient-mvar-regexp
-        "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$")
-  )
+        "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))

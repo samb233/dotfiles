@@ -55,8 +55,7 @@
 
   (defun my-cjk-font()
     (dolist (charset '(kana han cjk-misc symbol bopomofo))
-      (set-fontset-font t charset (font-spec :family "Sarasa Mono SC")))
-    )
+      (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
 
   (add-hook 'after-setting-font-hook #'my-cjk-font)
 #+end_src
@@ -77,8 +76,7 @@
           doom-modeline-height 28
           doom-modeline-buffer-modification-icon nil
           doom-modeline-buffer-state-icon nil)
-    (set-face-attribute 'mode-line-active nil :background "#f4f4f4")
-    )
+    (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 #+end_src
 
 设置buffer name重复时的处理。
@@ -92,8 +90,7 @@
 #+begin_src emacs-lisp
   (custom-set-faces
    '(line-number ((t (:weight medium))))
-   '(line-number-current-line ((t (:weight medium))))
-   )
+   '(line-number-current-line ((t (:weight medium)))))
 #+end_src
 
 ** 各类popup
@@ -190,6 +187,11 @@ linux上就一般般，还是不开习惯
         :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 #+end_src
 
+设置在另一个窗口中打开defination
+#+begin_src emacs-lisp
+  (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+#+end_src
+
 取消doom中设置的一些快捷键。
 以及取消一些关于emacs配置文件的快捷键
 我可能有一些洁癖，就是不喜欢见到这些我不会用到的快捷键。
@@ -277,29 +279,40 @@ doom默认的200个也太少了，至少1000吧
 
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
-
 ** eglot
-快捷键设置
-#+begin_src emacs-lisp
-  (map! :leader
-         :desc "LSP start/restart" "c S" #'eglot
-         :desc "LSP reconnect" "c R" #'eglot-reconnect
-         :desc "LSP rename" "c n" #'eglot-rename
-         :desc "Jump to references" "c r" #'+lookup/references
-         )
-
-  (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-#+end_src
-
-配置eglot。
 #+begin_src emacs-lisp
   (after! eglot
-    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
     (setq eglot-events-buffer-size 0)
     (setq eglot-stay-out-of nil)
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+    (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
+    (map! :leader
+           :desc "LSP start/restart" "c S" #'eglot
+           :desc "LSP reconnect" "c R" #'eglot-reconnect
+           :desc "LSP rename" "c n" #'eglot-rename
+           :desc "Jump to references" "c r" #'+lookup/references)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-    )
+    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
+#+end_src
+
+** corfu
+#+begin_src emacs-lisp
+  (after! corfu
+    (setq corfu-auto-prefix 1
+          corfu-auto-delay 0.1
+          corfu-popupinfo-max-height 20
+          corfu-count 10
+          cape-dict-file "~/.doom.d/dict/words")
+    (map! :map corfu-map
+          :i "C-j" #'corfu-next
+          :i "C-k" #'corfu-previous
+          :i "C-l" #'corfu-insert-separator
+          :i "C-i" #'corfu-info-documentation
+          :i "C-g" #'corfu-quit)
+    (map! :i "C-S-p" #'cape-file)
+    (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
+    (use-package! kind-all-the-icons)
+    (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
 #+end_src
 
 ** flymake
@@ -311,8 +324,7 @@ flymake和eglot一起用时就不用设置什么了
     :config
     (setq flymake-fringe-indicator-position 'right-fringe)
     (setq flymake-no-changes-timeout 1.0)
-    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
-    )
+    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 #+end_src
 
 ** eldoc
@@ -322,86 +334,15 @@ flymake和eglot一起用时就不用设置什么了
   (setq eldoc-echo-area-display-truncation-message nil)
   (setq eldoc-echo-area-use-multiline-p nil)
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
-#+end_src
-
-** corfu
-#+begin_src emacs-lisp
-  (after! corfu
-    (setq corfu-preselect 'prompt)
-    ;; (setq corfu-preview-current nil)
-    (setq corfu-popupinfo-max-height 20)
-    (setq corfu-on-exact-match nil)
-    (setq corfu-count 10)
-    (setq cape-dict-file "~/.doom.d/dict/words")
-    (map! :map corfu-map
-          :i "TAB" #'corfu-next
-          :i [tab] #'corfu-next
-          :i "S-TAB" #'corfu-previous
-          :i [backtab] #'corfu-previous
-          :i "C-j" #'corfu-next
-          :i "C-k" #'corfu-previous
-          :i "C-l" #'corfu-insert-separator
-          :i "C-i" #'corfu-info-documentation
-          :i "C-g" #'corfu-quit
-          )
-    (map! :map global-map
-          :i "C-S-p" #'cape-file)
-    )
-#+end_src
-
-并设置在退出insert-state时关闭补全菜单
-#+begin_src emacs-lisp
-  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
-#+end_src
-
-并设置corfu使用all-the-icon而不是使用kind-icon。
-图标并不好看，而且下载github的图标非常非常耗时间。
-#+begin_src emacs-lisp
-  (use-package! kind-all-the-icons
-    :after corfu
-    )
-
-  (after! corfu
-    (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter)
-    )
-#+end_src
-
-** corfu-tng 与 eglot 的兼容性
-corfu 的作者认为 =:exit-function= 的 =exact= 状态表示什么都不做，而 =finished= 表示进行操作。
-但是 eglot 和 lsp-mode 都认为 =exact= 与 =finish= 一样，都会进行操作（比如 expand-snippet ）。
-
-这就导致了 corfu 开启 corfu-preview-current 后，会自动触发 lsp server 的 snippet。
-这并不是代码不能实现，或者有什么离奇的实现，而是类似“意识形态”的不同导致的系统间对接的bug
-不是没法改，而是不想改。参见[[https://github.com/minad/corfu/issues/145][Corfu Issue#145]]
-
-修改 corfu 的代码使它连 =exact= 状态都不传就能解决问题。
-#+begin_src emacs-lisp
-  (after! corfu
-    (cl-defgeneric corfu--prepare ()
-      "Insert selected candidate unless command is marked to continue completion."
-      (when corfu--preview-ov
-        (delete-overlay corfu--preview-ov)
-        (setq corfu--preview-ov nil))
-      ;; Ensure that state is initialized before next Corfu command
-      (when (and (symbolp this-command) (string-prefix-p "corfu-" (symbol-name this-command)))
-        (corfu--update))
-      (when (and (eq corfu-preview-current 'insert)
-                 (/= corfu--index corfu--preselect)
-                 ;; See the comment about `overriding-local-map' in `corfu--post-command'.
-                 (not (or overriding-terminal-local-map
-                          (corfu--match-symbol-p corfu-continue-commands this-command))))
-        (corfu--insert nil))))
-#+end_src
+  #+end_src
 
 ** yasnippet
-兼容yas和corfu的按键
-仅在不开启tab-on-go时使用
+兼容yas和corfu的tab
 #+begin_src emacs-lisp
   (after! yasnippet
     (defun my-corfu-frame-visible-h ()
       (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-    (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
-    )
+    (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h))
 #+end_src
 
 * 文件管理
@@ -432,8 +373,7 @@ corfu 的作者认为 =:exit-function= 的 =exact= 状态表示什么都不做�
                   "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
     (map! :map dired-mode-map
           :ng "q" #'quit-window )
-    (custom-set-faces '(dired-async-message ((t (:inherit success)))))
-    )
+    (custom-set-faces '(dired-async-message ((t (:inherit success))))))
 #+end_src
 
 ** dirvish
@@ -527,8 +467,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "<double-mouse-3>" #'dired-up-directory
           "M-t" #'dirvish-layout-toggle
           "M-j" #'dirvish-fd-jump
-          "M-m" #'dirvish-mark-menu )
-    )
+          "M-m" #'dirvish-mark-menu ))
 #+end_src
 
 以及一些相关的常用操作，我将其绑定到SPC-v-...中
@@ -549,8 +488,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
          :desc "List processes" "l" #'list-processes
-         :desc "VC Refresh state" "r" #'vc-refresh-state
-         ))
+         :desc "VC Refresh state" "r" #'vc-refresh-state))
 #+end_src
 
 * 终端
@@ -561,8 +499,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (setq vterm-max-scrollback 10000)
     (setq vterm-timer-delay 0.01)
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-    (set-face-attribute 'vterm-color-black nil :background "#a7a7a7")
-    )
+    (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 #+end_src
 
 解决vterm的两个问题
@@ -571,8 +508,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+begin_src emacs-lisp
   (setq-hook! 'vterm-mode-hook
     +popup-margin-width nil
-    kill-buffer-query-functions nil
-    )
+    kill-buffer-query-functions nil)
 #+end_src
 
 使用自定义的vterm-toggle。
@@ -580,15 +516,13 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
 #+begin_src emacs-lisp
   (use-package! doom-vterm-toggle
     :commands (doom-vterm-toggle-directory
-               doom-vterm-toggle-project)
-    )
+               doom-vterm-toggle-project))
 
   (map! :map vterm-mode-map [f4] nil)
   (map! [f4] #'doom-vterm-toggle-directory
         [S-f4] #'+vterm/here
         :leader
-        "o t" #'doom-vterm-toggle-project
-        )
+        "o t" #'doom-vterm-toggle-project)
 #+end_src
 
 * 输入法
@@ -599,8 +533,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
     :config
     (sis-ism-lazyman-config "1" "2" 'fcitx5)
     (sis-global-respect-mode t)
-    (sis-global-context-mode t)
-    )
+    (sis-global-context-mode t))
 #+end_src
 
 * Org-Mode
@@ -624,17 +557,14 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
    '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
    '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
    '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
-   '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal))))
-   )
+   '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal)))))
 
   (after! org
     (setq org-src-preserve-indentation nil)
     (setq org-image-actual-width 500)
     (map! :map org-mode-map
           :localleader
-          "-" #'org-emphasize
-          )
-    )
+          "-" #'org-emphasize))
 #+end_src
 
 ** org-modern
@@ -644,8 +574,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
     :commands (org-modern-mode)
     :init
     (setq org-modern-block-name nil)
-    (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
-    )
+    (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇")))
 
   (add-hook 'org-mode-hook #'org-modern-mode)
 #+end_src
@@ -655,8 +584,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
   (use-package! org-appear
     :commands (org-appear-mode)
     :init
-    (setq org-appear-autolinks t)
-    )
+    (setq org-appear-autolinks t))
 
   (add-hook 'org-mode-hook #'org-appear-mode)
 #+end_src
@@ -667,15 +595,13 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
   (setq org-roam-directory "~/Notes/Roam")
   (map! :leader
         :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
-        :desc "org-roam node Insert" "v i" #'org-roam-node-insert
-        )
+        :desc "org-roam node Insert" "v i" #'org-roam-node-insert)
 #+end_src
 
 禁用补全
 #+begin_src emacs-lisp
   (after! org-roam
-    (setq org-roam-completion-everywhere nil)
-    )
+    (setq org-roam-completion-everywhere nil))
 #+end_src
 
 日志模板。
@@ -691,8 +617,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
   (map! :leader
         :desc "my Journal today" "J" #'org-roam-dailies-goto-today
         :desc "org-roam capture" "X" #'org-roam-capture
-        :desc "org-roam find node" "Z" #'org-roam-node-find
-        )
+        :desc "org-roam find node" "Z" #'org-roam-node-find)
 #+end_src
 
 设置模板
@@ -723,8 +648,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             ("c" "Coding" plain "%?"
             :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: :coding: \n\n")
-            :unnarrowed t)
-            ))
+            :unnarrowed t)))
 #+end_src
 
 * 常用语言mode
@@ -741,28 +665,25 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
    '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :foreground "#e6c547" :weight semi-bold))))
    '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0 :foreground "#c82829" :weight normal))))
    '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :foreground "#70c0ba" :weight normal))))
-   '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal))))
-   )
+   '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
 
   (after! markdown-mode
     (setq markdown-fontify-code-blocks-natively t)
     (setq markdown-fontify-whole-heading-line nil)
     (setq markdown-max-image-size '(500 . 500))
-    (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil)
-    )
+    (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 #+end_src
 
 ** go-mode
 开启lsp的自动import和format。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
-  (defun my/eglot-organize-imports ()
+  (defun my-eglot-organize-imports ()
     (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
-  (defun my/before-saving-go ()
+  (defun my-go-mode-init ()
     (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
-    (add-hook 'before-save-hook #'my/eglot-organize-imports nil t))
-  (add-hook 'go-mode-hook #'my/before-saving-go)
-  (add-hook! 'go-mode-hook (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t))))
+    (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
+  (add-hook 'go-mode-hook #'my-go-mode-init)
 #+end_src
 
 禁用没用的快捷键，以免按错
@@ -776,17 +697,14 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
           (:prefix ("i" . "imports")
                    "i" #'go-goto-imports
                    "a" #'go-import-add
-                   "r" #'go-remove-unused-imports)
-          )
-    )
+                   "r" #'go-remove-unused-imports)))
 #+end_src
 
 ** protobuf-mode
 #+begin_src emacs-lisp
   (use-package protobuf-mode
     :commands (protobuf-mode)
-    :mode("\\.proto\\'" . protobuf-mode)
-    )
+    :mode("\\.proto\\'" . protobuf-mode))
 #+end_src
 
 ** shell
@@ -798,8 +716,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (set-formatter! 'shfmt
       '("shfmt" "-ci"
         ("-i" "%d" (unless indent-tabs-mode tab-width))
-        ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix")))))
-    )
+        ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
 #+end_src
 
 ** .vpy文件
@@ -812,8 +729,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 ** bookmark-view
 #+begin_src emacs-lisp
   (use-package! bookmark-view
-    :commands (bookmark-view)
-    )
+    :commands (bookmark-view))
 
   (map! :leader
         :desc "bookmark view" "b v" #'bookmark-view)
@@ -838,8 +754,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (set-popup-rule! "^\\*fanyi*" :size 0.3 :modeline nil :quit t)
   (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
   (map! :leader
-        :desc "Translate word" "v t" #'fanyi-dwim2
-        )
+        :desc "Translate word" "v t" #'fanyi-dwim2)
 #+end_src
 
 ** restclient
@@ -856,6 +771,5 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (setq restclient-evar-regexp
           "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
     (setq restclient-mvar-regexp
-          "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$")
-    )
+          "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
 #+end_src
