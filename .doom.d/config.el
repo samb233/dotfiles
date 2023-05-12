@@ -1,5 +1,3 @@
-(server-start)
-
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
@@ -41,8 +39,8 @@
 (setq uniquify-buffer-name-style 'forward)
 
 (custom-set-faces
- '(line-number ((t (:weight medium))))
- '(line-number-current-line ((t (:weight medium)))))
+ '(line-number ((t (:weight medium :slant unspecified))))
+ '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
 (setq scroll-margin 9)
 (setq mouse-wheel-scroll-amount '
@@ -157,7 +155,8 @@
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
 (after! corfu
-  (setq corfu-auto-prefix 1
+  (setq corfu-preview-current nil
+        corfu-auto-prefix 1
         corfu-auto-delay 0.1
         corfu-popupinfo-max-height 20
         corfu-count 10
@@ -172,6 +171,9 @@
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
   (use-package! kind-all-the-icons)
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
+
+(after! corfu-popupinfo
+  (setq corfu-popupinfo-delay nil))
 
 (use-package! flymake
   :commands (flymake-mode)
