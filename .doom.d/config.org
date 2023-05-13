@@ -23,7 +23,7 @@
 我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
 #+begin_src emacs-lisp
   (pushnew! default-frame-alist '(width . 80) '(height . 50))
-  ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  ;; (toggle-frame-maximized)
 #+end_src
 
 设置窗口透明度。
@@ -39,8 +39,14 @@
 #+begin_src emacs-lisp
   (setq frame-title-format
         '((:eval (if (buffer-file-name)
-                     (abbreviate-file-name (buffer-file-name))
-                   "%b"))))
+                     (format "emacs@%s" (abbreviate-file-name (buffer-file-name)))
+                   (format "emacs@%s" (system-name))))))
+#+end_src
+
+让doom在启动时不再显示加载了多少包
+这能使我更专注与使用而不是折腾插件
+#+begin_src emacs-lisp
+  (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 #+end_src
 
 * 基础外观
@@ -71,6 +77,7 @@
           doom-modeline-buffer-encoding t
           doom-modeline-vcs-max-length 20
           doom-modeline-height 28
+          doom-modeline-workspace-name nil
           doom-modeline-buffer-modification-icon nil
           doom-modeline-buffer-state-icon nil)
     (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
@@ -131,13 +138,7 @@ linux上就一般般，还是不开习惯
   (evil-ex-define-cmd "q" 'kill-this-buffer)
   (evil-ex-define-cmd "Q" 'kill-this-buffer)
   (evil-ex-define-cmd "quit" 'evil-quit)
-#+end_src
-
-取消按键宏。
-我用不上vim的按键宏功能。
-但他总是在我狂按q是弹出来，很烦。
-#+begin_src emacs-lisp
-  (evil-define-key 'normal 'global (kbd "q") nil)
+  (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
 
 ** 常用命令
@@ -171,7 +172,8 @@ linux上就一般般，还是不开习惯
 设置format-buffer的快捷键
 #+begin_src emacs-lisp
   (map! :leader
-        :desc "format buffer" "b f" #'+format/buffer)
+        :desc "format buffer" "b f" #'+format/buffer
+        :desc "toggle format-all" "t f" #'format-all-mode)
 #+end_src
 
 设置书签列表快捷键
@@ -200,7 +202,6 @@ linux上就一般般，还是不开习惯
         "f E" nil
         "f p" nil
         "f P" nil
-        "o d" nil
         "s e" nil
         "s t" nil)
 #+end_src
@@ -292,7 +293,7 @@ doom默认的200个也太少了，至少1000吧
 #+begin_src emacs-lisp
   (after! corfu
     (setq corfu-preview-current nil
-          corfu-auto-prefix 1
+          corfu-auto-prefix 2
           corfu-auto-delay 0.1
           corfu-popupinfo-max-height 20
           corfu-count 10
@@ -724,6 +725,20 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+end_src
 
 * 工具包
+** tabbar
+#+begin_src emacs-lisp
+  (use-package! tab-bar
+    :init
+    (setq tab-bar-show nil)
+    :config
+    (tab-bar-rename-tab "Home")
+    (use-package! tab-bar-helper
+      :commands (tab-bar-new-tab-with-name))
+    (map! :leader
+          :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
+          :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
+#+end_src
+
 ** bookmark-view
 #+begin_src emacs-lisp
   (use-package! bookmark-view

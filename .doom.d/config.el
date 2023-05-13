@@ -6,15 +6,17 @@
 (prefer-coding-system 'utf-8-unix)
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+;; (toggle-frame-maximized)
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
-                   (abbreviate-file-name (buffer-file-name))
-                 "%b"))))
+                   (format "emacs@%s" (abbreviate-file-name (buffer-file-name)))
+                 (format "emacs@%s" (system-name))))))
+
+(remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 
 (setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
 
@@ -32,6 +34,7 @@
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 28
+        doom-modeline-workspace-name nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-state-icon nil)
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
@@ -64,8 +67,7 @@
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
-
-(evil-define-key 'normal 'global (kbd "q") nil)
+(evil-ex-define-cmd "W" 'save-buffer)
 
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
@@ -83,7 +85,8 @@
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 
 (map! :leader
-      :desc "format buffer" "b f" #'+format/buffer)
+      :desc "format buffer" "b f" #'+format/buffer
+      :desc "toggle format-all" "t f" #'format-all-mode)
 
 (map! :leader
       :desc "bookmark list" "b w" #'list-bookmarks
@@ -99,7 +102,6 @@
       "f E" nil
       "f p" nil
       "f P" nil
-      "o d" nil
       "s e" nil
       "s t" nil)
 
@@ -156,7 +158,7 @@
 
 (after! corfu
   (setq corfu-preview-current nil
-        corfu-auto-prefix 1
+        corfu-auto-prefix 2
         corfu-auto-delay 0.1
         corfu-popupinfo-max-height 20
         corfu-count 10
@@ -480,6 +482,17 @@
       ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+(use-package! tab-bar
+  :init
+  (setq tab-bar-show nil)
+  :config
+  (tab-bar-rename-tab "Home")
+  (use-package! tab-bar-helper
+    :commands (tab-bar-new-tab-with-name))
+  (map! :leader
+        :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
+        :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
 
 (use-package! bookmark-view
   :commands (bookmark-view))

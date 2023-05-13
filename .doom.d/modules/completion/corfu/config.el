@@ -185,3 +185,10 @@ derivative.")
          ;; with evil.
          :desc "scroll info up" "C-S-k" #'corfu-popupinfo-scroll-down
          :desc "scroll info down" "C-S-j" #'corfu-popupinfo-scroll-up)))
+
+;; Compatibility with org-return
+(defadvice! +corfu--org-return (orig) :around '+org/return
+    (if (and corfu-mode
+             (>= corfu--index 0)) ;; translates to "there are candidates to select"
+        (corfu-insert)
+      (funcall orig)))
