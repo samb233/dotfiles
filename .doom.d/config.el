@@ -6,7 +6,7 @@
 (prefer-coding-system 'utf-8-unix)
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
-;; (toggle-frame-maximized)
+(toggle-frame-maximized)
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -81,6 +81,8 @@
 (evil-define-key 'normal 'global (kbd "C-S-z") 'undo-redo)
 (evil-define-key 'normal 'global (kbd "U") 'evil-redo)
 
+(evil-define-key 'normal 'global (kbd "g a") 'avy-goto-char-2)
+
 (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
 (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
 
@@ -143,21 +145,23 @@
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
+(setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
+
 (after! eglot
   (setq eglot-events-buffer-size 0)
   (setq eglot-stay-out-of nil)
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
-  (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
   (map! :leader
-         :desc "LSP start/restart" "c S" #'eglot
-         :desc "LSP reconnect" "c R" #'eglot-reconnect
-         :desc "LSP rename" "c n" #'eglot-rename
-         :desc "Jump to references" "c r" #'+lookup/references)
+        :desc "LSP start/restart" "c S" #'eglot
+        :desc "LSP reconnect" "c R" #'eglot-reconnect
+        :desc "LSP rename" "c n" #'eglot-rename
+        :desc "Jump to references" "c r" #'+lookup/references)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
 (after! corfu
   (setq corfu-preview-current nil
+        corfu-on-exact-match nil
         corfu-auto-prefix 2
         corfu-auto-delay 0.1
         corfu-popupinfo-max-height 20
@@ -362,8 +366,8 @@
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
  '(org-level-2 ((t (:height 1.2 :foreground "#8959a8" :weight extra-bold))))
- '(org-level-3 ((t (:height 1.1 :foreground "#b5bd68" :weight bold))))
- '(org-level-4 ((t (:height 1.0 :foreground "#e6c547" :weight semi-bold))))
+ '(org-level-3 ((t (:height 1.1 :foreground "#718c00" :weight bold))))
+ '(org-level-4 ((t (:height 1.0 :foreground "#eab700" :weight semi-bold))))
  '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
  '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
  '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
@@ -456,6 +460,7 @@
 (defun my-eglot-organize-imports ()
   (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
 (defun my-go-mode-init ()
+  (setq-local corfu-sort-function nil)
   (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
   (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
 (add-hook 'go-mode-hook #'my-go-mode-init)

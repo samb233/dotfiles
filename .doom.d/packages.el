@@ -56,6 +56,7 @@
 (package! org :built-in 'prefer)
 (package! eglot :built-in 'prefer)
 (package! project :built-in 'prefer)
+(package! use-package :built-in 'prefer)
 
 ;; 输入法管理
 (package! sis)
