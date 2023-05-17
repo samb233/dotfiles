@@ -70,6 +70,7 @@
 
 ;; 工具包
 (package! fanyi)
+(package! texfrag)
 
 ;; 不需要这些功能，取消使用
 (package! evil-escape :disable t)

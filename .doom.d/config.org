@@ -801,3 +801,19 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (setq restclient-mvar-regexp
           "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
 #+end_src
+
+** texfrag
+用来在markdown-mode中查看latex公式
+#+begin_src emacs-lisp
+  (use-package! texfrag
+    :commands (texfrag-mode)
+    :init
+    (setq texfrag-markdown-preview-image-links nil))
+
+  (defun my-texfrag-preview-document()
+    (interactive)
+    (progn (texfrag-mode)
+           (texfrag-document)))
+  (map! :map markdown-mode-map :localleader
+        :desc "latex preview math" "l" #'my-texfrag-preview-document)
+#+end_src

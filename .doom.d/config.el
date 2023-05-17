@@ -538,3 +538,15 @@
         "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
   (setq restclient-mvar-regexp
         "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
+
+(use-package! texfrag
+  :commands (texfrag-mode)
+  :init
+  (setq texfrag-markdown-preview-image-links nil))
+
+(defun my-texfrag-preview-document()
+  (interactive)
+  (progn (texfrag-mode)
+         (texfrag-document)))
+(map! :map markdown-mode-map :localleader
+      :desc "latex preview math" "l" #'my-texfrag-preview-document)
