@@ -18,6 +18,8 @@
 
 (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 
+(setq auth-source-save-behavior nil)
+
 (setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
 
 (defun my-cjk-font()
@@ -175,6 +177,7 @@
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
+  (set-face-attribute 'corfu-current nil :background "#cde1f8")
   (use-package! kind-all-the-icons)
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
 
@@ -441,7 +444,6 @@
           :unnarrowed t)))
 
 (custom-set-faces
- '(markdown-code-face ((t (:background "#f5f5f5"))))
  '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2 :foreground "#8959a8" :weight extra-bold))))
@@ -455,6 +457,7 @@
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-max-image-size '(500 . 500))
+  (set-face-attribute 'markdown-code-face nil :background "#f5f5f5")
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
 (defun my-eglot-organize-imports ()

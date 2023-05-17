@@ -153,6 +153,7 @@
        ;;kotlin            ; a better, slicker Java(Script)
        (latex +fold
               +lsp
+              +latexmk
               +cdlatex)    ; writing papers in Emacs has never been so fun
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
