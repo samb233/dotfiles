@@ -553,3 +553,7 @@
            (texfrag-document))))
 (map! :map markdown-mode-map :localleader
       :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
+
+(setq +org-present-text-scale 3)
+(add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
+(add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
