@@ -804,16 +804,21 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
 ** texfrag
 用来在markdown-mode中查看latex公式
+texfrag很好用，但是会在当前文件夹下生成额外的文件，且不能将他们移到cache文件夹。
+需要寻找替代品
 #+begin_src emacs-lisp
   (use-package! texfrag
     :commands (texfrag-mode)
     :init
-    (setq texfrag-markdown-preview-image-links nil))
+    (setq texfrag-markdown-preview-image-links nil
+          texfrag-subdir ".texfrag"))
 
-  (defun my-texfrag-preview-document()
+  (defun my-toggle-texfrag-preview-document()
     (interactive)
-    (progn (texfrag-mode)
-           (texfrag-document)))
+    (if (bound-and-true-p texfrag-mode)
+        (texfrag-mode -1)
+      (progn (texfrag-mode)
+             (texfrag-document))))
   (map! :map markdown-mode-map :localleader
-        :desc "latex preview math" "l" #'my-texfrag-preview-document)
+        :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
 #+end_src

@@ -542,11 +542,14 @@
 (use-package! texfrag
   :commands (texfrag-mode)
   :init
-  (setq texfrag-markdown-preview-image-links nil))
+  (setq texfrag-markdown-preview-image-links nil
+        texfrag-subdir ".texfrag"))
 
-(defun my-texfrag-preview-document()
+(defun my-toggle-texfrag-preview-document()
   (interactive)
-  (progn (texfrag-mode)
-         (texfrag-document)))
+  (if (bound-and-true-p texfrag-mode)
+      (texfrag-mode -1)
+    (progn (texfrag-mode)
+           (texfrag-document))))
 (map! :map markdown-mode-map :localleader
-      :desc "latex preview math" "l" #'my-texfrag-preview-document)
+      :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
