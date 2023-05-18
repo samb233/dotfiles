@@ -575,6 +575,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
   (after! org
     (setq org-src-preserve-indentation nil)
     (setq org-image-actual-width 500)
+    (setq org-hide-emphasis-markers t)
     (map! :map org-mode-map
           :localleader
           "-" #'org-emphasize))
@@ -823,10 +824,11 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
         :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
 #+end_src
 
-** present
+** org-tree-slide
 懒得做ppt
 #+begin_src emacs-lisp
   (setq +org-present-text-scale 3)
   (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
   (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
+  (add-hook 'org-tree-slide-after-narrow-hook #'next-line)
 #+end_src

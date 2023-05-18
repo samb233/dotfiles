@@ -379,6 +379,7 @@
 (after! org
   (setq org-src-preserve-indentation nil)
   (setq org-image-actual-width 500)
+  (setq org-hide-emphasis-markers t)
   (map! :map org-mode-map
         :localleader
         "-" #'org-emphasize))
@@ -557,3 +558,4 @@
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
 (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
+(add-hook 'org-tree-slide-after-narrow-hook #'next-line)
