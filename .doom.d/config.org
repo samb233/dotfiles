@@ -258,24 +258,6 @@ doom默认的200个也太少了，至少1000吧
     (setq recentf-max-saved-items 1000))
 #+end_src
 
-** evil
-设置各个模式的tags。
-会显示在doom-modelien上。
-设置成全名，让我有种在vim的熟悉感，非常爽。
-#+begin_src emacs-lisp
-  (after! evil
-    (setq evil-emacs-state-tag "EMACS"
-          evil-insert-state-tag "INSERT"
-          evil-motion-state-tag "MOTION"
-          evil-normal-state-tag "NORMAL"
-          evil-replace-state-tag "REPLACE"
-          evil-operator-state-tag "OPERATOR"
-          evil-visual-char-tag "VISUAL"
-          evil-visual-line-tag "V-LINE"
-          evil-visual-block-tag "V-BLOCK"
-          evil-visual-screen-line-tag "V-SCREEN"))
-#+end_src
-
 ** magit
 设置clone的默认文件夹
 #+begin_src emacs-lisp
@@ -338,6 +320,16 @@ flymake和eglot一起用时就不用设置什么了
     (setq flymake-no-changes-timeout 1.0)
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
+#+end_src
+
+更改flymake指示的bitmap样式
+#+begin_src emacs-lisp
+  (use-package! flymake-triangle-bitmap
+    :after flymake
+    :config
+    (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+          flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+          flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
 #+end_src
 
 ** eldoc
@@ -671,6 +663,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 在emacs下我也很少写markdown了。
 #+begin_src emacs-lisp
   (custom-set-faces
+   '(markdown-code-face ((t (:background "#f5f5f5"))))
    '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
    '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
    '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2 :foreground "#8959a8" :weight extra-bold))))
@@ -681,10 +674,9 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
    '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
 
   (after! markdown-mode
-    (setq markdown-fontify-code-blocks-natively t)
     (setq markdown-fontify-whole-heading-line nil)
+    (setq markdown-fontify-code-blocks-natively t)
     (setq markdown-max-image-size '(500 . 500))
-    (set-face-attribute 'markdown-code-face nil :background "#f5f5f5")
     (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 #+end_src
 
@@ -734,10 +726,20 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
         ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
 #+end_src
 
-** .vpy文件
+** python
 设置用python-mode打开vpy文件
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+#+end_src
+
+设置在org和markdown的代码块中，"py"打开python-mode
+自己用还是尽量写全python，主要是为了阅读其他人写的"py"代码块
+#+begin_src emacs-lisp
+  (after! org
+    (add-to-list 'org-src-lang-modes '("py" . python-mode)))
+
+  (after! markdown-mode
+    (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
 #+end_src
 
 * 工具包
@@ -830,5 +832,5 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
   (setq +org-present-text-scale 3)
   (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
   (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
-  (add-hook 'org-tree-slide-after-narrow-hook #'next-line)
+  ;; (add-hook 'org-tree-slide-after-narrow-hook #'next-line)
 #+end_src

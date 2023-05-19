@@ -133,18 +133,6 @@
 (after! recentf
   (setq recentf-max-saved-items 1000))
 
-(after! evil
-  (setq evil-emacs-state-tag "EMACS"
-        evil-insert-state-tag "INSERT"
-        evil-motion-state-tag "MOTION"
-        evil-normal-state-tag "NORMAL"
-        evil-replace-state-tag "REPLACE"
-        evil-operator-state-tag "OPERATOR"
-        evil-visual-char-tag "VISUAL"
-        evil-visual-line-tag "V-LINE"
-        evil-visual-block-tag "V-BLOCK"
-        evil-visual-screen-line-tag "V-SCREEN"))
-
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
 (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
@@ -192,6 +180,13 @@
   (setq flymake-no-changes-timeout 1.0)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
+
+(use-package! flymake-triangle-bitmap
+  :after flymake
+  :config
+  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
 
 (setq eldoc-echo-area-display-truncation-message nil)
 (setq eldoc-echo-area-use-multiline-p nil)
@@ -445,6 +440,7 @@
           :unnarrowed t)))
 
 (custom-set-faces
+ '(markdown-code-face ((t (:background "#f5f5f5"))))
  '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2 :foreground "#8959a8" :weight extra-bold))))
@@ -455,10 +451,9 @@
  '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
 
 (after! markdown-mode
-  (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-fontify-whole-heading-line nil)
+  (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-max-image-size '(500 . 500))
-  (set-face-attribute 'markdown-code-face nil :background "#f5f5f5")
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
 (defun my-eglot-organize-imports ()
@@ -491,6 +486,12 @@
       ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+(after! org
+  (add-to-list 'org-src-lang-modes '("py" . python-mode)))
+
+(after! markdown-mode
+  (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
 
 (use-package! tab-bar
   :init
@@ -558,4 +559,4 @@
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
 (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
-(add-hook 'org-tree-slide-after-narrow-hook #'next-line)
+;; (add-hook 'org-tree-slide-after-narrow-hook #'next-line)
