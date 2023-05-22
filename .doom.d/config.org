@@ -39,7 +39,8 @@
 #+begin_src emacs-lisp
   (setq frame-title-format
         '((:eval (if (buffer-file-name)
-                     (format "emacs@%s" (abbreviate-file-name (buffer-file-name)))
+                     (concat (format "emacs@%s: " (system-name))
+                             (abbreviate-file-name (buffer-file-name)))
                    (format "emacs@%s" (system-name))))))
 #+end_src
 
@@ -78,11 +79,10 @@
 简洁一点，去掉部分图标
 #+begin_src emacs-lisp
   (after! doom-modeline
-    (setq doom-modeline-modal t
-          doom-modeline-modal-icon nil
+    (setq doom-modeline-modal nil
           doom-modeline-buffer-encoding t
           doom-modeline-vcs-max-length 20
-          doom-modeline-height 28
+          doom-modeline-height 30
           doom-modeline-workspace-name nil
           doom-modeline-buffer-modification-icon nil
           doom-modeline-buffer-state-icon nil)
@@ -107,7 +107,7 @@
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
-  (setq scroll-margin 9)
+  (setq scroll-margin 6)
   (setq mouse-wheel-scroll-amount '
         (3
          ((shift) . hscroll)
@@ -287,6 +287,7 @@ doom默认的200个也太少了，至少1000吧
 #+begin_src emacs-lisp
   (after! corfu
     (setq corfu-preview-current nil
+          corfu-popupinfo-delay nil
           corfu-on-exact-match nil
           corfu-auto-prefix 2
           corfu-auto-delay 0.1
@@ -304,9 +305,6 @@ doom默认的200个也太少了，至少1000吧
     (set-face-attribute 'corfu-current nil :background "#cde1f8")
     (use-package! kind-all-the-icons)
     (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
-
-  (after! corfu-popupinfo
-    (setq corfu-popupinfo-delay nil))
 #+end_src
 
 ** flymake
@@ -336,18 +334,27 @@ flymake和eglot一起用时就不用设置什么了
 设置eldoc buffer为popup
 也可以配置flymake约eldoc同时显示，见[[https://github.com/joaotavora/eglot/issues/1171][issue]]， 但我不喜欢这种形式
 #+begin_src emacs-lisp
-  (setq eldoc-echo-area-display-truncation-message nil)
-  (setq eldoc-echo-area-use-multiline-p nil)
-  (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
+  (after! eldoc
+    (setq eldoc-echo-area-display-truncation-message nil)
+    (setq eldoc-echo-area-use-multiline-p nil)
+    (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
   #+end_src
 
 ** yasnippet
 兼容yas和corfu的tab
 #+begin_src emacs-lisp
-  (after! yasnippet
-    (defun my-corfu-frame-visible-h ()
-      (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-    (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h))
+  (defun my-corfu-frame-visible-h ()
+    (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+#+end_src
+
+** dabbrev
+dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去补全中文。
+因为中文没有空格等分隔开，一补全就是一句，没有意义。
+#+begin_src emacs-lisp
+  (use-package dabbrev
+    :config
+    (setq dabbrev-abbrev-char-regexp "[A-Za-z-_]"))
 #+end_src
 
 * 文件管理
@@ -573,16 +580,15 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
           "-" #'org-emphasize))
 #+end_src
 
-** org-modern
-使用org-modern美化org
+** org-bullet
+我发现我对美化的需求其实只要将list标头改一下就行了，
+所以也用不上org-modern这么多功能。
 #+begin_src emacs-lisp
-  (use-package! org-modern
-    :commands (org-modern-mode)
-    :init
-    (setq org-modern-block-name nil)
-    (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇")))
-
-  (add-hook 'org-mode-hook #'org-modern-mode)
+  (use-package! org-bullets
+    :hook (org-mode . org-bullets-mode)
+    :config
+    (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "◈" "◇"))
+    (setcdr org-bullets-bullet-map nil))
 #+end_src
 
 ** org-appear
@@ -832,5 +838,4 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
   (setq +org-present-text-scale 3)
   (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
   (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
-  ;; (add-hook 'org-tree-slide-after-narrow-hook #'next-line)
 #+end_src

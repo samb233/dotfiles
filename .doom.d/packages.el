@@ -57,6 +57,7 @@
 (package! eglot :built-in 'prefer)
 (package! project :built-in 'prefer)
 (package! use-package :built-in 'prefer)
+(package! transient :built-in 'prefer)
 
 ;; 输入法管理
 (package! sis)
@@ -65,7 +66,7 @@
 (package! dirvish)
 
 ;; Org-Mode
-(package! org-modern)
+(package! org-bullets)
 (package! org-appear)
 
 ;; 工具包

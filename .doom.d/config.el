@@ -13,7 +13,8 @@
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
-                   (format "emacs@%s" (abbreviate-file-name (buffer-file-name)))
+                   (concat (format "emacs@%s: " (system-name))
+                           (abbreviate-file-name (buffer-file-name)))
                  (format "emacs@%s" (system-name))))))
 
 (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
@@ -31,11 +32,10 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (after! doom-modeline
-  (setq doom-modeline-modal t
-        doom-modeline-modal-icon nil
+  (setq doom-modeline-modal nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
-        doom-modeline-height 28
+        doom-modeline-height 30
         doom-modeline-workspace-name nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-state-icon nil)
@@ -47,7 +47,7 @@
  '(line-number ((t (:weight medium :slant unspecified))))
  '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
-(setq scroll-margin 9)
+(setq scroll-margin 6)
 (setq mouse-wheel-scroll-amount '
       (3
        ((shift) . hscroll)
@@ -151,6 +151,7 @@
 
 (after! corfu
   (setq corfu-preview-current nil
+        corfu-popupinfo-delay nil
         corfu-on-exact-match nil
         corfu-auto-prefix 2
         corfu-auto-delay 0.1
@@ -169,9 +170,6 @@
   (use-package! kind-all-the-icons)
   (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
 
-(after! corfu-popupinfo
-  (setq corfu-popupinfo-delay nil))
-
 (use-package! flymake
   :commands (flymake-mode)
   :hook ((prog-mode text-mode) . flymake-mode)
@@ -188,14 +186,18 @@
         flymake-error-bitmap   '(my-small-left-triangle compilation-error)
         flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
 
-(setq eldoc-echo-area-display-truncation-message nil)
-(setq eldoc-echo-area-use-multiline-p nil)
-(set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t)
+(after! eldoc
+  (setq eldoc-echo-area-display-truncation-message nil)
+  (setq eldoc-echo-area-use-multiline-p nil)
+  (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-(after! yasnippet
-  (defun my-corfu-frame-visible-h ()
-    (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h))
+(defun my-corfu-frame-visible-h ()
+  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+
+(use-package dabbrev
+  :config
+  (setq dabbrev-abbrev-char-regexp "[A-Za-z-_]"))
 
 (use-package! dired
   :commands dired-jump
@@ -379,13 +381,11 @@
         :localleader
         "-" #'org-emphasize))
 
-(use-package! org-modern
-  :commands (org-modern-mode)
-  :init
-  (setq org-modern-block-name nil)
-  (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇")))
-
-(add-hook 'org-mode-hook #'org-modern-mode)
+(use-package! org-bullets
+  :hook (org-mode . org-bullets-mode)
+  :config
+  (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "◈" "◇"))
+  (setcdr org-bullets-bullet-map nil))
 
 (use-package! org-appear
   :commands (org-appear-mode)
@@ -559,4 +559,3 @@
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
 (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
-;; (add-hook 'org-tree-slide-after-narrow-hook #'next-line)
