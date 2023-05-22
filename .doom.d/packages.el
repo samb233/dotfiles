@@ -66,7 +66,6 @@
 (package! dirvish)
 
 ;; Org-Mode
-(package! org-bullets)
 (package! org-appear)
 
 ;; 工具包

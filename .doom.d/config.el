@@ -360,8 +360,6 @@
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
-(add-hook! 'org-mode-hook (setq-local word-wrap nil))
-
 (setq org-directory "~/Notes")
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
@@ -381,11 +379,7 @@
         :localleader
         "-" #'org-emphasize))
 
-(use-package! org-bullets
-  :hook (org-mode . org-bullets-mode)
-  :config
-  (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "◈" "◇"))
-  (setcdr org-bullets-bullet-map nil))
+(add-hook! 'org-mode-hook (setq-local word-wrap nil))
 
 (use-package! org-appear
   :commands (org-appear-mode)

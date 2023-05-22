@@ -549,12 +549,6 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
 #+end_src
 
 * Org-Mode
-** word-wrap
-关闭。中英文一起时word-wrap只会是副作用。
-#+begin_src emacs-lisp
-  (add-hook! 'org-mode-hook (setq-local word-wrap nil))
-#+end_src
-
 ** 基本外观
 配置一下Org-Mode的主题颜色、字体大小等。
 最后一行用于设置org-mode的代码块，使其能有代码缩进，更好看些。
@@ -580,15 +574,10 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
           "-" #'org-emphasize))
 #+end_src
 
-** org-bullet
-我发现我对美化的需求其实只要将list标头改一下就行了，
-所以也用不上org-modern这么多功能。
+** word-wrap
+关闭。中英文一起时word-wrap只会是副作用。
 #+begin_src emacs-lisp
-  (use-package! org-bullets
-    :hook (org-mode . org-bullets-mode)
-    :config
-    (setq org-bullets-bullet-list '("◉" "○" "✸" "✿" "◈" "◇"))
-    (setcdr org-bullets-bullet-map nil))
+  (add-hook! 'org-mode-hook (setq-local word-wrap nil))
 #+end_src
 
 ** org-appear
