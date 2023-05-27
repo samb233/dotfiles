@@ -47,7 +47,6 @@
  '(line-number ((t (:weight medium :slant unspecified))))
  '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
-(setq scroll-margin 6)
 (setq mouse-wheel-scroll-amount '
       (3
        ((shift) . hscroll)
@@ -70,6 +69,9 @@
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
+
+(map! :leader
+      :desc "consult-buffer other window" "<" #'consult-buffer-other-window)
 
 (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
 (map! "C-s" #'consult-line)
@@ -149,20 +151,24 @@
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
+(setq +corfu-ispell-completion-modes nil
+      +corfu-ispell-in-comments-and-strings nil)
+
+(after! corfu-popupinfo
+  (setq corfu-popupinfo-delay nil))
+
 (after! corfu
   (setq corfu-preview-current nil
-        corfu-popupinfo-delay nil
         corfu-on-exact-match nil
         corfu-auto-prefix 2
         corfu-auto-delay 0.1
         corfu-popupinfo-max-height 20
-        corfu-count 10
-        cape-dict-file "~/.doom.d/dict/words")
+        corfu-count 10)
   (map! :map corfu-map
         :i "C-j" #'corfu-next
         :i "C-k" #'corfu-previous
-        :i "C-l" #'corfu-insert-separator
-        :i "C-i" #'corfu-info-documentation
+        :i "C-i" #'corfu-insert-separator
+        :i "C-h" #'corfu-info-documentation
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
@@ -349,7 +355,8 @@
              doom-vterm-toggle-project))
 
 (map! :map vterm-mode-map [f4] nil)
-(map! [f4] #'doom-vterm-toggle-directory
+(map! [f4] #'doom-vterm-toggle-project
+      [C-f4] #'doom-vterm-toggle-directory
       [S-f4] #'+vterm/here
       :leader
       "o t" #'doom-vterm-toggle-project)
@@ -380,6 +387,15 @@
         "-" #'org-emphasize))
 
 (add-hook! 'org-mode-hook (setq-local word-wrap nil))
+
+(use-package! org-modern
+  :commands (org-modern-mode)
+  :config
+  (setq org-modern-block-name nil)
+  (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
+  (set-face-attribute 'org-modern-label nil :height 1.0))
+
+(add-hook 'org-mode-hook #'org-modern-mode)
 
 (use-package! org-appear
   :commands (org-appear-mode)

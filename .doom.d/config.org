@@ -107,7 +107,6 @@
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
-  (setq scroll-margin 6)
   (setq mouse-wheel-scroll-amount '
         (3
          ((shift) . hscroll)
@@ -148,6 +147,12 @@ linux上就一般般，还是不开习惯
 #+end_src
 
 ** 常用命令
+设置Ctrl-<在另一个窗口打开buffer
+#+begin_src emacs-lisp
+  (map! :leader
+        :desc "consult-buffer other window" "<" #'consult-buffer-other-window)
+#+end_src
+
 使用consult-line替代I-search
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
@@ -285,20 +290,24 @@ doom默认的200个也太少了，至少1000吧
 
 ** corfu
 #+begin_src emacs-lisp
+  (setq +corfu-ispell-completion-modes nil
+        +corfu-ispell-in-comments-and-strings nil)
+
+  (after! corfu-popupinfo
+    (setq corfu-popupinfo-delay nil))
+
   (after! corfu
     (setq corfu-preview-current nil
-          corfu-popupinfo-delay nil
           corfu-on-exact-match nil
           corfu-auto-prefix 2
           corfu-auto-delay 0.1
           corfu-popupinfo-max-height 20
-          corfu-count 10
-          cape-dict-file "~/.doom.d/dict/words")
+          corfu-count 10)
     (map! :map corfu-map
           :i "C-j" #'corfu-next
           :i "C-k" #'corfu-previous
-          :i "C-l" #'corfu-insert-separator
-          :i "C-i" #'corfu-info-documentation
+          :i "C-i" #'corfu-insert-separator
+          :i "C-h" #'corfu-info-documentation
           :i "C-g" #'corfu-quit)
     (map! :i "C-S-p" #'cape-file)
     (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
@@ -531,7 +540,8 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
                doom-vterm-toggle-project))
 
   (map! :map vterm-mode-map [f4] nil)
-  (map! [f4] #'doom-vterm-toggle-directory
+  (map! [f4] #'doom-vterm-toggle-project
+        [C-f4] #'doom-vterm-toggle-directory
         [S-f4] #'+vterm/here
         :leader
         "o t" #'doom-vterm-toggle-project)
@@ -578,6 +588,18 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
 关闭。中英文一起时word-wrap只会是副作用。
 #+begin_src emacs-lisp
   (add-hook! 'org-mode-hook (setq-local word-wrap nil))
+#+end_src
+
+** org-modern
+#+begin_src emacs-lisp
+  (use-package! org-modern
+    :commands (org-modern-mode)
+    :config
+    (setq org-modern-block-name nil)
+    (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
+    (set-face-attribute 'org-modern-label nil :height 1.0))
+
+  (add-hook 'org-mode-hook #'org-modern-mode)
 #+end_src
 
 ** org-appear

@@ -66,6 +66,7 @@
 (package! dirvish)
 
 ;; Org-Mode
+(package! org-modern)
 (package! org-appear)
 
 ;; 工具包
