@@ -36,6 +36,7 @@
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 30
+        doom-modeline-window-width-limit 120
         doom-modeline-workspace-name nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-state-icon nil)
@@ -136,6 +137,8 @@
   (setq recentf-max-saved-items 1000))
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
+
+(add-hook! 'better-jumper-post-jump-hook #'recenter)
 
 (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
 

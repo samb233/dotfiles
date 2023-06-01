@@ -83,6 +83,7 @@
           doom-modeline-buffer-encoding t
           doom-modeline-vcs-max-length 20
           doom-modeline-height 30
+          doom-modeline-window-width-limit 120
           doom-modeline-workspace-name nil
           doom-modeline-buffer-modification-icon nil
           doom-modeline-buffer-state-icon nil)
@@ -267,6 +268,12 @@ doom默认的200个也太少了，至少1000吧
 设置clone的默认文件夹
 #+begin_src emacs-lisp
   (setq magit-clone-default-directory "~/Codes/Lab/")
+#+end_src
+
+** better-jump
+设置跳转后居中
+#+begin_src emacs-lisp
+  (add-hook! 'better-jumper-post-jump-hook #'recenter)
 #+end_src
 
 * 代码补全

@@ -76,6 +76,7 @@
 ;; 不需要这些功能，取消使用
 (package! evil-escape :disable t)
 (package! tide :disable t)
+(package! org-pdftools :disable t)
 
 ;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
