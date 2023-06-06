@@ -6,7 +6,7 @@
 (prefer-coding-system 'utf-8-unix)
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
-(toggle-frame-maximized)
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -243,14 +243,14 @@
      ("c" "~/Codes/"                    "Codes")
      ("D" "~/Documents/"                "Documents")
      ("w" "~/Works/"                    "Works")
-     ("d" "~/Downloads/"                "Downloads")
+     ("d" "~/Media/Downloads/"          "Downloads")
      ("P" "~/Pictures/"                 "Pictures")
-     ("v" "~/Videos/"                   "Videos")
-     ("s" "~/Shared/"                   "Shared")
+     ("v" "~/Media/Videos/"             "Videos")
+     ("s" "~/Media/Share/"              "Shared")
+     ("m" "~/Media/"                    "Media")
      ("n" "~/Notes/"                    "Notes")
      ("b" "~/Books/"                    "Books")
      ("M" "/mnt/"                       "Drives")
-     ("T" "~/.local/share/Trash/files/" "TrashCan")
      ))
   :config
   ;; (dirvish-peek-mode) ; Preview files in minibuffer
@@ -272,6 +272,7 @@
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso")
   (setq dirvish-fd-default-dir "/home/jiesamb/")
+  (add-to-list 'dirvish-video-exts "m2ts")
   (setq dirvish-open-with-programs
         `(
           (,dirvish-audio-exts . ("mpv" "%f"))
@@ -383,7 +384,7 @@
 
 (after! org
   (setq org-src-preserve-indentation nil)
-  (setq org-image-actual-width 500)
+  (setq org-image-actual-width 800)
   (setq org-hide-emphasis-markers t)
   (map! :map org-mode-map
         :localleader
@@ -457,8 +458,8 @@
  '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
  '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2 :foreground "#8959a8" :weight extra-bold))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1 :foreground "#b5bd68" :weight bold))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :foreground "#e6c547" :weight semi-bold))))
+ '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1 :foreground "#718c00" :weight bold))))
+ '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :foreground "#eab700" :weight semi-bold))))
  '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0 :foreground "#c82829" :weight normal))))
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :foreground "#70c0ba" :weight normal))))
  '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
@@ -466,7 +467,7 @@
 (after! markdown-mode
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
-  (setq markdown-max-image-size '(500 . 500))
+  (setq markdown-max-image-size '(800 . 500))
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
 (defun my-eglot-organize-imports ()
