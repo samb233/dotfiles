@@ -21,6 +21,8 @@
 
 (setq auth-source-save-behavior nil)
 
+(setq uniquify-buffer-name-style 'forward)
+
 (setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
 
 (defun my-cjk-font()
@@ -30,6 +32,10 @@
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
 (setq doom-theme 'doom-tomorrow-day)
+
+(custom-set-faces
+ '(line-number ((t (:weight medium :slant unspecified))))
+ '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
@@ -41,12 +47,6 @@
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-state-icon nil)
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
-
-(setq uniquify-buffer-name-style 'forward)
-
-(custom-set-faces
- '(line-number ((t (:weight medium :slant unspecified))))
- '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
 (setq mouse-wheel-scroll-amount '
       (3
@@ -65,11 +65,6 @@
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
-
-(evil-ex-define-cmd "q" 'kill-this-buffer)
-(evil-ex-define-cmd "Q" 'kill-this-buffer)
-(evil-ex-define-cmd "quit" 'evil-quit)
-(evil-ex-define-cmd "W" 'save-buffer)
 
 (map! :leader
       :desc "consult-buffer other window" "<" #'consult-buffer-other-window)
@@ -100,6 +95,11 @@
       :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 
 (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+
+(evil-ex-define-cmd "q" 'kill-this-buffer)
+(evil-ex-define-cmd "Q" 'kill-this-buffer)
+(evil-ex-define-cmd "quit" 'evil-quit)
+(evil-ex-define-cmd "W" 'save-buffer)
 
 (map! :leader
       "i e" nil
@@ -365,12 +365,6 @@
       :leader
       "o t" #'doom-vterm-toggle-project)
 
-(use-package! sis
-  :config
-  (sis-ism-lazyman-config "1" "2" 'fcitx5)
-  (sis-global-respect-mode t)
-  (sis-global-context-mode t))
-
 (setq org-directory "~/Notes")
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
@@ -507,6 +501,12 @@
 
 (after! markdown-mode
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
+
+(use-package! sis
+  :config
+  (sis-ism-lazyman-config "1" "2" 'fcitx5)
+  (sis-global-respect-mode t)
+  (sis-global-context-mode t))
 
 (defun tab-bar-new-tab-with-name (name)
   "Create the NAME tab if it doesn't exist already."

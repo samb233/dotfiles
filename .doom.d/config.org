@@ -50,10 +50,17 @@
   (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 #+end_src
 
-** Auth-Save
+** auth-save
 不让emacs保存auth信息
 #+begin_src emacs-lisp
   (setq auth-source-save-behavior nil)
+#+end_src
+
+** buffer-name
+设置buffer name重复时的处理。
+在前面添加路径
+#+begin_src emacs-lisp
+  (setq uniquify-buffer-name-style 'forward)
 #+end_src
 
 * 基础外观
@@ -75,8 +82,16 @@
   (setq doom-theme 'doom-tomorrow-day)
 #+end_src
 
-** doom-modeline
-简洁一点，去掉部分图标
+** 行号
+更改行号的字重，不然在不高的分辨率下会有锯齿
+#+begin_src emacs-lisp
+  (custom-set-faces
+   '(line-number ((t (:weight medium :slant unspecified))))
+   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+#+end_src
+
+** modeline
+简洁一点，去掉doom-modeline的部分图标
 #+begin_src emacs-lisp
   (after! doom-modeline
     (setq doom-modeline-modal nil
@@ -90,21 +105,7 @@
     (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 #+end_src
 
-设置buffer name重复时的处理。
-在前面添加路径
-#+begin_src emacs-lisp
-  (setq uniquify-buffer-name-style 'forward)
-#+end_src
-
-** 行号
-更改行号的字重，不然在不高的分辨率下会有锯齿
-#+begin_src emacs-lisp
-  (custom-set-faces
-   '(line-number ((t (:weight medium :slant unspecified))))
-   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
-#+end_src
-
-* 基础按键
+* 按键
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
@@ -136,15 +137,6 @@ linux上就一般般，还是不开习惯
 #+begin_src emacs-lisp
   (map! :n "<mouse-8>" #'better-jumper-jump-backward
         :n "<mouse-9>" #'better-jumper-jump-forward)
-#+end_src
-
-** evil
-设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
-#+begin_src emacs-lisp
-  (evil-ex-define-cmd "q" 'kill-this-buffer)
-  (evil-ex-define-cmd "Q" 'kill-this-buffer)
-  (evil-ex-define-cmd "quit" 'evil-quit)
-  (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
 
 ** 常用命令
@@ -203,6 +195,15 @@ linux上就一般般，还是不开习惯
 设置在另一个窗口中打开defination
 #+begin_src emacs-lisp
   (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+#+end_src
+
+** evil-cmd
+设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
+#+begin_src emacs-lisp
+  (evil-ex-define-cmd "q" 'kill-this-buffer)
+  (evil-ex-define-cmd "Q" 'kill-this-buffer)
+  (evil-ex-define-cmd "quit" 'evil-quit)
+  (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
 
 ** 取消预设键位
@@ -555,17 +556,6 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
         "o t" #'doom-vterm-toggle-project)
 #+end_src
 
-* 输入法
-** sis
-配置中英文输入法自动切换。
-#+begin_src emacs-lisp
-  (use-package! sis
-    :config
-    (sis-ism-lazyman-config "1" "2" 'fcitx5)
-    (sis-global-respect-mode t)
-    (sis-global-context-mode t))
-#+end_src
-
 * Org-Mode
 ** 基本外观
 配置一下Org-Mode的主题颜色、字体大小等。
@@ -682,7 +672,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             :unnarrowed t)))
 #+end_src
 
-* 常用语言mode
+* 语言mode
 ** markdown-mode
 也是设置一下字体大小和颜色。
 在emacs下我也很少写markdown了。
@@ -769,6 +759,16 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+end_src
 
 * 工具包
+** 输入法切换
+使用sis实现中英文输入法自动切换。
+#+begin_src emacs-lisp
+  (use-package! sis
+    :config
+    (sis-ism-lazyman-config "1" "2" 'fcitx5)
+    (sis-global-respect-mode t)
+    (sis-global-context-mode t))
+#+end_src
+
 ** tabbar
 我只需要一个窗口管理工具来快速切换不同的文件/布局
 tabbar就足够了
