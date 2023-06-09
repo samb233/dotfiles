@@ -519,12 +519,6 @@
         :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
         :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
 
-(use-package! bookmark-view
-  :commands (bookmark-view))
-
-(map! :leader
-      :desc "bookmark view" "b v" #'bookmark-view)
-
 (use-package! fanyi
   :commands (fanyi-dwim
              fanyi-dwim2)

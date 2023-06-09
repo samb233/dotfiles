@@ -783,15 +783,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
           :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
 #+end_src
 
-** bookmark-view
-#+begin_src emacs-lisp
-  (use-package! bookmark-view
-    :commands (bookmark-view))
-
-  (map! :leader
-        :desc "bookmark view" "b v" #'bookmark-view)
-#+end_src
-
 ** 单词翻译
 #+begin_src emacs-lisp
   (use-package! fanyi
