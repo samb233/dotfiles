@@ -770,14 +770,23 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
 * 工具包
 ** tabbar
+我只需要一个窗口管理工具来快速切换不同的文件/布局
+tabbar就足够了
 #+begin_src emacs-lisp
+  (defun tab-bar-new-tab-with-name (name)
+    "Create the NAME tab if it doesn't exist already."
+    (interactive (list (read-from-minibuffer "New tab name: ")))
+    (if (not name)
+        (tab-bar-new-tab)
+      (progn (tab-bar-new-tab)
+             (tab-bar-rename-tab name)))
+    (message "Create new tab %s" name))
+
   (use-package! tab-bar
     :init
     (setq tab-bar-show nil)
     :config
-    (tab-bar-rename-tab "Home")
-    (use-package! tab-bar-helper
-      :commands (tab-bar-new-tab-with-name))
+    (tab-bar-rename-tab "Default")
     (map! :leader
           :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
           :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))

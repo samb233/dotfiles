@@ -508,13 +508,20 @@
 (after! markdown-mode
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
 
+(defun tab-bar-new-tab-with-name (name)
+  "Create the NAME tab if it doesn't exist already."
+  (interactive (list (read-from-minibuffer "New tab name: ")))
+  (if (not name)
+      (tab-bar-new-tab)
+    (progn (tab-bar-new-tab)
+           (tab-bar-rename-tab name)))
+  (message "Create new tab %s" name))
+
 (use-package! tab-bar
   :init
   (setq tab-bar-show nil)
   :config
-  (tab-bar-rename-tab "Home")
-  (use-package! tab-bar-helper
-    :commands (tab-bar-new-tab-with-name))
+  (tab-bar-rename-tab "Default")
   (map! :leader
         :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
         :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
