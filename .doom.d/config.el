@@ -464,6 +464,7 @@
  '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :foreground "#70c0ba" :weight normal))))
  '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
 
+(add-hook! 'markdown-mode-hook (setq-local markdown-fontify-code-blocks-natively t))
 (after! markdown-mode
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
