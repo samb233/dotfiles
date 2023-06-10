@@ -48,6 +48,8 @@
         doom-modeline-buffer-state-icon nil)
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 
+(setq word-wrap-by-category t)
+
 (setq mouse-wheel-scroll-amount '
       (3
        ((shift) . hscroll)
@@ -383,8 +385,6 @@
   (map! :map org-mode-map
         :localleader
         "-" #'org-emphasize))
-
-(add-hook! 'org-mode-hook (setq-local word-wrap nil))
 
 (use-package! org-modern
   :commands (org-modern-mode)

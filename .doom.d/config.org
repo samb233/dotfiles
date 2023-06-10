@@ -105,6 +105,11 @@
     (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 #+end_src
 
+** word-wrap
+#+begin_src emacs-lisp
+  (setq word-wrap-by-category t)
+#+end_src
+
 * 按键
 ** 鼠标
 滚轮
@@ -580,12 +585,6 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
     (map! :map org-mode-map
           :localleader
           "-" #'org-emphasize))
-#+end_src
-
-** word-wrap
-关闭。中英文一起时word-wrap只会是副作用。
-#+begin_src emacs-lisp
-  (add-hook! 'org-mode-hook (setq-local word-wrap nil))
 #+end_src
 
 ** org-modern
