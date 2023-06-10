@@ -37,15 +37,17 @@
  '(line-number ((t (:weight medium :slant unspecified))))
  '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
+(setq all-the-icons-scale-factor 1.1)
+
 (after! doom-modeline
   (setq doom-modeline-modal nil
+        doom-modeline-workspace-name nil
+        doom-modeline-buffer-state-icon nil
+        doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 30
-        doom-modeline-window-width-limit 120
-        doom-modeline-workspace-name nil
-        doom-modeline-buffer-modification-icon nil
-        doom-modeline-buffer-state-icon nil)
+        doom-modeline-window-width-limit 120)
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 
 (setq word-wrap-by-category t)
@@ -269,7 +271,6 @@
   ;; (setq dirvish-mode-line-height '46)
   (setq dirvish-attributes
         '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
-  (setq dirvish-all-the-icons-height 0.9)
   (setq delete-by-moving-to-trash t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso")
@@ -379,12 +380,17 @@
  '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal)))))
 
 (after! org
-  (setq org-src-preserve-indentation nil)
-  (setq org-image-actual-width 800)
-  (setq org-hide-emphasis-markers t)
+  (setq org-src-preserve-indentation nil
+        org-image-actual-width 800
+        org-hide-emphasis-markers t
+        org-support-shift-select t)
   (map! :map org-mode-map
-        :localleader
-        "-" #'org-emphasize))
+        :localleader "-" #'org-emphasize))
+
+(after! evil-org
+  (map! :map evil-org-mode-map
+        :i "C-l" nil
+        :i "C-h" nil ))
 
 (use-package! org-modern
   :commands (org-modern-mode)
