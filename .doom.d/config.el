@@ -63,8 +63,8 @@
         ((meta))
         ((control) . text-scale)))
 
-(pixel-scroll-precision-mode)
-(setq evil-move-beyond-eol t)
+;; (pixel-scroll-precision-mode)
+;; (setq evil-move-beyond-eol t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -369,7 +369,7 @@
 
 (after! org
   (setq org-src-preserve-indentation nil
-        org-image-actual-width 800
+        org-image-actual-width 700
         org-hide-emphasis-markers t
         org-support-shift-select t)
   (map! :map org-mode-map
@@ -458,7 +458,7 @@
 (after! markdown-mode
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
-  (setq markdown-max-image-size '(800 . 500))
+  (setq markdown-max-image-size '(700 . 400))
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
 (defun my-eglot-organize-imports ()

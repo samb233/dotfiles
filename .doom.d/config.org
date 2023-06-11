@@ -135,8 +135,8 @@
 emacs29新加入的像素滚动模式。
 并且设置evil-move-beyond-eol，来让光标不乱跳，并解决图片偶尔卡住的bug
 #+begin_src emacs-lisp
-  (pixel-scroll-precision-mode)
-  (setq evil-move-beyond-eol t)
+  ;; (pixel-scroll-precision-mode)
+  ;; (setq evil-move-beyond-eol t)
 #+end_src
 
 侧键
@@ -540,7 +540,7 @@ doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一�
 
   (after! org
     (setq org-src-preserve-indentation nil
-          org-image-actual-width 800
+          org-image-actual-width 700
           org-hide-emphasis-markers t
           org-support-shift-select t)
     (map! :map org-mode-map
@@ -663,7 +663,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (after! markdown-mode
     (setq markdown-fontify-whole-heading-line nil)
     (setq markdown-fontify-code-blocks-natively t)
-    (setq markdown-max-image-size '(800 . 500))
+    (setq markdown-max-image-size '(700 . 400))
     (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 #+end_src
 
