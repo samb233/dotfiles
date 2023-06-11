@@ -53,32 +53,34 @@
 (setq word-wrap-by-category t)
 
 (setq scroll-step 1
+      scroll-margin 2
       mouse-wheel-follow-mouse t
       mouse-wheel-progressive-speed nil)
 
-(setq mouse-wheel-scroll-amount '
-      (3
-       ((shift) . hscroll)
-       ((meta))
-       ((control) . text-scale)))
+(setq mouse-wheel-scroll-amount
+      '(3
+        ((shift) . hscroll)
+        ((meta))
+        ((control) . text-scale)))
 
-(pixel-scroll-precision-mode t)
+(pixel-scroll-precision-mode)
+(setq evil-move-beyond-eol t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
 
-(map! :i "C-v" #'yank
-      :i "M-v" #'yank
-      :v "J" #'drag-stuff-down
-      :v "K" #'drag-stuff-up
-      :ni "C-s" #'consult-line
-      :ni "C-z" #'undo-only
+(map! :i  "C-v"   #'yank
+      :i  "M-v"   #'yank
+      :v  "J"     #'drag-stuff-down
+      :v  "K"     #'drag-stuff-up
+      :ni "C-s"   #'consult-line
+      :ni "C-z"   #'undo-only
       :ni "C-S-z" #'undo-redo
-      :n "U" #'evil-redo
-      :n "g D" #'xref-find-definitions-other-window
-      :n "g a" #'avy-goto-char-2
-      :n "] e" #'flymake-goto-next-error
-      :n "[ e" #'flymake-goto-prev-error
+      :n  "U"     #'evil-redo
+      :n  "g D"   #'xref-find-definitions-other-window
+      :n  "g a"   #'avy-goto-char-2
+      :n  "] e"   #'flymake-goto-next-error
+      :n  "[ e"   #'flymake-goto-prev-error
       :leader
       :desc "consult-buffer other window" "<" #'consult-buffer-other-window
       :desc "format buffer" "b f" #'+format/buffer
@@ -376,7 +378,9 @@
 (after! evil-org
   (map! :map evil-org-mode-map
         :i "C-l" nil
-        :i "C-h" nil ))
+        :i "C-h" nil
+        :i "C-j" nil
+        :i "C-k" nil))
 
 (use-package! org-modern
   :commands (org-modern-mode)

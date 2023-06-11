@@ -121,19 +121,22 @@
 滚轮
 #+begin_src emacs-lisp
   (setq scroll-step 1
+        scroll-margin 2
         mouse-wheel-follow-mouse t
         mouse-wheel-progressive-speed nil)
 
-  (setq mouse-wheel-scroll-amount '
-        (3
-         ((shift) . hscroll)
-         ((meta))
-         ((control) . text-scale)))
+  (setq mouse-wheel-scroll-amount
+        '(3
+          ((shift) . hscroll)
+          ((meta))
+          ((control) . text-scale)))
 #+end_src
 
 emacs29新加入的像素滚动模式。
+并且设置evil-move-beyond-eol，来让光标不乱跳，并解决图片偶尔卡住的bug
 #+begin_src emacs-lisp
-  (pixel-scroll-precision-mode t)
+  (pixel-scroll-precision-mode)
+  (setq evil-move-beyond-eol t)
 #+end_src
 
 侧键
@@ -144,18 +147,18 @@ emacs29新加入的像素滚动模式。
 
 ** 键位设置
 #+begin_src emacs-lisp
-  (map! :i "C-v" #'yank
-        :i "M-v" #'yank
-        :v "J" #'drag-stuff-down
-        :v "K" #'drag-stuff-up
-        :ni "C-s" #'consult-line
-        :ni "C-z" #'undo-only
+  (map! :i  "C-v"   #'yank
+        :i  "M-v"   #'yank
+        :v  "J"     #'drag-stuff-down
+        :v  "K"     #'drag-stuff-up
+        :ni "C-s"   #'consult-line
+        :ni "C-z"   #'undo-only
         :ni "C-S-z" #'undo-redo
-        :n "U" #'evil-redo
-        :n "g D" #'xref-find-definitions-other-window
-        :n "g a" #'avy-goto-char-2
-        :n "] e" #'flymake-goto-next-error
-        :n "[ e" #'flymake-goto-prev-error
+        :n  "U"     #'evil-redo
+        :n  "g D"   #'xref-find-definitions-other-window
+        :n  "g a"   #'avy-goto-char-2
+        :n  "] e"   #'flymake-goto-next-error
+        :n  "[ e"   #'flymake-goto-prev-error
         :leader
         :desc "consult-buffer other window" "<" #'consult-buffer-other-window
         :desc "format buffer" "b f" #'+format/buffer
@@ -551,7 +554,9 @@ doom为org-mode设计了一些用不上的快捷键。
   (after! evil-org
     (map! :map evil-org-mode-map
           :i "C-l" nil
-          :i "C-h" nil ))
+          :i "C-h" nil
+          :i "C-j" nil
+          :i "C-k" nil))
 #+end_src
 
 ** org-modern
