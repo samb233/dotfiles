@@ -34,8 +34,8 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (custom-set-faces
- '(line-number ((t (:weight medium :slant unspecified))))
- '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+ '(line-number ((t (:weight medium))))
+ '(line-number-current-line ((t (:weight medium)))))
 
 (setq all-the-icons-scale-factor 1.1)
 
@@ -52,58 +52,57 @@
 
 (setq word-wrap-by-category t)
 
+(setq scroll-step 1
+      mouse-wheel-follow-mouse t
+      mouse-wheel-progressive-speed nil)
+
 (setq mouse-wheel-scroll-amount '
       (3
        ((shift) . hscroll)
        ((meta))
        ((control) . text-scale)))
-(setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse t) ;; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
 
-;; (pixel-scroll-precision-mode t)
-
-(evil-define-key 'visual 'global
-  (kbd "J") 'drag-stuff-down
-  (kbd "K") 'drag-stuff-up)
+(pixel-scroll-precision-mode t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
 
-(map! :leader
-      :desc "consult-buffer other window" "<" #'consult-buffer-other-window)
-
-(evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
-(map! "C-s" #'consult-line)
-
-(map! "C-v" #'yank)
-(map! "M-v" #'yank)
-
-(evil-define-key 'insert 'global (kbd "C-z") 'undo-only)
-(evil-define-key 'normal 'global (kbd "C-z") 'undo-only)
-(evil-define-key 'insert 'global (kbd "C-S-z") 'undo-redo)
-(evil-define-key 'normal 'global (kbd "C-S-z") 'undo-redo)
-(evil-define-key 'normal 'global (kbd "U") 'evil-redo)
-
-(evil-define-key 'normal 'global (kbd "g a") 'avy-goto-char-2)
-
-(evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
-(evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
-
-(map! :leader
+(map! :i "C-v" #'yank
+      :i "M-v" #'yank
+      :v "J" #'drag-stuff-down
+      :v "K" #'drag-stuff-up
+      :ni "C-s" #'consult-line
+      :ni "C-z" #'undo-only
+      :ni "C-S-z" #'undo-redo
+      :n "U" #'evil-redo
+      :n "g D" #'xref-find-definitions-other-window
+      :n "g a" #'avy-goto-char-2
+      :n "] e" #'flymake-goto-next-error
+      :n "[ e" #'flymake-goto-prev-error
+      :leader
+      :desc "consult-buffer other window" "<" #'consult-buffer-other-window
       :desc "format buffer" "b f" #'+format/buffer
-      :desc "toggle format-all" "t f" #'format-all-mode)
-
-(map! :leader
+      :desc "toggle format-all" "t f" #'format-all-mode
       :desc "bookmark list" "b w" #'list-bookmarks
       :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 
-(evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
-
-(evil-ex-define-cmd "q" 'kill-this-buffer)
-(evil-ex-define-cmd "Q" 'kill-this-buffer)
-(evil-ex-define-cmd "quit" 'evil-quit)
-(evil-ex-define-cmd "W" 'save-buffer)
+(map! :leader
+      :desc "Open dired" "N" #'dired-jump
+      :desc "Open dirvish" "V" #'dirvish
+      (:prefix ("v" . "my personal bindings")
+       :desc "Open dirvish" "v" #'dirvish
+       :desc "Open Normal Dired" "n" #'dired-jump
+       :desc "Quit dirvish" "q" #'dirvish-quit
+       :desc "Toggle dirvish-side" "s" #'dirvish-side
+       :desc "Fd in dirvish" "F" #'dirvish-fd
+       :desc "Jump using fd" "J" #'dirvish-fd-jump
+       :desc "Jump recent dir" "j" #'consult-dir
+       :desc "Fd find file in dir" "f" #'+vertico/consult-fd
+       :desc "find Item in the buffer" "i" #'consult-imenu
+       :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
+       :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
+       :desc "List processes" "l" #'list-processes
+       :desc "VC Refresh state" "r" #'vc-refresh-state))
 
 (map! :leader
       "i e" nil
@@ -115,6 +114,11 @@
       "f P" nil
       "s e" nil
       "s t" nil)
+
+(evil-ex-define-cmd "q" 'kill-this-buffer)
+(evil-ex-define-cmd "Q" 'kill-this-buffer)
+(evil-ex-define-cmd "quit" 'evil-quit)
+(evil-ex-define-cmd "W" 'save-buffer)
 
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
@@ -327,24 +331,6 @@
         "M-t" #'dirvish-layout-toggle
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu ))
-
-(map! :leader
-      :desc "Open dired" "N" #'dired-jump
-      :desc "Open dirvish" "V" #'dirvish
-      (:prefix ("v" . "my personal bindings")
-       :desc "Open dirvish" "v" #'dirvish
-       :desc "Open Normal Dired" "n" #'dired-jump
-       :desc "Quit dirvish" "q" #'dirvish-quit
-       :desc "Toggle dirvish-side" "s" #'dirvish-side
-       :desc "Fd in dirvish" "F" #'dirvish-fd
-       :desc "Jump using fd" "J" #'dirvish-fd-jump
-       :desc "Jump recent dir" "j" #'consult-dir
-       :desc "Fd find file in dir" "f" #'+vertico/consult-fd
-       :desc "find Item in the buffer" "i" #'consult-imenu
-       :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
-       :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
-       :desc "List processes" "l" #'list-processes
-       :desc "VC Refresh state" "r" #'vc-refresh-state))
 
 (setq vterm-always-compile-module t)
 (after! vterm

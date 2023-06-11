@@ -63,7 +63,7 @@
   (setq uniquify-buffer-name-style 'forward)
 #+end_src
 
-* 基础外观
+* 外观
 ** 字体
 设置字体与字体大小。
 使用after-setting-font-hook来设置中文字体
@@ -86,8 +86,8 @@
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(line-number ((t (:weight medium :slant unspecified))))
-   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+   '(line-number ((t (:weight medium))))
+   '(line-number-current-line ((t (:weight medium)))))
 #+end_src
 
 ** icon
@@ -120,28 +120,20 @@
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
+  (setq scroll-step 1
+        mouse-wheel-follow-mouse t
+        mouse-wheel-progressive-speed nil)
+
   (setq mouse-wheel-scroll-amount '
         (3
          ((shift) . hscroll)
          ((meta))
          ((control) . text-scale)))
-  (setq mouse-wheel-progressive-speed nil) ;; don't accelerate scrolling
-  (setq mouse-wheel-follow-mouse t) ;; scroll window under mouse
-  (setq scroll-step 1) ;; keyboard scroll one line at a time
 #+end_src
 
 emacs29新加入的像素滚动模式。
-mac上适配很好，很有用
-linux上就一般般，还是不开习惯
 #+begin_src emacs-lisp
-  ;; (pixel-scroll-precision-mode t)
-#+end_src
-
-设置visual模式下Shift-j和Shift-k上下移动代码块
-#+begin_src emacs-lisp
-  (evil-define-key 'visual 'global
-    (kbd "J") 'drag-stuff-down
-    (kbd "K") 'drag-stuff-up)
+  (pixel-scroll-precision-mode t)
 #+end_src
 
 侧键
@@ -150,78 +142,50 @@ linux上就一般般，还是不开习惯
         :n "<mouse-9>" #'better-jumper-jump-forward)
 #+end_src
 
-** 常用命令
-设置Ctrl-<在另一个窗口打开buffer
+** 键位设置
 #+begin_src emacs-lisp
-  (map! :leader
-        :desc "consult-buffer other window" "<" #'consult-buffer-other-window)
-#+end_src
-
-使用consult-line替代I-search
-#+begin_src emacs-lisp
-  (evil-define-key 'normal 'global (kbd "C-s") 'consult-line)
-  (map! "C-s" #'consult-line)
-#+end_src
-
-设置Ctrl-v和Alt-v粘贴
-#+begin_src emacs-lisp
-  (map! "C-v" #'yank)
-  (map! "M-v" #'yank)
-#+end_src
-
-设置Ctrl-z撤销，Ctrl-Z重做
-#+begin_src emacs-lisp
-  (evil-define-key 'insert 'global (kbd "C-z") 'undo-only)
-  (evil-define-key 'normal 'global (kbd "C-z") 'undo-only)
-  (evil-define-key 'insert 'global (kbd "C-S-z") 'undo-redo)
-  (evil-define-key 'normal 'global (kbd "C-S-z") 'undo-redo)
-  (evil-define-key 'normal 'global (kbd "U") 'evil-redo)
-#+end_src
-
-设置“g a”使用avy
-#+begin_src emacs-lisp
-  (evil-define-key 'normal 'global (kbd "g a") 'avy-goto-char-2)
-#+end_src
-
-设置]e [e跳转错误
-#+begin_src emacs-lisp
-  (evil-define-key 'normal 'global (kbd "] e") 'flymake-goto-next-error)
-  (evil-define-key 'normal 'global (kbd "[ e") 'flymake-goto-prev-error)
-#+end_src
-
-设置format-buffer的快捷键
-#+begin_src emacs-lisp
-  (map! :leader
+  (map! :i "C-v" #'yank
+        :i "M-v" #'yank
+        :v "J" #'drag-stuff-down
+        :v "K" #'drag-stuff-up
+        :ni "C-s" #'consult-line
+        :ni "C-z" #'undo-only
+        :ni "C-S-z" #'undo-redo
+        :n "U" #'evil-redo
+        :n "g D" #'xref-find-definitions-other-window
+        :n "g a" #'avy-goto-char-2
+        :n "] e" #'flymake-goto-next-error
+        :n "[ e" #'flymake-goto-prev-error
+        :leader
+        :desc "consult-buffer other window" "<" #'consult-buffer-other-window
         :desc "format buffer" "b f" #'+format/buffer
-        :desc "toggle format-all" "t f" #'format-all-mode)
-#+end_src
-
-设置书签列表快捷键
-#+begin_src emacs-lisp
-  (map! :leader
+        :desc "toggle format-all" "t f" #'format-all-mode
         :desc "bookmark list" "b w" #'list-bookmarks
         :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 #+end_src
 
-设置在另一个窗口中打开defination
+以及文件管理相关的键位
 #+begin_src emacs-lisp
-  (evil-define-key 'normal 'global (kbd "g D") 'xref-find-definitions-other-window)
+  (map! :leader
+        :desc "Open dired" "N" #'dired-jump
+        :desc "Open dirvish" "V" #'dirvish
+        (:prefix ("v" . "my personal bindings")
+         :desc "Open dirvish" "v" #'dirvish
+         :desc "Open Normal Dired" "n" #'dired-jump
+         :desc "Quit dirvish" "q" #'dirvish-quit
+         :desc "Toggle dirvish-side" "s" #'dirvish-side
+         :desc "Fd in dirvish" "F" #'dirvish-fd
+         :desc "Jump using fd" "J" #'dirvish-fd-jump
+         :desc "Jump recent dir" "j" #'consult-dir
+         :desc "Fd find file in dir" "f" #'+vertico/consult-fd
+         :desc "find Item in the buffer" "i" #'consult-imenu
+         :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
+         :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
+         :desc "List processes" "l" #'list-processes
+         :desc "VC Refresh state" "r" #'vc-refresh-state))
 #+end_src
 
-** evil-cmd
-设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
-#+begin_src emacs-lisp
-  (evil-ex-define-cmd "q" 'kill-this-buffer)
-  (evil-ex-define-cmd "Q" 'kill-this-buffer)
-  (evil-ex-define-cmd "quit" 'evil-quit)
-  (evil-ex-define-cmd "W" 'save-buffer)
-#+end_src
-
-** 取消预设键位
-取消doom中设置的一些快捷键。
-以及取消一些关于emacs配置文件的快捷键
-我可能有一些洁癖，就是不喜欢见到这些我不会用到的快捷键。
-其他软件里我可能拿他们没办法，但在emacs里我可以当家作主，全部取消！
+并且取消doom设置的一些我用不到的键位
 #+begin_src emacs-lisp
   (map! :leader
         "i e" nil
@@ -233,6 +197,15 @@ linux上就一般般，还是不开习惯
         "f P" nil
         "s e" nil
         "s t" nil)
+#+end_src
+
+** evil-cmd
+设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
+#+begin_src emacs-lisp
+  (evil-ex-define-cmd "q" 'kill-this-buffer)
+  (evil-ex-define-cmd "Q" 'kill-this-buffer)
+  (evil-ex-define-cmd "quit" 'evil-quit)
+  (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
 
 * 基础插件
@@ -508,27 +481,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           "M-t" #'dirvish-layout-toggle
           "M-j" #'dirvish-fd-jump
           "M-m" #'dirvish-mark-menu ))
-#+end_src
-
-** 文件管理常用快捷键
-#+begin_src emacs-lisp
-  (map! :leader
-        :desc "Open dired" "N" #'dired-jump
-        :desc "Open dirvish" "V" #'dirvish
-        (:prefix ("v" . "my personal bindings")
-         :desc "Open dirvish" "v" #'dirvish
-         :desc "Open Normal Dired" "n" #'dired-jump
-         :desc "Quit dirvish" "q" #'dirvish-quit
-         :desc "Toggle dirvish-side" "s" #'dirvish-side
-         :desc "Fd in dirvish" "F" #'dirvish-fd
-         :desc "Jump using fd" "J" #'dirvish-fd-jump
-         :desc "Jump recent dir" "j" #'consult-dir
-         :desc "Fd find file in dir" "f" #'+vertico/consult-fd
-         :desc "find Item in the buffer" "i" #'consult-imenu
-         :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
-         :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
-         :desc "List processes" "l" #'list-processes
-         :desc "VC Refresh state" "r" #'vc-refresh-state))
 #+end_src
 
 * 终端
