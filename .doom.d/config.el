@@ -150,6 +150,13 @@
 
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
+(evil-define-key 'visual 'global
+  "A" #'evil-mc-make-cursor-in-visual-selection-end
+  "I" #'evil-mc-make-cursor-in-visual-selection-beg)
+
+(evil-define-key 'normal 'evil-mc-key-map
+  "Q" #'evil-mc-undo-all-cursors)
+
 (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
 
 (after! eglot
@@ -341,7 +348,8 @@
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 
-(setq-hook! 'vterm-mode-hook
+(setq-hook!
+    'vterm-mode-hook
   +popup-margin-width nil
   kill-buffer-query-functions nil)
 
@@ -437,6 +445,10 @@
           ("w" "Working" plain "%?"
           :target (file+head "Working/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :working: \n\n")
+          :unnarrowed t)
+          ("p" "Project" plain "%?"
+          :target (file+head "Project/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :project: \n\n")
           :unnarrowed t)
           ("c" "Coding" plain "%?"
           :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"

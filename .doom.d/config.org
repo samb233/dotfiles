@@ -264,6 +264,17 @@ doom默认的200个也太少了，至少1000吧
   (add-hook! 'better-jumper-post-jump-hook #'recenter)
 #+end_src
 
+** evil-mc
+使用evil-mc推荐的键位，简化进入多行编辑的按键
+#+begin_src emacs-lisp
+  (evil-define-key 'visual 'global
+    "A" #'evil-mc-make-cursor-in-visual-selection-end
+    "I" #'evil-mc-make-cursor-in-visual-selection-beg)
+
+  (evil-define-key 'normal 'evil-mc-key-map
+    "Q" #'evil-mc-undo-all-cursors)
+#+end_src
+
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 ** eglot
@@ -501,7 +512,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 1. 光标鬼畜
 2. 一直问我要不要关闭（废话我都:q了当然要）
 #+begin_src emacs-lisp
-  (setq-hook! 'vterm-mode-hook
+  (setq-hook!
+      'vterm-mode-hook
     +popup-margin-width nil
     kill-buffer-query-functions nil)
 #+end_src
@@ -636,6 +648,10 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             ("w" "Working" plain "%?"
             :target (file+head "Working/%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: :working: \n\n")
+            :unnarrowed t)
+            ("p" "Project" plain "%?"
+            :target (file+head "Project/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :project: \n\n")
             :unnarrowed t)
             ("c" "Coding" plain "%?"
             :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
