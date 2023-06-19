@@ -68,9 +68,11 @@
 设置字体与字体大小。
 使用after-setting-font-hook来设置中文字体
 #+begin_src emacs-lisp
-  (setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
+  (setq doom-font (font-spec :family "Iosevka Nerd Font" :weight 'medium :size 13.0))
+  (setq doom-unicode-font (font-spec :family "Iosevka Nerd Font"))
 
   (defun my-cjk-font()
+    (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
     (dolist (charset '(kana han cjk-misc symbol bopomofo))
       (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
 
@@ -86,8 +88,8 @@
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(line-number ((t (:weight medium))))
-   '(line-number-current-line ((t (:weight medium)))))
+   '(line-number ((t (:weight medium :slant unspecified))))
+   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 #+end_src
 
 ** icon
@@ -121,7 +123,7 @@
 滚轮
 #+begin_src emacs-lisp
   (setq scroll-step 1
-        scroll-margin 2
+        scroll-margin 1
         mouse-wheel-follow-mouse t
         mouse-wheel-progressive-speed nil)
 
@@ -269,7 +271,8 @@ doom默认的200个也太少了，至少1000吧
 #+begin_src emacs-lisp
   (evil-define-key 'visual 'global
     "A" #'evil-mc-make-cursor-in-visual-selection-end
-    "I" #'evil-mc-make-cursor-in-visual-selection-beg)
+    "I" #'evil-mc-make-cursor-in-visual-selection-beg
+    "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
 
   (evil-define-key 'normal 'evil-mc-key-map
     "Q" #'evil-mc-undo-all-cursors)
@@ -743,6 +746,12 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
   (after! markdown-mode
     (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
+#+end_src
+
+** lua
+#+begin_src emacs-lisp
+  (after! lua-mode
+    (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
 #+end_src
 
 * 工具包

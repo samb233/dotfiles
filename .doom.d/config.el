@@ -23,9 +23,11 @@
 
 (setq uniquify-buffer-name-style 'forward)
 
-(setq doom-font (font-spec :family "Iosevka" :weight 'medium :size 13.0))
+(setq doom-font (font-spec :family "Iosevka Nerd Font" :weight 'medium :size 13.0))
+(setq doom-unicode-font (font-spec :family "Iosevka Nerd Font"))
 
 (defun my-cjk-font()
+  (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
     (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
 
@@ -34,8 +36,8 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (custom-set-faces
- '(line-number ((t (:weight medium))))
- '(line-number-current-line ((t (:weight medium)))))
+ '(line-number ((t (:weight medium :slant unspecified))))
+ '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
 (setq all-the-icons-scale-factor 1.1)
 
@@ -53,7 +55,7 @@
 (setq word-wrap-by-category t)
 
 (setq scroll-step 1
-      scroll-margin 2
+      scroll-margin 1
       mouse-wheel-follow-mouse t
       mouse-wheel-progressive-speed nil)
 
@@ -152,7 +154,8 @@
 
 (evil-define-key 'visual 'global
   "A" #'evil-mc-make-cursor-in-visual-selection-end
-  "I" #'evil-mc-make-cursor-in-visual-selection-beg)
+  "I" #'evil-mc-make-cursor-in-visual-selection-beg
+  "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
 
 (evil-define-key 'normal 'evil-mc-key-map
   "Q" #'evil-mc-undo-all-cursors)
@@ -509,6 +512,9 @@
 
 (after! markdown-mode
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
+
+(after! lua-mode
+  (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
 
 (use-package! sis
   :config
