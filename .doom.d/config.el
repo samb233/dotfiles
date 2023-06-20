@@ -64,13 +64,16 @@
       mouse-wheel-progressive-speed nil)
 
 (setq mouse-wheel-scroll-amount
-      '(3
+      '(1
         ((shift) . hscroll)
         ((meta))
         ((control) . text-scale)))
 
-;; (pixel-scroll-precision-mode)
-;; (setq evil-move-beyond-eol t)
+(setq evil-move-beyond-eol t)
+(pixel-scroll-precision-mode t)
+(setq pixel-scroll-precision-use-momentum t
+      pixel-scroll-precision-momentum-seconds 0.6
+      pixel-scroll-precision-momentum-min-velocity 4)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)

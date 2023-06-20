@@ -139,7 +139,7 @@
         mouse-wheel-progressive-speed nil)
 
   (setq mouse-wheel-scroll-amount
-        '(3
+        '(1
           ((shift) . hscroll)
           ((meta))
           ((control) . text-scale)))
@@ -148,8 +148,11 @@
 emacs29新加入的像素滚动模式。
 并且设置evil-move-beyond-eol，来让光标不乱跳，并解决图片偶尔卡住的bug
 #+begin_src emacs-lisp
-  ;; (pixel-scroll-precision-mode)
-  ;; (setq evil-move-beyond-eol t)
+  (setq evil-move-beyond-eol t)
+  (pixel-scroll-precision-mode t)
+  (setq pixel-scroll-precision-use-momentum t
+        pixel-scroll-precision-momentum-seconds 0.6
+        pixel-scroll-precision-momentum-min-velocity 4)
 #+end_src
 
 侧键
