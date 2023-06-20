@@ -54,6 +54,10 @@
 
 (setq word-wrap-by-category t)
 
+(setq +popup-margin-width nil)
+(add-hook! 'doom-first-buffer-hook
+  (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
+
 (setq scroll-step 1
       scroll-margin 1
       mouse-wheel-follow-mouse t
@@ -347,14 +351,10 @@
 (setq vterm-always-compile-module t)
 (after! vterm
   (setq vterm-max-scrollback 10000)
-  (setq vterm-timer-delay 0.01)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 
-(setq-hook!
-    'vterm-mode-hook
-  +popup-margin-width nil
-  kill-buffer-query-functions nil)
+(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
 
 (use-package! doom-vterm-toggle
   :commands (doom-vterm-toggle-directory
