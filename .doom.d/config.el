@@ -43,7 +43,6 @@
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
-        doom-modeline-workspace-name nil
         doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
@@ -65,11 +64,11 @@
         ((meta))
         ((control) . text-scale)))
 
-;; (setq evil-move-beyond-eol t)
-;; (pixel-scroll-precision-mode t)
-;; (setq pixel-scroll-precision-use-momentum t
-;;       pixel-scroll-precision-momentum-seconds 0.6
-;;       pixel-scroll-precision-momentum-min-velocity 4)
+(setq evil-move-beyond-eol t)
+(pixel-scroll-precision-mode t)
+(setq pixel-scroll-precision-use-momentum t
+      pixel-scroll-precision-momentum-seconds 0.6
+      pixel-scroll-precision-momentum-min-velocity 4)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -525,15 +524,6 @@
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
-(defun tab-bar-new-tab-with-name (name)
-  "Create the NAME tab if it doesn't exist already."
-  (interactive (list (read-from-minibuffer "New tab name: ")))
-  (if (not name)
-      (tab-bar-new-tab)
-    (progn (tab-bar-new-tab)
-           (tab-bar-rename-tab name)))
-  (message "Create new tab %s" name))
-
 (use-package! tab-bar
   :init
   (setq tab-bar-show nil)
@@ -541,7 +531,14 @@
   (tab-bar-rename-tab "Default")
   (map! :leader
         :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
-        :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
+        :desc "tab-bar clost tab" [backtab] #'tab-bar-close-tab-by-name))
+
+(use-package! tab-bookmark
+  :commands (tab-bookmark
+             tab-bookmark-handler))
+
+(map! :leader
+      :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
 
 (use-package! fanyi
   :commands (fanyi-dwim

@@ -103,7 +103,6 @@
 #+begin_src emacs-lisp
   (after! doom-modeline
     (setq doom-modeline-modal nil
-          doom-modeline-workspace-name nil
           doom-modeline-buffer-state-icon nil
           doom-modeline-buffer-modification-icon nil
           doom-modeline-buffer-encoding t
@@ -137,11 +136,11 @@
 emacs29新加入的像素滚动模式。
 并且设置evil-move-beyond-eol，来让光标不乱跳，并解决图片偶尔卡住的bug
 #+begin_src emacs-lisp
-  ;; (setq evil-move-beyond-eol t)
-  ;; (pixel-scroll-precision-mode t)
-  ;; (setq pixel-scroll-precision-use-momentum t
-  ;;       pixel-scroll-precision-momentum-seconds 0.6
-  ;;       pixel-scroll-precision-momentum-min-velocity 4)
+  (setq evil-move-beyond-eol t)
+  (pixel-scroll-precision-mode t)
+  (setq pixel-scroll-precision-use-momentum t
+        pixel-scroll-precision-momentum-seconds 0.6
+        pixel-scroll-precision-momentum-min-velocity 4)
 #+end_src
 
 侧键
@@ -772,15 +771,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 我只需要一个窗口管理工具来快速切换不同的文件/布局
 tabbar就足够了
 #+begin_src emacs-lisp
-  (defun tab-bar-new-tab-with-name (name)
-    "Create the NAME tab if it doesn't exist already."
-    (interactive (list (read-from-minibuffer "New tab name: ")))
-    (if (not name)
-        (tab-bar-new-tab)
-      (progn (tab-bar-new-tab)
-             (tab-bar-rename-tab name)))
-    (message "Create new tab %s" name))
-
   (use-package! tab-bar
     :init
     (setq tab-bar-show nil)
@@ -788,7 +778,17 @@ tabbar就足够了
     (tab-bar-rename-tab "Default")
     (map! :leader
           :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
-          :desc "tab-bar new tab" "v TAB" #'tab-bar-new-tab-with-name))
+          :desc "tab-bar clost tab" [backtab] #'tab-bar-close-tab-by-name))
+#+end_src
+
+** tab-bookmark
+#+begin_src emacs-lisp
+  (use-package! tab-bookmark
+    :commands (tab-bookmark
+               tab-bookmark-handler))
+
+  (map! :leader
+        :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
 #+end_src
 
 ** 单词翻译
