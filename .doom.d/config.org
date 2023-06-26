@@ -118,17 +118,6 @@
   (setq word-wrap-by-category t)
 #+end_src
 
-** popup
-为vterm做出调整。
-禁用+popup-adjust-fringes-h和+popup-margin-width
-来让vterm不在打开时长度超过一行而导致鬼畜换行
-目前还不知道有什么副作用
-#+begin_src emacs-lisp
-  (setq +popup-margin-width nil)
-  (add-hook! 'doom-first-buffer-hook
-    (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
-#+end_src
-
 * 按键
 ** 鼠标
 滚轮
@@ -139,7 +128,7 @@
         mouse-wheel-progressive-speed nil)
 
   (setq mouse-wheel-scroll-amount
-        '(1
+        '(3
           ((shift) . hscroll)
           ((meta))
           ((control) . text-scale)))
@@ -148,11 +137,11 @@
 emacs29新加入的像素滚动模式。
 并且设置evil-move-beyond-eol，来让光标不乱跳，并解决图片偶尔卡住的bug
 #+begin_src emacs-lisp
-  (setq evil-move-beyond-eol t)
-  (pixel-scroll-precision-mode t)
-  (setq pixel-scroll-precision-use-momentum t
-        pixel-scroll-precision-momentum-seconds 0.6
-        pixel-scroll-precision-momentum-min-velocity 4)
+  ;; (setq evil-move-beyond-eol t)
+  ;; (pixel-scroll-precision-mode t)
+  ;; (setq pixel-scroll-precision-use-momentum t
+  ;;       pixel-scroll-precision-momentum-seconds 0.6
+  ;;       pixel-scroll-precision-momentum-min-velocity 4)
 #+end_src
 
 侧键
@@ -524,15 +513,19 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 #+end_src
 
-解决vterm的两个问题
-1. 光标鬼畜
-2. 一直问我要不要关闭（废话我都:q了当然要）
+vterm与doom的适配
+禁用+popup-adjust-fringes-h和+popup-margin-width
+来让vterm不在打开时长度超过一行而导致鬼畜换行
+目前还不知道有什么副作用
 #+begin_src emacs-lisp
+  (setq +popup-margin-width nil)
+  (add-hook! 'doom-first-buffer-hook
+    (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
+
   (add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
 #+end_src
 
 使用自定义的vterm-toggle。
-doom默认的vterm-toggle是一个workspace一个。我想要一个文件夹一个。
 #+begin_src emacs-lisp
   (use-package! doom-vterm-toggle
     :commands (doom-vterm-toggle-directory

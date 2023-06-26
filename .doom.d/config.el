@@ -54,26 +54,22 @@
 
 (setq word-wrap-by-category t)
 
-(setq +popup-margin-width nil)
-(add-hook! 'doom-first-buffer-hook
-  (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
-
 (setq scroll-step 1
       scroll-margin 1
       mouse-wheel-follow-mouse t
       mouse-wheel-progressive-speed nil)
 
 (setq mouse-wheel-scroll-amount
-      '(1
+      '(3
         ((shift) . hscroll)
         ((meta))
         ((control) . text-scale)))
 
-(setq evil-move-beyond-eol t)
-(pixel-scroll-precision-mode t)
-(setq pixel-scroll-precision-use-momentum t
-      pixel-scroll-precision-momentum-seconds 0.6
-      pixel-scroll-precision-momentum-min-velocity 4)
+;; (setq evil-move-beyond-eol t)
+;; (pixel-scroll-precision-mode t)
+;; (setq pixel-scroll-precision-use-momentum t
+;;       pixel-scroll-precision-momentum-seconds 0.6
+;;       pixel-scroll-precision-momentum-min-velocity 4)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -356,6 +352,10 @@
   (setq vterm-max-scrollback 10000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
+
+(setq +popup-margin-width nil)
+(add-hook! 'doom-first-buffer-hook
+  (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
 
 (add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
 
