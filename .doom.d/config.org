@@ -722,6 +722,13 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     :mode("\\.proto\\'" . protobuf-mode))
 #+end_src
 
+** dockerfile-mode
+#+begin_src emacs-lisp
+  (use-package dockerfile-mode
+    :commands (dockerfile-mode)
+    :mode("\\Dockerfile\\'" . dockerfile-mode))
+#+end_src
+
 ** shell
 设置shell的formatter
 我已经忘了我为什么要设置这个。
@@ -784,8 +791,7 @@ tabbar就足够了
 ** tab-bookmark
 #+begin_src emacs-lisp
   (use-package! tab-bookmark
-    :commands (tab-bookmark
-               tab-bookmark-handler))
+    :commands (tab-bookmark))
 
   (map! :leader
         :desc "Bookmark Tab" "b TAB" #'tab-bookmark)

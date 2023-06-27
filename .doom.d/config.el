@@ -501,6 +501,10 @@
   :commands (protobuf-mode)
   :mode("\\.proto\\'" . protobuf-mode))
 
+(use-package dockerfile-mode
+  :commands (dockerfile-mode)
+  :mode("\\Dockerfile\\'" . dockerfile-mode))
+
 (after! sh-script
   (set-formatter! 'shfmt
     '("shfmt" "-ci"
@@ -534,8 +538,7 @@
         :desc "tab-bar clost tab" [backtab] #'tab-bar-close-tab-by-name))
 
 (use-package! tab-bookmark
-  :commands (tab-bookmark
-             tab-bookmark-handler))
+  :commands (tab-bookmark))
 
 (map! :leader
       :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
