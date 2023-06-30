@@ -23,8 +23,8 @@
 
 (setq uniquify-buffer-name-style 'forward)
 
-(setq doom-font (font-spec :family "Iosevka Nerd Font" :weight 'medium :size 13.0))
-(setq doom-unicode-font (font-spec :family "Iosevka Nerd Font"))
+(setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
+(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
@@ -36,10 +36,10 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (custom-set-faces
- '(line-number ((t (:weight medium :slant unspecified))))
- '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+ '(line-number ((t (:weight medium))))
+ '(line-number-current-line ((t (:weight medium)))))
 
-(setq all-the-icons-scale-factor 1.1)
+(setq all-the-icons-scale-factor 1.2)
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
@@ -87,6 +87,7 @@
       :n  "[ e"   #'flymake-goto-prev-error
       :leader
       :desc "consult-buffer other window" "<" #'consult-buffer-other-window
+      :desc "find-file other window" ">" #'find-file-other-window
       :desc "format buffer" "b f" #'+format/buffer
       :desc "toggle format-all" "t f" #'format-all-mode
       :desc "bookmark list" "b w" #'list-bookmarks
@@ -538,7 +539,8 @@
         :desc "tab-bar clost tab" [backtab] #'tab-bar-close-tab-by-name))
 
 (use-package! tab-bookmark
-  :commands (tab-bookmark))
+  :commands (tab-bookmark
+             tab-bookmark-handler))
 
 (map! :leader
       :desc "Bookmark Tab" "b TAB" #'tab-bookmark)

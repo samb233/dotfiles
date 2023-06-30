@@ -68,8 +68,8 @@
 设置字体与字体大小。
 使用after-setting-font-hook来设置中文字体
 #+begin_src emacs-lisp
-  (setq doom-font (font-spec :family "Iosevka Nerd Font" :weight 'medium :size 13.0))
-  (setq doom-unicode-font (font-spec :family "Iosevka Nerd Font"))
+  (setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
+  (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 
   (defun my-cjk-font()
     (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
@@ -88,14 +88,14 @@
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(line-number ((t (:weight medium :slant unspecified))))
-   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+   '(line-number ((t (:weight medium))))
+   '(line-number-current-line ((t (:weight medium)))))
 #+end_src
 
 ** icon
 稍微小一点
 #+begin_src emacs-lisp
-  (setq all-the-icons-scale-factor 1.1)
+  (setq all-the-icons-scale-factor 1.2)
 #+end_src
 
 ** modeline
@@ -165,6 +165,7 @@ emacs29新加入的像素滚动模式。
         :n  "[ e"   #'flymake-goto-prev-error
         :leader
         :desc "consult-buffer other window" "<" #'consult-buffer-other-window
+        :desc "find-file other window" ">" #'find-file-other-window
         :desc "format buffer" "b f" #'+format/buffer
         :desc "toggle format-all" "t f" #'format-all-mode
         :desc "bookmark list" "b w" #'list-bookmarks
@@ -791,7 +792,8 @@ tabbar就足够了
 ** tab-bookmark
 #+begin_src emacs-lisp
   (use-package! tab-bookmark
-    :commands (tab-bookmark))
+    :commands (tab-bookmark
+               tab-bookmark-handler))
 
   (map! :leader
         :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
