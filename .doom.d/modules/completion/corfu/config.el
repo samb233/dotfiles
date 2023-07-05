@@ -97,6 +97,8 @@ Note that changes are applied only after a cache reset, via
              cape-file
              cape-history
              cape-keyword
+             cape-tex
+             cape-sgml
              cape-rfc1345
              cape-abbrev
              cape-dict

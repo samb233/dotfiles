@@ -177,9 +177,6 @@
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
-(setq +corfu-ispell-completion-modes nil
-      +corfu-ispell-in-comments-and-strings nil)
-
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay nil))
 
