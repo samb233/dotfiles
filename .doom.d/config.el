@@ -47,7 +47,7 @@
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
-        doom-modeline-height 30
+        doom-modeline-height 29
         doom-modeline-window-width-limit 120)
   (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
 
@@ -349,7 +349,8 @@
 
 (setq vterm-always-compile-module t)
 (after! vterm
-  (setq vterm-max-scrollback 10000)
+  (setq vterm-timer-delay    0.01
+        vterm-max-scrollback 10000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 
