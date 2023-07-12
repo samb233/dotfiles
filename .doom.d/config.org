@@ -138,9 +138,6 @@ emacs29新加入的像素滚动模式。
 #+begin_src emacs-lisp
   (setq evil-move-beyond-eol t)
   (pixel-scroll-precision-mode t)
-  (setq pixel-scroll-precision-use-momentum t
-        pixel-scroll-precision-momentum-seconds 0.6
-        pixel-scroll-precision-momentum-min-velocity 4)
 #+end_src
 
 侧键
@@ -164,7 +161,7 @@ emacs29新加入的像素滚动模式。
         :n  "] e"   #'flymake-goto-next-error
         :n  "[ e"   #'flymake-goto-prev-error
         :leader
-        :desc "consult-buffer other window" "<" #'consult-buffer-other-window
+        :desc "consult-buffer other window" "<" #'consult-buffer
         :desc "find-file other window" ">" #'find-file-other-window
         :desc "format buffer" "b f" #'+format/buffer
         :desc "toggle format-all" "t f" #'format-all-mode
@@ -773,18 +770,27 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (sis-global-context-mode t))
 #+end_src
 
-** tabbar
-我只需要一个窗口管理工具来快速切换不同的文件/布局
-tabbar就足够了
+** tabspaces
+加强tabbar，管理工作区内buffer
 #+begin_src emacs-lisp
-  (use-package! tab-bar
+  (use-package! tabspaces
+    :hook (doom-init-ui . tabspaces-mode)
+    :commands (tabspaces-switch-or-create-workspace
+               tabspaces-remove-selected-buffer)
     :init
     (setq tab-bar-show nil)
-    :config
     (tab-bar-rename-tab "Default")
+    :custom
+    (tabspaces-use-filtered-buffers-as-default t)
+    (tabspaces-default-tab "Default")
+    (tabspaces-remove-to-default t)
+    (tabspaces-include-buffers nil)
+    (tabspaces-session nil)
+    (tabspaces-session-auto-restore nil)
+    :config
     (map! :leader
-          :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
-          :desc "tab-bar clost tab" [backtab] #'tab-bar-close-tab-by-name))
+          :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
+          :desc "tab-bar clost tab" [backtab] #'tabspaces-remove-selected-buffer))
 #+end_src
 
 ** tab-bookmark
@@ -845,6 +851,7 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
     :commands (texfrag-mode)
     :init
     (setq texfrag-markdown-preview-image-links nil
+          texfrag-scale 0.25
           texfrag-subdir ".texfrag"))
 
   (defun my-toggle-texfrag-preview-document()

@@ -66,9 +66,6 @@
 
 (setq evil-move-beyond-eol t)
 (pixel-scroll-precision-mode t)
-(setq pixel-scroll-precision-use-momentum t
-      pixel-scroll-precision-momentum-seconds 0.6
-      pixel-scroll-precision-momentum-min-velocity 4)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -86,7 +83,7 @@
       :n  "] e"   #'flymake-goto-next-error
       :n  "[ e"   #'flymake-goto-prev-error
       :leader
-      :desc "consult-buffer other window" "<" #'consult-buffer-other-window
+      :desc "consult-buffer other window" "<" #'consult-buffer
       :desc "find-file other window" ">" #'find-file-other-window
       :desc "format buffer" "b f" #'+format/buffer
       :desc "toggle format-all" "t f" #'format-all-mode
@@ -527,14 +524,24 @@
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
-(use-package! tab-bar
+(use-package! tabspaces
+  :hook (doom-init-ui . tabspaces-mode)
+  :commands (tabspaces-switch-or-create-workspace
+             tabspaces-remove-selected-buffer)
   :init
   (setq tab-bar-show nil)
-  :config
   (tab-bar-rename-tab "Default")
+  :custom
+  (tabspaces-use-filtered-buffers-as-default t)
+  (tabspaces-default-tab "Default")
+  (tabspaces-remove-to-default t)
+  (tabspaces-include-buffers nil)
+  (tabspaces-session nil)
+  (tabspaces-session-auto-restore nil)
+  :config
   (map! :leader
-        :desc "tab-bar switch tab" "TAB" #'tab-bar-switch-to-tab
-        :desc "tab-bar clost tab" [backtab] #'tab-bar-close-tab-by-name))
+        :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
+        :desc "tab-bar clost tab" [backtab] #'tabspaces-remove-selected-buffer))
 
 (use-package! tab-bookmark
   :commands (tab-bookmark
@@ -578,6 +585,7 @@
   :commands (texfrag-mode)
   :init
   (setq texfrag-markdown-preview-image-links nil
+        texfrag-scale 0.25
         texfrag-subdir ".texfrag"))
 
 (defun my-toggle-texfrag-preview-document()
