@@ -105,12 +105,7 @@ Note that changes are applied only after a cache reset, via
              cape-symbol
              cape-line)
   :init
-  (add-to-list 'completion-at-point-functions #'cape-file)
-  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  (add-to-list 'completion-at-point-functions #'cape-keyword)
-  :config
-  ;; Enhances speed on large projects, for which many buffers may be open.
-  (setq cape-dabbrev-check-other-buffers nil))
+  (add-to-list 'completion-at-point-functions #'cape-file))
 
 (use-package! kind-icon
   :when (modulep! +icons)

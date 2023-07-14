@@ -162,6 +162,7 @@ emacs29新加入的像素滚动模式。
         :n  "[ e"   #'flymake-goto-prev-error
         :leader
         :desc "consult-buffer other window" "<" #'consult-buffer
+        :desc "consult-buffer other window" "B" #'consult-buffer
         :desc "find-file other window" ">" #'find-file-other-window
         :desc "format buffer" "b f" #'+format/buffer
         :desc "toggle format-all" "t f" #'format-all-mode
@@ -193,6 +194,7 @@ emacs29新加入的像素滚动模式。
 并且取消doom设置的一些我用不到的键位
 #+begin_src emacs-lisp
   (map! :leader
+        "x" nil
         "i e" nil
         "f c" nil
         "n d" nil
@@ -224,6 +226,17 @@ emacs29新加入的像素滚动模式。
   (setq evil-undo-system 'undo-redo
         evil-undo-function 'undo-only
         evil-redo-function 'undo-redo)
+
+  (setq undo-limit 400000           ; 400kb (default is 160kb)
+        undo-strong-limit 3000000   ; 3mb   (default is 240kb)
+        undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
+#+end_src
+
+启动undo-fu-session
+doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu。
+添加一个hook直接启动。
+#+begin_src emacs-lisp
+  (add-hook! 'doom-first-buffer-hook #'global-undo-fu-session-mode)
 #+end_src
 
 ** projectile
@@ -776,7 +789,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (use-package! tabspaces
     :hook (doom-init-ui . tabspaces-mode)
     :commands (tabspaces-switch-or-create-workspace
-               tabspaces-remove-selected-buffer)
+               tabspaces-close-workspace)
     :init
     (setq tab-bar-show nil)
     (tab-bar-rename-tab "Default")
@@ -784,13 +797,13 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (tabspaces-use-filtered-buffers-as-default t)
     (tabspaces-default-tab "Default")
     (tabspaces-remove-to-default t)
-    (tabspaces-include-buffers nil)
+    (tabspaces-include-buffers '("*scratch*"))
     (tabspaces-session nil)
     (tabspaces-session-auto-restore nil)
     :config
     (map! :leader
           :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
-          :desc "tab-bar clost tab" [backtab] #'tabspaces-remove-selected-buffer))
+          :desc "close current tab" [backtab] #'tabspaces-close-workspace))
 #+end_src
 
 ** tab-bookmark

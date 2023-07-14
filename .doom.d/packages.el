@@ -80,6 +80,7 @@
 (package! tabspaces)
 
 ;; 不需要这些功能，取消使用
+(package! undo-fu :disable t)
 (package! evil-escape :disable t)
 (package! tide :disable t)
 (package! pipenv :disable t)

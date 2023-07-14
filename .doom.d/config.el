@@ -84,6 +84,7 @@
       :n  "[ e"   #'flymake-goto-prev-error
       :leader
       :desc "consult-buffer other window" "<" #'consult-buffer
+      :desc "consult-buffer other window" "B" #'consult-buffer
       :desc "find-file other window" ">" #'find-file-other-window
       :desc "format buffer" "b f" #'+format/buffer
       :desc "toggle format-all" "t f" #'format-all-mode
@@ -109,6 +110,7 @@
        :desc "VC Refresh state" "r" #'vc-refresh-state))
 
 (map! :leader
+      "x" nil
       "i e" nil
       "f c" nil
       "n d" nil
@@ -129,6 +131,12 @@
 (setq evil-undo-system 'undo-redo
       evil-undo-function 'undo-only
       evil-redo-function 'undo-redo)
+
+(setq undo-limit 400000           ; 400kb (default is 160kb)
+      undo-strong-limit 3000000   ; 3mb   (default is 240kb)
+      undo-outer-limit 48000000)  ; 48mb  (default is 24mb)
+
+(add-hook! 'doom-first-buffer-hook #'global-undo-fu-session-mode)
 
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
@@ -527,7 +535,7 @@
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)
   :commands (tabspaces-switch-or-create-workspace
-             tabspaces-remove-selected-buffer)
+             tabspaces-close-workspace)
   :init
   (setq tab-bar-show nil)
   (tab-bar-rename-tab "Default")
@@ -535,13 +543,13 @@
   (tabspaces-use-filtered-buffers-as-default t)
   (tabspaces-default-tab "Default")
   (tabspaces-remove-to-default t)
-  (tabspaces-include-buffers nil)
+  (tabspaces-include-buffers '("*scratch*"))
   (tabspaces-session nil)
   (tabspaces-session-auto-restore nil)
   :config
   (map! :leader
         :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
-        :desc "tab-bar clost tab" [backtab] #'tabspaces-remove-selected-buffer))
+        :desc "close current tab" [backtab] #'tabspaces-close-workspace))
 
 (use-package! tab-bookmark
   :commands (tab-bookmark
