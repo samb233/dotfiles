@@ -88,8 +88,8 @@
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
   (custom-set-faces
-   '(line-number ((t (:weight medium))))
-   '(line-number-current-line ((t (:weight medium)))))
+   '(line-number ((t (:weight medium :slant unspecified))))
+   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 #+end_src
 
 ** icon
@@ -187,6 +187,7 @@ emacs29新加入的像素滚动模式。
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
          :desc "List processes" "l" #'list-processes
+         :desc "toggle eldoc buffer" "h" #'eldoc
          :desc "VC Refresh state" "r" #'vc-refresh-state))
 #+end_src
 
@@ -361,8 +362,9 @@ flymake和eglot一起用时就不用设置什么了
 也可以配置flymake约eldoc同时显示，见[[https://github.com/joaotavora/eglot/issues/1171][issue]]， 但我不喜欢这种形式
 #+begin_src emacs-lisp
   (after! eldoc
-    (setq eldoc-echo-area-display-truncation-message nil)
-    (setq eldoc-echo-area-use-multiline-p nil)
+    (setq eldoc-echo-area-display-truncation-message nil
+          eldoc-echo-area-use-multiline-p nil
+          eldoc-echo-area-prefer-doc-buffer t)
     (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
   #+end_src
 

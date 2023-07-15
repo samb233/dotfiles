@@ -36,8 +36,8 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (custom-set-faces
- '(line-number ((t (:weight medium))))
- '(line-number-current-line ((t (:weight medium)))))
+ '(line-number ((t (:weight medium :slant unspecified))))
+ '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
 (setq all-the-icons-scale-factor 1.2)
 
@@ -106,6 +106,7 @@
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
        :desc "List processes" "l" #'list-processes
+       :desc "toggle eldoc buffer" "h" #'eldoc
        :desc "VC Refresh state" "r" #'vc-refresh-state))
 
 (map! :leader
@@ -219,8 +220,9 @@
         flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
 
 (after! eldoc
-  (setq eldoc-echo-area-display-truncation-message nil)
-  (setq eldoc-echo-area-use-multiline-p nil)
+  (setq eldoc-echo-area-display-truncation-message nil
+        eldoc-echo-area-use-multiline-p nil
+        eldoc-echo-area-prefer-doc-buffer t)
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
 (defun my-corfu-frame-visible-h ()
