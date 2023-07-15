@@ -123,10 +123,6 @@ Note that changes are applied only after a cache reset, via
   :when (and (modulep! :os tty) (not (display-graphic-p)))
   :hook (corfu-mode . corfu-terminal-mode))
 
-(use-package! dabbrev
-  :config
-  (setq dabbrev-ignored-buffer-regexps '("\\.\\(?:pdf\\|jpe?g\\|png\\)\\'")))
-
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
 

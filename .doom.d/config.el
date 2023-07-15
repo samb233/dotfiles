@@ -64,8 +64,8 @@
         ((meta))
         ((control) . text-scale)))
 
-(setq evil-move-beyond-eol t)
-(pixel-scroll-precision-mode t)
+;; (setq evil-move-beyond-eol t)
+;; (pixel-scroll-precision-mode t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -83,17 +83,16 @@
       :n  "] e"   #'flymake-goto-next-error
       :n  "[ e"   #'flymake-goto-prev-error
       :leader
-      :desc "consult-buffer other window" "<" #'consult-buffer
-      :desc "consult-buffer other window" "B" #'consult-buffer
-      :desc "find-file other window" ">" #'find-file-other-window
+      :desc "consult buffer" "<" #'consult-buffer
+      :desc "consult buffer other window" "w ," #'consult-buffer-other-window
+      :desc "dired jump" ">" #'dired-jump
+      :desc "find-file other window" "w ." #'find-file-other-window
       :desc "format buffer" "b f" #'+format/buffer
       :desc "toggle format-all" "t f" #'format-all-mode
       :desc "bookmark list" "b w" #'list-bookmarks
       :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 
 (map! :leader
-      :desc "Open dired" "N" #'dired-jump
-      :desc "Open dirvish" "V" #'dirvish
       (:prefix ("v" . "my personal bindings")
        :desc "Open dirvish" "v" #'dirvish
        :desc "Open Normal Dired" "n" #'dired-jump
@@ -110,7 +109,6 @@
        :desc "VC Refresh state" "r" #'vc-refresh-state))
 
 (map! :leader
-      "x" nil
       "i e" nil
       "f c" nil
       "n d" nil
@@ -604,6 +602,19 @@
            (texfrag-document))))
 (map! :map markdown-mode-map :localleader
       :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
+
+(after! highlight-indent-guides
+  (setq highlight-indent-guides-method 'bitmap
+        highlight-indent-guides-responsive 'top)
+  (with-no-warnings
+    ;; Don't display first level of indentation
+    (defun my-indent-guides-for-all-but-first-column (level responsive display)
+      (unless (< level 1)
+        (highlight-indent-guides--highlighter-default level responsive display)))
+    (setq highlight-indent-guides-highlighter-function
+          #'my-indent-guides-for-all-but-first-column)))
+
+(add-hook! 'markdown-mode-hook (highlight-indent-guides-mode -1))
 
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
