@@ -530,6 +530,13 @@
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
+(use-package! evil-pinyin
+  :when (modulep! :editor evil +everywhere)
+  :after evil
+  :config
+  (setq-default evil-pinyin-with-search-rule 'always)
+  (global-evil-pinyin-mode 1))
+
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)
   :commands (tabspaces-switch-or-create-workspace
@@ -605,7 +612,8 @@
 
 (after! highlight-indent-guides
   (setq highlight-indent-guides-method 'bitmap
-        highlight-indent-guides-responsive 'top)
+        highlight-indent-guides-responsive 'top
+        highlight-indent-guides-suppress-auto-error t)
   (with-no-warnings
     ;; Don't display first level of indentation
     (defun my-indent-guides-for-all-but-first-column (level responsive display)

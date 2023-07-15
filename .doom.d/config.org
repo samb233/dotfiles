@@ -781,6 +781,17 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (sis-global-context-mode t))
 #+end_src
 
+** evil-pinyin
+用首字母搜索拼音
+#+begin_src emacs-lisp
+  (use-package! evil-pinyin
+    :when (modulep! :editor evil +everywhere)
+    :after evil
+    :config
+    (setq-default evil-pinyin-with-search-rule 'always)
+    (global-evil-pinyin-mode 1))
+#+end_src
+
 ** tabspaces
 加强tabbar，管理工作区内buffer
 #+begin_src emacs-lisp
@@ -877,10 +888,12 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
 
 ** indent-guide
 小优化，不显示第一级的indent
+来源：https://github.com/seagle0128/.emacs.d/blob/85554195f81c5eb403b564d29e3fd3324bafecba/lisp/init-highlight.el#L135
 #+begin_src emacs-lisp
   (after! highlight-indent-guides
     (setq highlight-indent-guides-method 'bitmap
-          highlight-indent-guides-responsive 'top)
+          highlight-indent-guides-responsive 'top
+          highlight-indent-guides-suppress-auto-error t)
     (with-no-warnings
       ;; Don't display first level of indentation
       (defun my-indent-guides-for-all-but-first-column (level responsive display)
