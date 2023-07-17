@@ -53,11 +53,7 @@
 
 (setq word-wrap-by-category t)
 
-(setq scroll-step 1
-      scroll-margin 3
-      mouse-wheel-follow-mouse t
-      mouse-wheel-progressive-speed nil)
-
+(setq mouse-wheel-progressive-speed nil)
 (setq mouse-wheel-scroll-amount
       '(3
         ((shift) . hscroll)
@@ -613,24 +609,6 @@
 (map! :map markdown-mode-map :localleader
       :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
 
-(after! highlight-indent-guides
-  (setq highlight-indent-guides-method 'bitmap
-        highlight-indent-guides-responsive 'top
-        highlight-indent-guides-suppress-auto-error t)
-  (with-no-warnings
-    ;; Don't display first level of indentation
-    (defun my-indent-guides-for-all-but-first-column (level responsive display)
-      (unless (< level 1)
-        (highlight-indent-guides--highlighter-default level responsive display)))
-    (setq highlight-indent-guides-highlighter-function
-          #'my-indent-guides-for-all-but-first-column)))
-
-(add-hook! 'markdown-mode-hook (highlight-indent-guides-mode -1))
-
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
 (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
-
-(use-package! valign
-  :commands (valign-mode)
-  :hook ((org-mode markdown-mode) . valign-mode))
