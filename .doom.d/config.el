@@ -54,7 +54,7 @@
 (setq word-wrap-by-category t)
 
 (setq scroll-step 1
-      scroll-margin 1
+      scroll-margin 3
       mouse-wheel-follow-mouse t
       mouse-wheel-progressive-speed nil)
 
@@ -205,7 +205,7 @@
 
 (use-package! flymake
   :commands (flymake-mode)
-  :hook ((prog-mode text-mode) . flymake-mode)
+  :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
   (setq flymake-no-changes-timeout 1.0)
@@ -285,7 +285,7 @@
   (setq dirvish-async-listing-threshold 10000)
   (setq dirvish-redisplay-debounce 0.01)
   (setq dirvish-use-mode-line nil)
-  ;; (setq dirvish-default-layout '(0 0.5 0.5))
+  (setq dirvish-default-layout '(0 0.5 0.5))
   ;; (setq dirvish-mode-line-format
   ;;       '(:left (sort symlink) :right (omit yank index)))
   (setq dirvish-header-line-height '41)
@@ -402,7 +402,8 @@
 (use-package! org-modern
   :commands (org-modern-mode)
   :config
-  (setq org-modern-block-name nil)
+  (setq org-modern-block-name nil
+        org-modern-table nil)
   (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
   (set-face-attribute 'org-modern-label nil :height 1.0))
 
@@ -629,3 +630,7 @@
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
 (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
+
+(use-package! valign
+  :commands (valign-mode)
+  :hook ((org-mode markdown-mode) . valign-mode))

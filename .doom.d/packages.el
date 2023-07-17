@@ -73,6 +73,7 @@
 (package! fanyi)
 (package! texfrag)
 (package! evil-pinyin :recipe (:build (:not autoloads)))
+(package! valign)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)
