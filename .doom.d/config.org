@@ -268,10 +268,16 @@ doom默认的200个也太少了，至少1000吧
   (setq magit-clone-default-directory "~/Codes/Lab/")
 #+end_src
 
-** better-jump
-设置跳转后居中
+** recenter
+设置各种跳转后居中
 #+begin_src emacs-lisp
   (add-hook! 'better-jumper-post-jump-hook #'recenter)
+
+  (defun recenter-advice (&rest args)
+    (recenter))
+
+  (advice-add #'find-file :after #'recenter-advice)
+  (advice-add #'evil-goto-line :after #'recenter-advice)
 #+end_src
 
 ** evil-mc

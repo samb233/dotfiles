@@ -155,6 +155,12 @@
 
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
+(defun recenter-advice (&rest args)
+  (recenter))
+
+(advice-add #'find-file :after #'recenter-advice)
+(advice-add #'evil-goto-line :after #'recenter-advice)
+
 (evil-define-key 'visual 'global
   "A" #'evil-mc-make-cursor-in-visual-selection-end
   "I" #'evil-mc-make-cursor-in-visual-selection-beg
