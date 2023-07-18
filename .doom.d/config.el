@@ -160,6 +160,7 @@
 
 (advice-add #'find-file :after #'recenter-advice)
 (advice-add #'evil-goto-line :after #'recenter-advice)
+(advice-add #'org-roam-node-find :after #'recenter-advice)
 
 (evil-define-key 'visual 'global
   "A" #'evil-mc-make-cursor-in-visual-selection-end
@@ -483,6 +484,7 @@
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-max-image-size '(700 . 400))
+  (map! :map markdown-mode-map :n "z i" #'markdown-toggle-inline-images)
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
 (defun my-eglot-organize-imports ()
@@ -560,6 +562,11 @@
   (map! :leader
         :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
         :desc "close current tab" [backtab] #'tabspaces-close-workspace))
+
+(defun tabspaces-reset-advice()
+  (switch-to-buffer "*scratch*"))
+
+(advice-add #'tabspaces-reset-buffer-list :before #'tabspaces-reset-advice)
 
 (use-package! tab-bookmark
   :commands (tab-bookmark

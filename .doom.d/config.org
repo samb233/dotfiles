@@ -278,6 +278,7 @@ doom默认的200个也太少了，至少1000吧
 
   (advice-add #'find-file :after #'recenter-advice)
   (advice-add #'evil-goto-line :after #'recenter-advice)
+  (advice-add #'org-roam-node-find :after #'recenter-advice)
 #+end_src
 
 ** evil-mc
@@ -697,6 +698,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (setq markdown-fontify-whole-heading-line nil)
     (setq markdown-fontify-code-blocks-natively t)
     (setq markdown-max-image-size '(700 . 400))
+    (map! :map markdown-mode-map :n "z i" #'markdown-toggle-inline-images)
     (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 #+end_src
 
@@ -818,6 +820,14 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (map! :leader
           :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
           :desc "close current tab" [backtab] #'tabspaces-close-workspace))
+#+end_src
+
+设置addvice，让新建tab时只剩一个scratch buffer
+#+begin_src emacs-lisp
+  (defun tabspaces-reset-advice()
+    (switch-to-buffer "*scratch*"))
+
+  (advice-add #'tabspaces-reset-buffer-list :before #'tabspaces-reset-advice)
 #+end_src
 
 ** tab-bookmark
