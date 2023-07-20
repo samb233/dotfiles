@@ -88,6 +88,12 @@
       :desc "bookmark list" "b w" #'list-bookmarks
       :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 
+(map! :map evil-ex-search-keymap
+      "C-v" #'yank
+      "C-q" #'quoted-insert)
+
+(map! :map vertico-map :g "C-<return>" #'exit-minibuffer)
+
 (map! :leader
       (:prefix ("v" . "my personal bindings")
        :desc "Open dirvish" "v" #'dirvish
