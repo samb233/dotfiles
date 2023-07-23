@@ -58,6 +58,10 @@
 (package! project :built-in 'prefer)
 (package! use-package :built-in 'prefer)
 (package! transient :built-in 'prefer)
+(package! vundo :built-in 'prefer)
+
+;; unpin
+(unpin! vundo undo-fu-session)
 
 ;; 输入法管理
 (package! sis)

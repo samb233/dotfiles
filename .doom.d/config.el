@@ -269,10 +269,9 @@
   (custom-set-faces '(dired-async-message ((t (:inherit success))))))
 
 (use-package! dirvish
-  :defer t
   :init (after! dired (dirvish-override-dired-mode))
   :custom
-  (dirvish-quick-access-entries ; It's a custom option, `setq' won't work
+  (dirvish-quick-access-entries
    '(("h" "~/"                          "Home")
      ("c" "~/Codes/"                    "Codes")
      ("D" "~/Documents/"                "Documents")
@@ -284,31 +283,26 @@
      ("m" "~/Media/"                    "Media")
      ("n" "~/Notes/"                    "Notes")
      ("b" "~/Books/"                    "Books")
-     ("M" "/mnt/"                       "Drives")
-     ))
+     ("M" "/mnt/"                       "Drives")))
   :config
-  ;; (dirvish-peek-mode) ; Preview files in minibuffer
-  (dirvish-side-follow-mode) ; similar to `treemacs-follow-mode'
-  ;; (setq dirvish-reuse-session nil) ; disable session reuse
-  ;; (setq dirvish--debouncing-delay 2)
-  (setq dirvish-async-listing-threshold 10000)
-  (setq dirvish-redisplay-debounce 0.01)
-  (setq dirvish-use-mode-line nil)
-  (setq dirvish-default-layout '(0 0.5 0.5))
-  ;; (setq dirvish-mode-line-format
-  ;;       '(:left (sort symlink) :right (omit yank index)))
-  (setq dirvish-header-line-height '41)
-  ;; (setq dirvish-mode-line-height '46)
-  (setq dirvish-attributes
-        '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg))
-  (setq delete-by-moving-to-trash t)
-  (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso")
-  (setq dirvish-fd-default-dir "/home/jiesamb/")
+  (dirvish-side-follow-mode 1)
   (add-to-list 'dirvish-video-exts "m2ts")
-  (setq dirvish-open-with-programs
-        `(
-          (,dirvish-audio-exts . ("mpv" "%f"))
+  (setq dirvish-side-width 40
+        dirvish-side-auto-close t
+        dirvish-side-display-alist `((side . right) (slot . -1)))
+  (setq dirvish-default-layout '(0 0 0.5)
+        dirvish-use-mode-line nil
+        dirvish-header-line-height '41
+        dirvish-path-separators (list "  ~" "   " "/")
+        dirvish-subtree-file-viewer #'dired-find-file
+        dirvish-header-line-format
+          '(:left (path) :right (yank sort index " "))
+        dirvish-attributes
+          '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg)
+        dired-listing-switches
+          "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
+        dirvish-open-with-programs
+        `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
           (,dirvish-image-exts . ("eog" "%f"))
           (("doc" "docx") . ("wps" "%f"))
@@ -316,21 +310,7 @@
           (("xls" "xlsx") . ("et" "%f"))
           (("pdf") . ("evince" "%f"))
           (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
-          (("epub") . ("koodo-reader" "%f"))
-          ))
-  (setq dirvish-emerge-groups
-  '(("24h" (predicate . recent-files-today))
-     ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
-     ("视频" (extensions "mp4" "mkv" "webm"))
-     ("图片" (extensions "jpg" "png" "svg" "gif"))
-     ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
-     ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-  (setq dirvish-header-line-format '(:left (path) :right (yank sort index " ")))
-  (setq dirvish-path-separators (list "  ~" "  " "/"))
-  (setq dirvish-side-display-alist `((side . right) (slot . -1)))
-  (setq dirvish-side-width 40)
-  (setq dirvish-subtree-file-viewer 'dired-find-file)
-  (setq dirvish-side-auto-close t)
+          (("epub") . ("koodo-reader" "%f"))))
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
         :n "l" #'dired-find-file
@@ -356,7 +336,7 @@
         :n "<double-mouse-3>" #'dired-up-directory
         "M-t" #'dirvish-layout-toggle
         "M-j" #'dirvish-fd-jump
-        "M-m" #'dirvish-mark-menu ))
+        "M-m" #'dirvish-mark-menu))
 
 (setq vterm-always-compile-module t)
 (after! vterm
@@ -556,7 +536,7 @@
              tabspaces-close-workspace)
   :init
   (setq tab-bar-show nil)
-  (tab-bar-rename-tab "Default")
+  (tab-rename "Default")
   :custom
   (tabspaces-use-filtered-buffers-as-default t)
   (tabspaces-default-tab "Default")
