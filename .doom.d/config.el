@@ -53,7 +53,8 @@
 
 (setq word-wrap-by-category t)
 
-(setq mouse-wheel-progressive-speed nil)
+(setq mouse-wheel-progressive-speed nil
+      scroll-preserve-screen-position nil)
 (setq mouse-wheel-scroll-amount
       '(3
         ((shift) . hscroll)
@@ -290,17 +291,24 @@
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
+  (setq dirvish-emerge-groups
+        '(("24h" (predicate . recent-files-today))
+          ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
+          ("视频" (extensions "mp4" "mkv" "webm"))
+          ("图片" (extensions "jpg" "png" "svg" "gif"))
+          ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
+          ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
   (setq dirvish-default-layout '(0 0 0.5)
         dirvish-use-mode-line nil
         dirvish-header-line-height '41
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-subtree-file-viewer #'dired-find-file
         dirvish-header-line-format
-          '(:left (path) :right (yank sort index " "))
+        '(:left (path) :right (yank sort index " "))
         dirvish-attributes
-          '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg)
+        '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg)
         dired-listing-switches
-          "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
+        "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
         dirvish-open-with-programs
         `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
@@ -421,7 +429,6 @@
                             "#+title: %<%Y-%m-%d %A>\n"))))
 (map! :leader
       :desc "my Journal today" "J" #'org-roam-dailies-goto-today
-      :desc "org-roam capture" "X" #'org-roam-capture
       :desc "org-roam find node" "Z" #'org-roam-node-find)
 
 (setq org-roam-capture-templates '(
