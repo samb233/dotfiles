@@ -316,6 +316,7 @@ doom默认的200个也太少了，至少1000吧
 
   (after! eglot
     (setq eglot-events-buffer-size 0)
+    (setq eglot-send-changes-idle-time 0.2)
     (setq eglot-stay-out-of nil)
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
     (map! :leader
@@ -336,13 +337,14 @@ doom默认的200个也太少了，至少1000吧
     (setq corfu-preview-current nil
           corfu-on-exact-match nil
           corfu-auto-prefix 2
-          corfu-auto-delay 0.1
+          corfu-auto-delay 0.02
           corfu-popupinfo-max-height 20
           corfu-count 10)
     (map! :map corfu-map
           :i "C-j" #'corfu-next
           :i "C-k" #'corfu-previous
           :i "C-i" #'corfu-insert-separator
+          :i "C-s" #'corfu-insert-separator
           :i "C-h" #'corfu-info-documentation
           :i "C-g" #'corfu-quit)
     (map! :i "C-S-p" #'cape-file)
@@ -360,7 +362,7 @@ flymake和eglot一起用时就不用设置什么了
     :hook ((prog-mode text-mode conf-mode) . flymake-mode)
     :config
     (setq flymake-fringe-indicator-position 'right-fringe)
-    (setq flymake-no-changes-timeout 1.0)
+    (setq flymake-no-changes-timeout 0.2)
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 #+end_src
@@ -710,7 +712,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (defun my-eglot-organize-imports ()
     (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
   (defun my-go-mode-init ()
-    (setq-local corfu-sort-function nil)
     (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
     (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
   (add-hook 'go-mode-hook #'my-go-mode-init)
