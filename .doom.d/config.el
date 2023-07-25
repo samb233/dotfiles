@@ -25,6 +25,8 @@
 
 (setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
+;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
+(setq doom-variable-pitch-font (font-spec :family "Bookerly"))
 
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
@@ -353,7 +355,7 @@
 (setq vterm-always-compile-module t)
 (after! vterm
   (setq vterm-timer-delay    0.02
-        vterm-max-scrollback 30000)
+        vterm-max-scrollback 20000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 
@@ -444,25 +446,13 @@
           :target (file+head "Learning/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :learning: \n\n")
           :unarrowed t)
-          ("r" "Reading" plain "%?"
-          :target (file+head "Reading/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :reading: \n\n")
-          :unnarrowed t)
           ("t" "Thinking" plain "%?"
           :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :thinking: \n\n")
           :unnarrowed t)
-          ("w" "Working" plain "%?"
-          :target (file+head "Working/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :working: \n\n")
-          :unnarrowed t)
-          ("p" "Project" plain "%?"
-          :target (file+head "Project/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :project: \n\n")
-          :unnarrowed t)
-          ("c" "Coding" plain "%?"
-          :target (file+head "Coding/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :coding: \n\n")
+          ("w" "Crafting" plain "%?"
+          :target (file+head "Crafting/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :crafting: \n\n")
           :unnarrowed t)))
 
 (custom-set-faces
@@ -627,6 +617,9 @@
            (texfrag-document))))
 (map! :map markdown-mode-map :localleader
       :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
+
+(add-hook 'writeroom-mode-on-hook #'doom-disable-line-numbers-h)
+(add-hook 'writeroom-mode-off-hook #'doom-enable-line-numbers-h)
 
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
