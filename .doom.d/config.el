@@ -53,6 +53,8 @@
 
 (setq word-wrap-by-category t)
 
+;; (setq evil-move-beyond-eol t
+;;       evil-move-cursor-back nil)
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
 (setq mouse-wheel-scroll-amount
@@ -61,7 +63,6 @@
         ((meta))
         ((control) . text-scale)))
 
-;; (setq evil-move-beyond-eol t)
 ;; (pixel-scroll-precision-mode t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
@@ -74,6 +75,7 @@
       :ni "C-s"   #'consult-line
       :ni "C-z"   #'undo-only
       :ni "C-S-z" #'undo-redo
+      :n  "q"     #'doom/escape
       :n  "U"     #'evil-redo
       :n  "g D"   #'xref-find-definitions-other-window
       :n  "g a"   #'avy-goto-char-2
@@ -348,8 +350,8 @@
 
 (setq vterm-always-compile-module t)
 (after! vterm
-  (setq vterm-timer-delay    0.01
-        vterm-max-scrollback 10000)
+  (setq vterm-timer-delay    0.02
+        vterm-max-scrollback 30000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 
@@ -383,7 +385,7 @@
 
 (after! org
   (setq org-src-preserve-indentation nil
-        org-image-actual-width 700
+        org-image-actual-width 640
         org-hide-emphasis-markers t
         org-support-shift-select t)
   (map! :map org-mode-map
@@ -476,7 +478,7 @@
 (after! markdown-mode
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
-  (setq markdown-max-image-size '(700 . 400))
+  (setq markdown-max-image-size '(640 . 480))
   (map! :map markdown-mode-map :n "z i" #'markdown-toggle-inline-images)
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
@@ -523,6 +525,16 @@
 
 (after! lua-mode
   (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
+
+(defun my-open-current-file-with-app()
+  (interactive)
+  (progn
+    (dirvish-find-entry-a buffer-file-name)
+    (quit-window)))
+
+(map! :map image-mode-map
+      :ng "W" #'my-open-current-file-with-app
+      "<double-mouse-1>" #'my-open-current-file-with-app)
 
 (use-package! sis
   :config

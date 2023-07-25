@@ -121,6 +121,8 @@
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
+  ;; (setq evil-move-beyond-eol t
+  ;;       evil-move-cursor-back nil)
   (setq mouse-wheel-progressive-speed nil
         scroll-preserve-screen-position nil)
   (setq mouse-wheel-scroll-amount
@@ -133,7 +135,6 @@
 emacs29新加入的像素滚动模式。
 并且设置evil-move-beyond-eol，来让光标不乱跳，并解决图片偶尔卡住的bug
 #+begin_src emacs-lisp
-  ;; (setq evil-move-beyond-eol t)
   ;; (pixel-scroll-precision-mode t)
 #+end_src
 
@@ -152,6 +153,7 @@ emacs29新加入的像素滚动模式。
         :ni "C-s"   #'consult-line
         :ni "C-z"   #'undo-only
         :ni "C-S-z" #'undo-redo
+        :n  "q"     #'doom/escape
         :n  "U"     #'evil-redo
         :n  "g D"   #'xref-find-definitions-other-window
         :n  "g a"   #'avy-goto-char-2
@@ -167,7 +169,6 @@ emacs29新加入的像素滚动模式。
         :desc "bookmark list" "b w" #'list-bookmarks
         :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
 #+end_src
-
 
 设置evil搜索时粘贴的快捷键
 #+begin_src emacs-lisp
@@ -519,8 +520,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+begin_src emacs-lisp
   (setq vterm-always-compile-module t)
   (after! vterm
-    (setq vterm-timer-delay    0.01
-          vterm-max-scrollback 10000)
+    (setq vterm-timer-delay    0.02
+          vterm-max-scrollback 30000)
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
     (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
 #+end_src
@@ -570,7 +571,7 @@ vterm与doom的适配
 
   (after! org
     (setq org-src-preserve-indentation nil
-          org-image-actual-width 700
+          org-image-actual-width 640
           org-hide-emphasis-markers t
           org-support-shift-select t)
     (map! :map org-mode-map
@@ -697,7 +698,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (after! markdown-mode
     (setq markdown-fontify-whole-heading-line nil)
     (setq markdown-fontify-code-blocks-natively t)
-    (setq markdown-max-image-size '(700 . 400))
+    (setq markdown-max-image-size '(640 . 480))
     (map! :map markdown-mode-map :n "z i" #'markdown-toggle-inline-images)
     (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 #+end_src
@@ -775,6 +776,20 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+begin_src emacs-lisp
   (after! lua-mode
     (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
+#+end_src
+
+** image
+使用快捷键打开系统图片浏览器。依赖dirvish。
+#+begin_src emacs-lisp
+  (defun my-open-current-file-with-app()
+    (interactive)
+    (progn
+      (dirvish-find-entry-a buffer-file-name)
+      (quit-window)))
+
+  (map! :map image-mode-map
+        :ng "W" #'my-open-current-file-with-app
+        "<double-mouse-1>" #'my-open-current-file-with-app)
 #+end_src
 
 * 工具包
@@ -908,4 +923,3 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
   (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
   (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
 #+end_src
-
