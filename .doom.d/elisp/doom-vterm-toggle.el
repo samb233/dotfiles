@@ -77,5 +77,4 @@ Returns the vterm buffer."
     (funcall display-fn)))
 
 (provide 'doom-vterm-toggle)
-
 ;;; doom-vterm-toggle.el ends here

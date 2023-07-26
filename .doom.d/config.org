@@ -155,13 +155,14 @@ emacs29新加入的像素滚动模式。
         :ni "C-s"   #'consult-line
         :ni "C-z"   #'undo-only
         :ni "C-S-z" #'undo-redo
+        :nv "g r"   #'+lookup/references
         :n  "q"     #'doom/escape
         :n  "U"     #'evil-redo
-        :nv "g D"   #'xref-find-definitions-other-window
         :n  "g a"   #'avy-goto-char-2
         :n  "] e"   #'flymake-goto-next-error
         :n  "[ e"   #'flymake-goto-prev-error
         :leader
+        :desc "jump to references" "c r" #'+lookup/references
         :desc "consult buffer" "<" #'consult-buffer
         :desc "consult buffer other window" "w ," #'consult-buffer-other-window
         :desc "dired jump" ">" #'dired-jump
@@ -310,6 +311,18 @@ doom默认的200个也太少了，至少1000吧
     "Q" #'evil-mc-undo-all-cursors)
 #+end_src
 
+** lookup
+与在新窗口查看定义和引用
+#+begin_src emacs-lisp
+  (use-package! doom-lookup-other-window
+    :config
+    (map! :nv "g D" #'+lookup/definition-other-window
+          :nv "g R" #'+lookup/references-other-window
+          :leader
+          :desc "jump to reference other window" "c R" #'+lookup/references-other-window
+          :desc "jump to definition other window" "c D" #'+lookup/definition-other-window))
+#+end_src
+
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 ** eglot
@@ -321,17 +334,12 @@ doom默认的200个也太少了，至少1000吧
     (setq eglot-send-changes-idle-time 0.2)
     (setq eglot-stay-out-of nil)
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
-    (map! :leader
-          :desc "LSP start/restart" "c S" #'eglot
-          :desc "LSP reconnect" "c R" #'eglot-reconnect
-          :desc "LSP rename" "c n" #'eglot-rename
-          :desc "Jump to references" "c r" #'+lookup/references)
-    (map! :map eglot-mode-map
-        :nv "g D" #'xref-find-definitions-other-window)
+    (map! :map eglot-mode-map :leader
+          :desc "LSP start/restart" "c l" #'eglot
+          :desc "LSP reconnect" "c L" #'eglot-reconnect
+          :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
-
-
 #+end_src
 
 ** corfu

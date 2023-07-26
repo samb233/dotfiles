@@ -77,13 +77,14 @@
       :ni "C-s"   #'consult-line
       :ni "C-z"   #'undo-only
       :ni "C-S-z" #'undo-redo
+      :nv "g r"   #'+lookup/references
       :n  "q"     #'doom/escape
       :n  "U"     #'evil-redo
-      :nv "g D"   #'xref-find-definitions-other-window
       :n  "g a"   #'avy-goto-char-2
       :n  "] e"   #'flymake-goto-next-error
       :n  "[ e"   #'flymake-goto-prev-error
       :leader
+      :desc "jump to references" "c r" #'+lookup/references
       :desc "consult buffer" "<" #'consult-buffer
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
       :desc "dired jump" ">" #'dired-jump
@@ -181,6 +182,14 @@
 (evil-define-key 'normal 'evil-mc-key-map
   "Q" #'evil-mc-undo-all-cursors)
 
+(use-package! doom-lookup-other-window
+  :config
+  (map! :nv "g D" #'+lookup/definition-other-window
+        :nv "g R" #'+lookup/references-other-window
+        :leader
+        :desc "jump to reference other window" "c R" #'+lookup/references-other-window
+        :desc "jump to definition other window" "c D" #'+lookup/definition-other-window))
+
 (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
 
 (after! eglot
@@ -188,13 +197,10 @@
   (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of nil)
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
-  (map! :leader
-        :desc "LSP start/restart" "c S" #'eglot
-        :desc "LSP reconnect" "c R" #'eglot-reconnect
-        :desc "LSP rename" "c n" #'eglot-rename
-        :desc "Jump to references" "c r" #'+lookup/references)
-  (map! :map eglot-mode-map
-      :nv "g D" #'xref-find-definitions-other-window)
+  (map! :map eglot-mode-map :leader
+        :desc "LSP start/restart" "c l" #'eglot
+        :desc "LSP reconnect" "c L" #'eglot-reconnect
+        :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
