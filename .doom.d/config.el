@@ -197,7 +197,9 @@
   (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of nil)
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
-  (map! :map eglot-mode-map :leader
+  (map! :map eglot-mode-map
+        :nv "g D" nil
+        :leader
         :desc "LSP start/restart" "c l" #'eglot
         :desc "LSP reconnect" "c L" #'eglot-reconnect
         :desc "LSP rename" "c n" #'eglot-rename)
@@ -359,6 +361,13 @@
         "M-t" #'dirvish-layout-toggle
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu))
+
+(defun my-open-dir-with-nautilus()
+  (interactive)
+  (shell-command "nautilus ."))
+
+(map! :map dirvish-mode-map
+      [f9] #'my-open-dir-with-nautilus)
 
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
