@@ -362,12 +362,11 @@
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu))
 
-(defun my-open-dir-with-nautilus()
+(defun my-open-nautilus()
   (interactive)
-  (shell-command "nautilus ."))
+  (call-process-shell-command "nautilus ." nil 0))
 
-(map! :map dirvish-mode-map
-      [f9] #'my-open-dir-with-nautilus)
+(map! [f9] #'my-open-nautilus)
 
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")

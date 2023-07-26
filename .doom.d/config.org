@@ -535,12 +535,11 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 
 ** nautilus
 #+begin_src emacs-lisp
-  (defun my-open-dir-with-nautilus()
+  (defun my-open-nautilus()
     (interactive)
-    (shell-command "nautilus ."))
+    (call-process-shell-command "nautilus ." nil 0))
 
-  (map! :map dirvish-mode-map
-        [f9] #'my-open-dir-with-nautilus)
+  (map! [f9] #'my-open-nautilus)
 #+end_src
 
 * 终端
