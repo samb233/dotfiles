@@ -70,13 +70,13 @@
 #+begin_src emacs-lisp
   (setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
   (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
-  ;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
-  (setq doom-variable-pitch-font (font-spec :family "Bookerly"))
+  (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
   (defun my-cjk-font()
     (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
     (dolist (charset '(kana han cjk-misc symbol bopomofo))
-      (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
+      (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil)
+      (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'append)))
 
   (add-hook 'after-setting-font-hook #'my-cjk-font)
 #+end_src
@@ -123,8 +123,6 @@
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
-  ;; (setq evil-move-beyond-eol t
-  ;;       evil-move-cursor-back nil)
   (setq mouse-wheel-progressive-speed nil
         scroll-preserve-screen-position nil)
   (setq mouse-wheel-scroll-amount
@@ -331,7 +329,6 @@ doom默认的200个也太少了，至少1000吧
 
   (after! eglot
     (setq eglot-events-buffer-size 0)
-    (setq eglot-send-changes-idle-time 0.2)
     (setq eglot-stay-out-of nil)
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
     (map! :map eglot-mode-map
@@ -378,7 +375,6 @@ flymake和eglot一起用时就不用设置什么了
     :hook ((prog-mode text-mode conf-mode) . flymake-mode)
     :config
     (setq flymake-fringe-indicator-position 'right-fringe)
-    (setq flymake-no-changes-timeout 0.2)
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 #+end_src
@@ -932,10 +928,29 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
 #+end_src
 
 ** writeroom
-关闭行号
+打开writeroom-mode时，做一系列操作，如打开pixel-scroll、关闭行号等
 #+begin_src emacs-lisp
-  (add-hook 'writeroom-mode-on-hook #'doom-disable-line-numbers-h)
-  (add-hook 'writeroom-mode-off-hook #'doom-enable-line-numbers-h)
+  (defun my-writeroom-mode-on()
+    (use-package! pixel-scroll)
+    (if (equal major-mode 'org-mode)
+        (org-display-inline-images))
+    (if (member major-mode '(markdown-mode gfm-mode))
+        (markdown-display-inline-images))
+    (setq-local evil-move-beyond-eol t
+                pixel-scroll-precision-mode t)
+    (doom-disable-line-numbers-h))
+
+  (defun my-writeroom-mode-off()
+    (if (equal major-mode 'org-mode)
+        (org-remove-inline-images))
+    (if (member major-mode '(markdown-mode gfm-mode))
+        (markdown-remove-inline-images))
+    (setq-local evil-move-beyond-eol nil
+                pixel-scroll-precision-mode nil)
+    (doom-enable-line-numbers-h))
+
+  (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
+  (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 #+end_src
 
 ** org-tree-slide

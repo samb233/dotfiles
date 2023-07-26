@@ -25,13 +25,13 @@
 
 (setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
-;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
-(setq doom-variable-pitch-font (font-spec :family "Bookerly"))
+(setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
+    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil)
+    (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'append)))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -55,8 +55,6 @@
 
 (setq word-wrap-by-category t)
 
-;; (setq evil-move-beyond-eol t
-;;       evil-move-cursor-back nil)
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
 (setq mouse-wheel-scroll-amount
@@ -194,7 +192,6 @@
 
 (after! eglot
   (setq eglot-events-buffer-size 0)
-  (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of nil)
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (map! :map eglot-mode-map
@@ -234,7 +231,6 @@
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
-  (setq flymake-no-changes-timeout 0.2)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 
@@ -635,8 +631,27 @@
 (map! :map markdown-mode-map :localleader
       :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
 
-(add-hook 'writeroom-mode-on-hook #'doom-disable-line-numbers-h)
-(add-hook 'writeroom-mode-off-hook #'doom-enable-line-numbers-h)
+(defun my-writeroom-mode-on()
+  (use-package! pixel-scroll)
+  (if (equal major-mode 'org-mode)
+      (org-display-inline-images))
+  (if (member major-mode '(markdown-mode gfm-mode))
+      (markdown-display-inline-images))
+  (setq-local evil-move-beyond-eol t
+              pixel-scroll-precision-mode t)
+  (doom-disable-line-numbers-h))
+
+(defun my-writeroom-mode-off()
+  (if (equal major-mode 'org-mode)
+      (org-remove-inline-images))
+  (if (member major-mode '(markdown-mode gfm-mode))
+      (markdown-remove-inline-images))
+  (setq-local evil-move-beyond-eol nil
+              pixel-scroll-precision-mode nil)
+  (doom-enable-line-numbers-h))
+
+(add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
+(add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
