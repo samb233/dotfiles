@@ -28,9 +28,10 @@ Returns the vterm buffer."
                            (get-buffer-create buffer-name))))
            (pop-to-buffer buffer)
            (with-current-buffer buffer
-             (setq-local doom-vterm--id buffer-name)
              (unless (eq major-mode 'vterm-mode)
-               (vterm-mode)))))
+               (vterm-mode))
+             (setq-local doom-vterm--id buffer-name)
+             (setq-local vterm-buffer-name-string nil))))
        (get-buffer buffer-name)))))
 
 (defun doom-vterm-toggle-project ()
@@ -55,9 +56,10 @@ Returns the vterm buffer."
                            (get-buffer-create buffer-name))))
            (pop-to-buffer buffer)
            (with-current-buffer buffer
-             (setq-local doom-vterm--id buffer-name)
              (unless (eq major-mode 'vterm-mode)
-               (vterm-mode)))))
+               (vterm-mode))
+             (setq-local doom-vterm--id buffer-name)
+             (setq-local vterm-buffer-name-string nil))))
        (get-buffer buffer-name)))))
 
 (defun doom-vterm--configure-project-root-and-display (arg display-fn)

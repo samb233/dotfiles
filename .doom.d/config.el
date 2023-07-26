@@ -79,7 +79,7 @@
       :ni "C-S-z" #'undo-redo
       :n  "q"     #'doom/escape
       :n  "U"     #'evil-redo
-      :n  "g D"   #'xref-find-definitions-other-window
+      :nv "g D"   #'xref-find-definitions-other-window
       :n  "g a"   #'avy-goto-char-2
       :n  "] e"   #'flymake-goto-next-error
       :n  "[ e"   #'flymake-goto-prev-error
@@ -193,6 +193,8 @@
         :desc "LSP reconnect" "c R" #'eglot-reconnect
         :desc "LSP rename" "c n" #'eglot-rename
         :desc "Jump to references" "c r" #'+lookup/references)
+  (map! :map eglot-mode-map
+      :nv "g D" #'xref-find-definitions-other-window)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
@@ -353,6 +355,7 @@
         "M-m" #'dirvish-mark-menu))
 
 (setq vterm-always-compile-module t)
+(setq vterm-buffer-name-string "*vterm: %s*")
 (after! vterm
   (setq vterm-timer-delay    0.02
         vterm-max-scrollback 20000)
@@ -450,7 +453,7 @@
           :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :thinking: \n\n")
           :unnarrowed t)
-          ("w" "Crafting" plain "%?"
+          ("c" "Crafting" plain "%?"
           :target (file+head "Crafting/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :crafting: \n\n")
           :unnarrowed t)))
@@ -556,8 +559,8 @@
   (tabspaces-session-auto-restore nil)
   :config
   (map! :leader
-        :desc "switch or create tab" "TAB" #'tabspaces-switch-or-create-workspace
-        :desc "close current tab" [backtab] #'tabspaces-close-workspace))
+        :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
+        :desc "close current tab" [backtab] #'tab-bar-close-tab))
 
 (defun tabspaces-reset-advice()
   (switch-to-buffer "*scratch*"))
