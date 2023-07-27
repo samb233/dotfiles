@@ -124,7 +124,8 @@
       "f p" nil
       "f P" nil
       "s e" nil
-      "s t" nil)
+      "s t" nil
+      "h g" nil)
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
@@ -210,7 +211,7 @@
   (setq corfu-preview-current nil
         corfu-on-exact-match nil
         corfu-auto-prefix 2
-        corfu-auto-delay 0.02
+        corfu-auto-delay 0.03
         corfu-popupinfo-max-height 20
         corfu-count 10)
   (map! :map corfu-map
@@ -358,6 +359,9 @@
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu))
 
+(map! [f8]     #'dired-jump
+      [S-f8]   #'dirvish)
+
 (defun my-open-nautilus()
   (interactive)
   (call-process-shell-command "nautilus ." nil 0))
@@ -455,17 +459,17 @@
           :target (file+head "Default/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: \n\n")
           :unnarrowed t)
-          ("l" "Learning" plain "%?"
-          :target (file+head "Learning/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :learning: \n\n")
+          ("l" "Learn" plain "%?"
+          :target (file+head "Learn/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :learn: \n\n")
           :unarrowed t)
-          ("t" "Thinking" plain "%?"
-          :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :thinking: \n\n")
+          ("t" "Think" plain "%?"
+          :target (file+head "Think/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :think: \n\n")
           :unnarrowed t)
-          ("c" "Crafting" plain "%?"
-          :target (file+head "Crafting/%<%Y%m%d%H%M%S>-${slug}.org"
-                              "#+title: ${title}\n#+filetags: :crafting: \n\n")
+          ("c" "Create" plain "%?"
+          :target (file+head "Create/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: :create: \n\n")
           :unnarrowed t)))
 
 (custom-set-faces
@@ -632,7 +636,6 @@
       :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
 
 (defun my-writeroom-mode-on()
-  (use-package! pixel-scroll)
   (if (equal major-mode 'org-mode)
       (org-display-inline-images))
   (if (member major-mode '(markdown-mode gfm-mode))
@@ -650,6 +653,8 @@
               pixel-scroll-precision-mode nil)
   (doom-enable-line-numbers-h))
 
+(after! writeroom-mode
+  (use-package! pixel-scroll))
 (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
 (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 

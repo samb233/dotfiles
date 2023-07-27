@@ -214,7 +214,8 @@ emacs29新加入的像素滚动模式。
         "f p" nil
         "f P" nil
         "s e" nil
-        "s t" nil)
+        "s t" nil
+        "h g" nil)
 #+end_src
 
 ** evil-cmd
@@ -350,7 +351,7 @@ doom默认的200个也太少了，至少1000吧
     (setq corfu-preview-current nil
           corfu-on-exact-match nil
           corfu-auto-prefix 2
-          corfu-auto-delay 0.02
+          corfu-auto-delay 0.03
           corfu-popupinfo-max-height 20
           corfu-count 10)
     (map! :map corfu-map
@@ -529,6 +530,12 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           "M-m" #'dirvish-mark-menu))
 #+end_src
 
+设置方便的快捷键
+#+begin_src emacs-lisp
+  (map! [f8]     #'dired-jump
+        [S-f8]   #'dirvish)
+#+end_src
+
 ** nautilus
 #+begin_src emacs-lisp
   (defun my-open-nautilus()
@@ -676,17 +683,17 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             :target (file+head "Default/%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: \n\n")
             :unnarrowed t)
-            ("l" "Learning" plain "%?"
-            :target (file+head "Learning/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :learning: \n\n")
+            ("l" "Learn" plain "%?"
+            :target (file+head "Learn/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :learn: \n\n")
             :unarrowed t)
-            ("t" "Thinking" plain "%?"
-            :target (file+head "Thinking/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :thinking: \n\n")
+            ("t" "Think" plain "%?"
+            :target (file+head "Think/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :think: \n\n")
             :unnarrowed t)
-            ("c" "Crafting" plain "%?"
-            :target (file+head "Crafting/%<%Y%m%d%H%M%S>-${slug}.org"
-                                "#+title: ${title}\n#+filetags: :crafting: \n\n")
+            ("c" "Create" plain "%?"
+            :target (file+head "Create/%<%Y%m%d%H%M%S>-${slug}.org"
+                                "#+title: ${title}\n#+filetags: :create: \n\n")
             :unnarrowed t)))
 #+end_src
 
@@ -931,7 +938,6 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
 打开writeroom-mode时，做一系列操作，如打开pixel-scroll、关闭行号等
 #+begin_src emacs-lisp
   (defun my-writeroom-mode-on()
-    (use-package! pixel-scroll)
     (if (equal major-mode 'org-mode)
         (org-display-inline-images))
     (if (member major-mode '(markdown-mode gfm-mode))
@@ -949,6 +955,8 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
                 pixel-scroll-precision-mode nil)
     (doom-enable-line-numbers-h))
 
+  (after! writeroom-mode
+    (use-package! pixel-scroll))
   (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
   (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 #+end_src
