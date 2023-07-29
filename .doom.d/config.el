@@ -14,7 +14,8 @@
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (concat (format "emacs@%s: " (system-name))
-                           (abbreviate-file-name (buffer-file-name)))
+                           (abbreviate-file-name (buffer-file-name))
+                           (if (buffer-modified-p) "*"))
                  (format "emacs@%s" (system-name))))))
 
 (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
@@ -189,11 +190,16 @@
         :desc "jump to reference other window" "c R" #'+lookup/references-other-window
         :desc "jump to definition other window" "c D" #'+lookup/definition-other-window))
 
-(setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
+(defun disable-y-or-n-p (orig-fun &rest args)
+  (cl-letf (((symbol-function 'y-or-n-p) (lambda (prompt) t)))
+    (apply orig-fun args)))
+
+(advice-add 'ediff-quit :around #'disable-y-or-n-p)
+(add-hook! 'ediff-startup-hook #'ediff-next-difference)
 
 (after! eglot
   (setq eglot-events-buffer-size 0)
-  (setq eglot-stay-out-of nil)
+  (setq eglot-stay-out-of '(yasnippet))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (map! :map eglot-mode-map
         :nv "g D" nil
@@ -207,11 +213,10 @@
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay nil))
 
+(setq +corfu-auto-delay 0.02)
 (after! corfu
-  (setq corfu-preview-current nil
+  (setq corfu-preselect 'prompt
         corfu-on-exact-match nil
-        corfu-auto-prefix 2
-        corfu-auto-delay 0.03
         corfu-popupinfo-max-height 20
         corfu-count 10)
   (map! :map corfu-map

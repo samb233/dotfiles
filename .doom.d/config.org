@@ -40,7 +40,8 @@
   (setq frame-title-format
         '((:eval (if (buffer-file-name)
                      (concat (format "emacs@%s: " (system-name))
-                             (abbreviate-file-name (buffer-file-name)))
+                             (abbreviate-file-name (buffer-file-name))
+                             (if (buffer-modified-p) "*"))
                    (format "emacs@%s" (system-name))))))
 #+end_src
 
@@ -322,15 +323,24 @@ doom默认的200个也太少了，至少1000吧
           :desc "jump to definition other window" "c D" #'+lookup/definition-other-window))
 #+end_src
 
+** ediff
+设置退出时不询问。并且打开时立刻跳转到第一个不同。
+#+begin_src emacs-lisp
+  (defun disable-y-or-n-p (orig-fun &rest args)
+    (cl-letf (((symbol-function 'y-or-n-p) (lambda (prompt) t)))
+      (apply orig-fun args)))
+
+  (advice-add 'ediff-quit :around #'disable-y-or-n-p)
+  (add-hook! 'ediff-startup-hook #'ediff-next-difference)
+#+end_src
+
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 ** eglot
 #+begin_src emacs-lisp
-  (setq eglot-workspace-configuration '(:gopls (:usePlaceholders t)))
-
   (after! eglot
     (setq eglot-events-buffer-size 0)
-    (setq eglot-stay-out-of nil)
+    (setq eglot-stay-out-of '(yasnippet))
     (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
     (map! :map eglot-mode-map
           :nv "g D" nil
@@ -347,11 +357,10 @@ doom默认的200个也太少了，至少1000吧
   (after! corfu-popupinfo
     (setq corfu-popupinfo-delay nil))
 
+  (setq +corfu-auto-delay 0.02)
   (after! corfu
-    (setq corfu-preview-current nil
+    (setq corfu-preselect 'prompt
           corfu-on-exact-match nil
-          corfu-auto-prefix 2
-          corfu-auto-delay 0.03
           corfu-popupinfo-max-height 20
           corfu-count 10)
     (map! :map corfu-map
