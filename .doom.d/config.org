@@ -324,13 +324,13 @@ doom默认的200个也太少了，至少1000吧
 #+end_src
 
 ** ediff
-设置退出时不询问。并且打开时立刻跳转到第一个不同。
+设置退出时不询问。并且打开时立刻跳转到第一个修改。
 #+begin_src emacs-lisp
   (defun disable-y-or-n-p (orig-fun &rest args)
     (cl-letf (((symbol-function 'y-or-n-p) (lambda (prompt) t)))
       (apply orig-fun args)))
-
   (advice-add 'ediff-quit :around #'disable-y-or-n-p)
+
   (add-hook! 'ediff-startup-hook #'ediff-next-difference)
 #+end_src
 
@@ -551,7 +551,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (interactive)
     (call-process-shell-command "nautilus ." nil 0))
 
-  (map! [f9] #'my-open-nautilus)
+  (map! [f9] #'my-open-nautilus
+        :map vterm-mode-map [f9] #'my-open-nautilus)
 #+end_src
 
 * 终端
@@ -704,6 +705,16 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             :target (file+head "Create/%<%Y%m%d%H%M%S>-${slug}.org"
                                 "#+title: ${title}\n#+filetags: :create: \n\n")
             :unnarrowed t)))
+#+end_src
+
+** org-agenda
+也尝试使用一下agenda管理日程。
+首先就是将窗口改成popup。
+#+begin_src emacs-lisp
+  (map! :leader "A" (lambda () (interactive) (org-agenda nil "n")))
+
+  (after! org-agenda
+    (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))
 #+end_src
 
 * 语言mode

@@ -193,8 +193,8 @@
 (defun disable-y-or-n-p (orig-fun &rest args)
   (cl-letf (((symbol-function 'y-or-n-p) (lambda (prompt) t)))
     (apply orig-fun args)))
-
 (advice-add 'ediff-quit :around #'disable-y-or-n-p)
+
 (add-hook! 'ediff-startup-hook #'ediff-next-difference)
 
 (after! eglot
@@ -371,7 +371,8 @@
   (interactive)
   (call-process-shell-command "nautilus ." nil 0))
 
-(map! [f9] #'my-open-nautilus)
+(map! [f9] #'my-open-nautilus
+      :map vterm-mode-map [f9] #'my-open-nautilus)
 
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
@@ -476,6 +477,11 @@
           :target (file+head "Create/%<%Y%m%d%H%M%S>-${slug}.org"
                               "#+title: ${title}\n#+filetags: :create: \n\n")
           :unnarrowed t)))
+
+(map! :leader "A" (lambda () (interactive) (org-agenda nil "n")))
+
+(after! org-agenda
+  (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))
 
 (custom-set-faces
  '(markdown-code-face ((t (:background "#f5f5f5"))))
