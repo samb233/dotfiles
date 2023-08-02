@@ -64,6 +64,13 @@
   (setq uniquify-buffer-name-style 'forward)
 #+end_src
 
+** native-comp
+关闭native-comp
+#+begin_src emacs-lisp
+  (setq native-comp-speed -1)
+  (setq native-comp-jit-compilation nil)
+#+end_src
+
 * 外观
 ** 字体
 设置字体与字体大小。
@@ -160,6 +167,10 @@ emacs29新加入的像素滚动模式。
         :n  "g a"   #'avy-goto-char-2
         :n  "] e"   #'flymake-goto-next-error
         :n  "[ e"   #'flymake-goto-prev-error
+        :n  "] w"   #'evil-window-right
+        :n  "[ w"   #'evil-window-left
+        :n  "[ W"   #'evil-window-down
+        :n  "] W"   #'evil-window-up
         :leader
         :desc "jump to references" "c r" #'+lookup/references
         :desc "consult buffer" "<" #'consult-buffer
@@ -256,6 +267,9 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
 修改projectile查找project-root的方式
 先从上到下，后从下到上。
 #+begin_src emacs-lisp
+  (use-package! projectile
+    :commands (project-projectile))
+
   (after! projectile
     (add-to-list 'projectile-project-root-files "go.mod")
     (setq projectile-project-root-functions '(projectile-root-local
@@ -264,11 +278,6 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
                                               projectile-root-bottom-up
                                               projectile-root-top-down-recurring)))
 
-  (defun project-projectile (dir)
-    "Return Projectile project of form ('projectile . root-dir) for DIR."
-    (let ((root (projectile-project-root dir)))
-      (when root
-        (cons 'projectile root))))
   (setq project-find-functions '(project-projectile project-try-vc))
 #+end_src
 
@@ -332,6 +341,28 @@ doom默认的200个也太少了，至少1000吧
   (advice-add 'ediff-quit :around #'disable-y-or-n-p)
 
   (add-hook! 'ediff-startup-hook #'ediff-next-difference)
+#+end_src
+
+** pixel-scroll
+设置在打开org和markdown的inline-image时自动开启像素滚动模式。
+#+begin_src emacs-lisp
+  (use-package! pixel-scroll)
+
+  (defun my-inline-image-pixel-scroll()
+    (setq-local evil-move-beyond-eol t
+                pixel-scroll-precision-mode t))
+
+  (defun my-disable-inline-image-pixel-scroll()
+    (setq-local evil-move-beyond-eol nil
+                pixel-scroll-precision-mode nil))
+
+  (after! markdown-mode
+  (advice-add 'markdown-display-inline-images :after #'my-inline-image-pixel-scroll)
+  (advice-add 'markdown-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
+
+  (after! org
+  (advice-add 'org-display-inline-images :after #'my-inline-image-pixel-scroll)
+  (advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
 #+end_src
 
 * 代码补全
@@ -962,8 +993,6 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
         (org-display-inline-images))
     (if (member major-mode '(markdown-mode gfm-mode))
         (markdown-display-inline-images))
-    (setq-local evil-move-beyond-eol t
-                pixel-scroll-precision-mode t)
     (doom-disable-line-numbers-h))
 
   (defun my-writeroom-mode-off()
@@ -971,12 +1000,8 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
         (org-remove-inline-images))
     (if (member major-mode '(markdown-mode gfm-mode))
         (markdown-remove-inline-images))
-    (setq-local evil-move-beyond-eol nil
-                pixel-scroll-precision-mode nil)
     (doom-enable-line-numbers-h))
 
-  (after! writeroom-mode
-    (use-package! pixel-scroll))
   (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
   (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 #+end_src

@@ -24,6 +24,9 @@
 
 (setq uniquify-buffer-name-style 'forward)
 
+(setq native-comp-speed -1)
+(setq native-comp-jit-compilation nil)
+
 (setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
@@ -82,6 +85,10 @@
       :n  "g a"   #'avy-goto-char-2
       :n  "] e"   #'flymake-goto-next-error
       :n  "[ e"   #'flymake-goto-prev-error
+      :n  "] w"   #'evil-window-right
+      :n  "[ w"   #'evil-window-left
+      :n  "[ W"   #'evil-window-down
+      :n  "] W"   #'evil-window-up
       :leader
       :desc "jump to references" "c r" #'+lookup/references
       :desc "consult buffer" "<" #'consult-buffer
@@ -145,6 +152,9 @@
 
 (add-hook! 'doom-first-buffer-hook #'global-undo-fu-session-mode)
 
+(use-package! projectile
+  :commands (project-projectile))
+
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
   (setq projectile-project-root-functions '(projectile-root-local
@@ -153,11 +163,6 @@
                                             projectile-root-bottom-up
                                             projectile-root-top-down-recurring)))
 
-(defun project-projectile (dir)
-  "Return Projectile project of form ('projectile . root-dir) for DIR."
-  (let ((root (projectile-project-root dir)))
-    (when root
-      (cons 'projectile root))))
 (setq project-find-functions '(project-projectile project-try-vc))
 
 (after! recentf
@@ -196,6 +201,24 @@
 (advice-add 'ediff-quit :around #'disable-y-or-n-p)
 
 (add-hook! 'ediff-startup-hook #'ediff-next-difference)
+
+(use-package! pixel-scroll)
+
+(defun my-inline-image-pixel-scroll()
+  (setq-local evil-move-beyond-eol t
+              pixel-scroll-precision-mode t))
+
+(defun my-disable-inline-image-pixel-scroll()
+  (setq-local evil-move-beyond-eol nil
+              pixel-scroll-precision-mode nil))
+
+(after! markdown-mode
+(advice-add 'markdown-display-inline-images :after #'my-inline-image-pixel-scroll)
+(advice-add 'markdown-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
+
+(after! org
+(advice-add 'org-display-inline-images :after #'my-inline-image-pixel-scroll)
+(advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
 
 (after! eglot
   (setq eglot-events-buffer-size 0)
@@ -651,8 +674,6 @@
       (org-display-inline-images))
   (if (member major-mode '(markdown-mode gfm-mode))
       (markdown-display-inline-images))
-  (setq-local evil-move-beyond-eol t
-              pixel-scroll-precision-mode t)
   (doom-disable-line-numbers-h))
 
 (defun my-writeroom-mode-off()
@@ -660,12 +681,8 @@
       (org-remove-inline-images))
   (if (member major-mode '(markdown-mode gfm-mode))
       (markdown-remove-inline-images))
-  (setq-local evil-move-beyond-eol nil
-              pixel-scroll-precision-mode nil)
   (doom-enable-line-numbers-h))
 
-(after! writeroom-mode
-  (use-package! pixel-scroll))
 (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
 (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 
