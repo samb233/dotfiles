@@ -1,0 +1,266 @@
+{
+    "window.restoreWindows": "none",
+    "go.toolsManagement.autoUpdate": true,
+    "markdown-preview-github-styles.colorTheme": "light",
+    "workbench.editorAssociations": {
+        "*.csv": "default"
+    },
+    "editor.fontSize": 15,
+    "settingsSync.ignoredSettings": [
+        "editor.fontSize",
+        "editor.fontFamily",
+        "workbench.colorTheme"
+    ],
+    "settingsSync.ignoredExtensions": [
+        "ms-vscode-remote.remote-wsl",
+        "xabikos.javascriptsnippets",
+        "tootone.org-mode"
+    ],
+    "terminal.integrated.scrollback": 10000,
+    "window.titleBarStyle": "custom",
+    "window.newWindowDimensions": "offset",
+    "editor.rulers": [
+        80
+    ],
+    "workbench.sideBar.location": "right",
+    "workbench.colorTheme": "GitHub Light",
+    "files.associations": {
+        "*.vpy": "python"
+    },
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "security.workspace.trust.untrustedFiles": "open",
+    "editor.cursorBlinking": "solid",
+    "vim.easymotion": true,
+    "vim.useSystemClipboard": true,
+    "vim.autoSwitchInputMethod.enable": true,
+    "vim.autoSwitchInputMethod.defaultIM": "1033",
+    "vim.autoSwitchInputMethod.obtainIMCmd": "D:\\Env\\bin\\im-select.exe",
+    "vim.autoSwitchInputMethod.switchIMCmd": "D:\\Env\\bin\\im-select.exe {im}",
+    "vim.handleKeys": {
+        "<C-a>": false,
+    },
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<space>"
+            ],
+            "commands": [
+                "vspacecode.space"
+            ]
+        },
+        {
+            "before": [
+                ","
+            ],
+            "commands": [
+                "vspacecode.space",
+                {
+                    "command": "whichkey.triggerKey",
+                    "args": "m"
+                }
+            ]
+        },
+        {
+            "before": [
+                "<C-v>",
+            ],
+            "after": [
+                "p"
+            ]
+        },
+        {
+            "before": [
+                "<M-v>",
+            ],
+            "after": [
+                "p"
+            ]
+        },
+        {
+            "before": [
+                "<C-x>",
+            ],
+            "commands": [
+                "editor.action.clipboardCutAction"
+            ]
+        },
+        {
+            "before": [
+                "u",
+            ],
+            "commands": [
+                "undo"
+            ]
+        },
+        {
+            "before": [
+                "U",
+            ],
+            "commands": [
+                "redo"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "D"
+            ],
+            "commands": [
+                "workbench.action.splitEditor",
+                "editor.action.revealDefinition"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "r"
+            ],
+            "commands": [
+                "editor.action.goToReferences"
+            ]
+        },
+        {
+            "before": [
+                "g",
+                "R"
+            ],
+            "commands": [
+                "workbench.action.splitEditor",
+                "editor.action.goToReferences"
+            ]
+        },
+    ],
+    "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<space>"
+            ],
+            "commands": [
+                "vspacecode.space"
+            ]
+        },
+        {
+            "before": [
+                ","
+            ],
+            "commands": [
+                "vspacecode.space",
+                {
+                    "command": "whichkey.triggerKey",
+                    "args": "m"
+                }
+            ]
+        },
+        {
+            "before": [
+                "J"
+            ],
+            "commands": [
+                "editor.action.moveLinesDownAction"
+            ]
+        },
+        {
+            "before": [
+                "K"
+            ],
+            "commands": [
+                "editor.action.moveLinesUpAction"
+            ]
+        },
+        {
+            "before": [
+                "<C-c>",
+            ],
+            "after": [
+                "y"
+            ]
+        },
+        {
+            "before": [
+                "<C-x>",
+            ],
+            "after": [
+                "d"
+            ]
+        },
+        {
+            "before": [
+                "<C-v>",
+            ],
+            "after": [
+                "p"
+            ]
+        },
+        {
+            "before": [
+                "<M-v>",
+            ],
+            "after": [
+                "p"
+            ]
+        },
+    ],
+    "workbench.startupEditor": "none",
+    "editor.renderWhitespace": "none",
+    "vspacecode.bindingOverrides": [
+        {
+            "keys": ",",
+            "name": "open tab",
+            "type": "command",
+            "command": "workbench.action.quickOpen",
+        },
+        {
+            "keys": "n",
+            "name": "find file",
+            "type": "command",
+            "command": "file-browser.open",
+        },
+        {
+            "keys": "b.f",
+            "name": "format buffer",
+            "type": "command",
+            "command": "editor.action.formatDocument",
+        },
+        {
+            "keys": "w.c",
+            "name": "close window",
+            "type": "command",
+            "command": "workbench.action.closeEditorsInGroup",
+        },
+        {
+            "keys": "t.b",
+            "name": "close sidebar",
+            "type": "command",
+            "command": "workbench.action.toggleSidebarVisibility",
+        },
+        {
+            "keys": "g.g",
+            "name": "magit status",
+            "type": "command",
+            "command": "magit.status",
+        },
+        {
+            "keys": "J",
+            "name": "journal today",
+            "type": "command",
+            "command": "journal.today",
+        },
+    ],
+    "journal.base": "D:\\Notes\\Daily",
+    "journal.patterns": {
+        "notes": {
+            "path": "${base}/${year}/${month}/${day}",
+            "file": "${input}.${ext}"
+        },
+        "entries": {
+            "path": "${base}/${year}/${year}-${month}",
+            "file": "${year}-${month}-${day}.${ext}"
+        },
+        "weeks": {
+            "path": "${base}/${year}",
+            "file": "week_${week}.${ext}"
+        }
+    },
+}
