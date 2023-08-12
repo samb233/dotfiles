@@ -1,11 +1,12 @@
 {
+    "editor.minimap.enabled": false,
     "window.restoreWindows": "none",
     "go.toolsManagement.autoUpdate": true,
     "markdown-preview-github-styles.colorTheme": "light",
     "workbench.editorAssociations": {
         "*.csv": "default"
     },
-    "editor.fontSize": 15,
+    "editor.fontSize": 16,
     "settingsSync.ignoredSettings": [
         "editor.fontSize",
         "editor.fontFamily",
@@ -40,6 +41,7 @@
     "vim.autoSwitchInputMethod.switchIMCmd": "D:\\Env\\bin\\im-select.exe {im}",
     "vim.handleKeys": {
         "<C-a>": false,
+        "<C-f>": false,
     },
     "vim.normalModeKeyBindingsNonRecursive": [
         {
@@ -108,8 +110,7 @@
                 "D"
             ],
             "commands": [
-                "workbench.action.splitEditor",
-                "editor.action.revealDefinition"
+                "editor.action.revealDefinitionAside"
             ]
         },
         {
@@ -123,12 +124,36 @@
         },
         {
             "before": [
-                "g",
-                "R"
+                "<C-o>"
             ],
             "commands": [
-                "workbench.action.splitEditor",
-                "editor.action.goToReferences"
+                "workbench.action.navigateBack"
+            ]
+        },
+        {
+            "before": [
+                "<C-i>"
+            ],
+            "commands": [
+                "workbench.action.navigateForward"
+            ]
+        },
+        {
+            "before": [
+                "]",
+                "e"
+            ],
+            "commands": [
+                "editor.action.marker.nextInFiles"
+            ]
+        },
+        {
+            "before": [
+                "[",
+                "e"
+            ],
+            "commands": [
+                "editor.action.marker.prevInFiles"
             ]
         },
     ],
@@ -202,6 +227,16 @@
             ]
         },
     ],
+    "vim.insertModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<C-x>"
+            ],
+            "commands": [
+                "editor.action.clipboardCutAction"
+            ]
+        },
+    ],
     "workbench.startupEditor": "none",
     "editor.renderWhitespace": "none",
     "vspacecode.bindingOverrides": [
@@ -231,15 +266,27 @@
         },
         {
             "keys": "t.b",
-            "name": "close sidebar",
+            "name": "toggle sidebar",
             "type": "command",
             "command": "workbench.action.toggleSidebarVisibility",
+        },
+        {
+            "keys": "t.m",
+            "name": "toggle minimap",
+            "type": "command",
+            "command": "editor.action.toggleMinimap",
         },
         {
             "keys": "g.g",
             "name": "magit status",
             "type": "command",
             "command": "magit.status",
+        },
+        {
+            "keys": "c.t",
+            "name": "run task",
+            "type": "command",
+            "command": "workbench.action.tasks.runTask",
         },
         {
             "keys": "J",
