@@ -188,5 +188,17 @@
 	{
 		"key": "alt+\\",
 		"command": "workbench.action.closeActiveEditor"
-	}
+	},
+	{
+		"key": "alt+/",
+		"command": "workbench.action.switchWindow"
+	},
+	{
+		"key": "alt+,",
+		"command": "workbench.action.quickOpen"
+	},
+	{
+		"key": "alt+.",
+		"command": "file-browser.open"
+	},
 ]
