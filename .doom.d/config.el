@@ -49,13 +49,20 @@
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
+        doom-modeline-icon nil
+        doom-modeline-lsp nil
         doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 29
         doom-modeline-window-width-limit 120)
-  (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
+  ;;(set-face-attribute 'mode-line-active nil :background "#f4f4f4")
+  )
+
+(after! solaire-mode
+ (dolist (face '(mode-line mode-line-inactive))
+    (setf (alist-get face solaire-mode-remap-alist) nil)))
 
 (setq word-wrap-by-category t)
 
@@ -233,6 +240,12 @@
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
+(defun my-remove-eglot-mode-line()
+  "Remove `eglot' from mode-line"
+  (setq mode-line-misc-info
+            (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
+(add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
+
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay nil))
 
@@ -248,6 +261,7 @@
         :i "C-i" #'corfu-insert-separator
         :i "C-s" #'corfu-insert-separator
         :i "C-h" #'corfu-info-documentation
+        :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
@@ -318,11 +332,10 @@
      ("c" "~/Codes/"                    "Codes")
      ("D" "~/Documents/"                "Documents")
      ("w" "~/Works/"                    "Works")
-     ("d" "~/Media/Downloads/"          "Downloads")
+     ("d" "~/Downloads/"                "Downloads")
      ("P" "~/Pictures/"                 "Pictures")
-     ("v" "~/Media/Videos/"             "Videos")
-     ("s" "~/Media/Share/"              "Shared")
-     ("m" "~/Media/"                    "Media")
+     ("v" "~/Videos/"                   "Videos")
+     ("s" "~/Share/"                    "Shared")
      ("n" "~/Notes/"                    "Notes")
      ("b" "~/Books/"                    "Books")
      ("M" "/mnt/"                       "Drives")))
@@ -557,13 +570,35 @@
       ("-i" "%d" (unless indent-tabs-mode tab-width))
       ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
 
-(add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
-
 (after! org
   (add-to-list 'org-src-lang-modes '("py" . python-mode)))
 
 (after! markdown-mode
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
+
+(add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+(defun vspreview()
+  "Vapoursynth preview this script."
+  (interactive)
+  (async-shell-command
+   (format "~/vscp/bin/python -m vspreview %s" buffer-file-name)
+   "*vspreview*"))
+
+(defun vsbench()
+  "Vapoursynth bench this script."
+  (interactive)
+  (async-shell-command
+   (format "~/vscp/bin/vspipe -p %s ." buffer-file-name)
+   "*vsbench*"))
+
+(map! :map python-mode-map
+        :localleader
+        "p" #'vspreview
+        "b" #'vsbench)
+
+(set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
+(set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 
 (after! lua-mode
   (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))

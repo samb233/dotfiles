@@ -113,13 +113,20 @@
 #+begin_src emacs-lisp
   (after! doom-modeline
     (setq doom-modeline-modal nil
+          doom-modeline-icon nil
+          doom-modeline-lsp nil
           doom-modeline-buffer-state-icon nil
           doom-modeline-buffer-modification-icon nil
           doom-modeline-buffer-encoding t
           doom-modeline-vcs-max-length 20
           doom-modeline-height 29
           doom-modeline-window-width-limit 120)
-    (set-face-attribute 'mode-line-active nil :background "#f4f4f4"))
+    ;;(set-face-attribute 'mode-line-active nil :background "#f4f4f4")
+    )
+
+  (after! solaire-mode
+   (dolist (face '(mode-line mode-line-inactive))
+      (setf (alist-get face solaire-mode-remap-alist) nil)))
 #+end_src
 
 ** word-wrap
@@ -383,6 +390,15 @@ doom默认的200个也太少了，至少1000吧
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 #+end_src
 
+modeline设置，不在modeline上显示eglot任何信息
+#+begin_src emacs-lisp
+  (defun my-remove-eglot-mode-line()
+    "Remove `eglot' from mode-line"
+    (setq mode-line-misc-info
+              (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
+  (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
+#+end_src
+
 ** corfu
 #+begin_src emacs-lisp
   (after! corfu-popupinfo
@@ -400,6 +416,7 @@ doom默认的200个也太少了，至少1000吧
           :i "C-i" #'corfu-insert-separator
           :i "C-s" #'corfu-insert-separator
           :i "C-h" #'corfu-info-documentation
+          :i "C-l" #'corfu-complete
           :i "C-g" #'corfu-quit)
     (map! :i "C-S-p" #'cape-file)
     (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
@@ -500,11 +517,10 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
        ("c" "~/Codes/"                    "Codes")
        ("D" "~/Documents/"                "Documents")
        ("w" "~/Works/"                    "Works")
-       ("d" "~/Media/Downloads/"          "Downloads")
+       ("d" "~/Downloads/"                "Downloads")
        ("P" "~/Pictures/"                 "Pictures")
-       ("v" "~/Media/Videos/"             "Videos")
-       ("s" "~/Media/Share/"              "Shared")
-       ("m" "~/Media/"                    "Media")
+       ("v" "~/Videos/"                   "Videos")
+       ("s" "~/Share/"                    "Shared")
        ("n" "~/Notes/"                    "Notes")
        ("b" "~/Books/"                    "Books")
        ("M" "/mnt/"                       "Drives")))
@@ -826,11 +842,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+end_src
 
 ** python
-设置用python-mode打开vpy文件
-#+begin_src emacs-lisp
-  (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
-#+end_src
-
 设置在org和markdown的代码块中，"py"打开python-mode
 自己用还是尽量写全python，主要是为了阅读其他人写的"py"代码块
 #+begin_src emacs-lisp
@@ -839,6 +850,40 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 
   (after! markdown-mode
     (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
+#+end_src
+
+** vapoursynth
+设置用python-mode打开vpy文件
+#+begin_src emacs-lisp
+  (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+#+end_src
+
+设置vspreview，vsbench等命令
+#+begin_src emacs-lisp
+  (defun vspreview()
+    "Vapoursynth preview this script."
+    (interactive)
+    (async-shell-command
+     (format "~/vscp/bin/python -m vspreview %s" buffer-file-name)
+     "*vspreview*"))
+
+  (defun vsbench()
+    "Vapoursynth bench this script."
+    (interactive)
+    (async-shell-command
+     (format "~/vscp/bin/vspipe -p %s ." buffer-file-name)
+     "*vsbench*"))
+
+  (map! :map python-mode-map
+          :localleader
+          "p" #'vspreview
+          "b" #'vsbench)
+#+end_src
+
+设置窗口popup
+#+begin_src emacs-lisp
+  (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
+  (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 #+end_src
 
 ** lua
