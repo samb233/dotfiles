@@ -303,19 +303,17 @@ doom默认的200个也太少了，至少1000吧
 #+end_src
 
 ** recenter
-设置各种跳转后居中。
-其中，我不希望按G跳到底部后居中，所以重新map一下G
+设置各种跳转后居中
 #+begin_src emacs-lisp
   (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
   (defun recenter-advice (&rest args)
-    (recenter))
+    (if (not (equal (point) (point-max)))
+        (recenter)))
 
   (advice-add #'find-file :after #'recenter-advice)
   (advice-add #'evil-goto-line :after #'recenter-advice)
   (advice-add #'org-roam-node-find :after #'recenter-advice)
-
-  (map! :n "G" #'end-of-buffer)
 #+end_src
 
 ** evil-mc

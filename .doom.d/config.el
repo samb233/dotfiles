@@ -180,13 +180,12 @@
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
 (defun recenter-advice (&rest args)
-  (recenter))
+  (if (not (equal (point) (point-max)))
+      (recenter)))
 
 (advice-add #'find-file :after #'recenter-advice)
 (advice-add #'evil-goto-line :after #'recenter-advice)
 (advice-add #'org-roam-node-find :after #'recenter-advice)
-
-(map! :n "G" #'end-of-buffer)
 
 (evil-define-key 'visual 'global
   "A" #'evil-mc-make-cursor-in-visual-selection-end
