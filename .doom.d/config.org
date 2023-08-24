@@ -308,7 +308,7 @@ doom默认的200个也太少了，至少1000吧
   (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
   (defun recenter-advice (&rest args)
-    (if (not (equal (point) (point-max)))
+    (if (> (- (point-max) (point)) 2)
         (recenter)))
 
   (advice-add #'find-file :after #'recenter-advice)

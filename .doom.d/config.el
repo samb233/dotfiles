@@ -180,7 +180,7 @@
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
 (defun recenter-advice (&rest args)
-  (if (not (equal (point) (point-max)))
+  (if (> (- (point-max) (point)) 2)
       (recenter)))
 
 (advice-add #'find-file :after #'recenter-advice)
