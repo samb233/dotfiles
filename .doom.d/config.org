@@ -97,9 +97,9 @@
 ** 行号
 更改行号的字重，不然在不高的分辨率下会有锯齿
 #+begin_src emacs-lisp
-  (custom-set-faces
-   '(line-number ((t (:weight medium :slant unspecified))))
-   '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+  ;; (custom-set-faces
+  ;;  '(line-number ((t (:weight medium :slant unspecified))))
+  ;;  '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 #+end_src
 
 ** icon
@@ -303,7 +303,8 @@ doom默认的200个也太少了，至少1000吧
 #+end_src
 
 ** recenter
-设置各种跳转后居中
+设置各种跳转后居中。
+其中，我不希望按G跳到底部后居中，所以重新map一下G
 #+begin_src emacs-lisp
   (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
@@ -313,6 +314,8 @@ doom默认的200个也太少了，至少1000吧
   (advice-add #'find-file :after #'recenter-advice)
   (advice-add #'evil-goto-line :after #'recenter-advice)
   (advice-add #'org-roam-node-find :after #'recenter-advice)
+
+  (map! :n "G" #'end-of-buffer)
 #+end_src
 
 ** evil-mc

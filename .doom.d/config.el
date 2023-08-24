@@ -41,9 +41,9 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
-(custom-set-faces
- '(line-number ((t (:weight medium :slant unspecified))))
- '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+;; (custom-set-faces
+;;  '(line-number ((t (:weight medium :slant unspecified))))
+;;  '(line-number-current-line ((t (:weight medium :slant unspecified)))))
 
 (setq all-the-icons-scale-factor 1.2)
 
@@ -185,6 +185,8 @@
 (advice-add #'find-file :after #'recenter-advice)
 (advice-add #'evil-goto-line :after #'recenter-advice)
 (advice-add #'org-roam-node-find :after #'recenter-advice)
+
+(map! :n "G" #'end-of-buffer)
 
 (evil-define-key 'visual 'global
   "A" #'evil-mc-make-cursor-in-visual-selection-end
