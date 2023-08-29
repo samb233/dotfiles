@@ -41,9 +41,9 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
-;; (custom-set-faces
-;;  '(line-number ((t (:weight medium :slant unspecified))))
-;;  '(line-number-current-line ((t (:weight medium :slant unspecified)))))
+(custom-set-faces
+ '(line-number ((t (:weight medium))))
+ '(line-number-current-line ((t (:weight medium)))))
 
 (setq all-the-icons-scale-factor 1.2)
 
@@ -212,11 +212,11 @@
 
 (use-package! pixel-scroll)
 
-(defun my-inline-image-pixel-scroll()
+(defun my-inline-image-pixel-scroll(&rest args)
   (setq-local evil-move-beyond-eol t
               pixel-scroll-precision-mode t))
 
-(defun my-disable-inline-image-pixel-scroll()
+(defun my-disable-inline-image-pixel-scroll(&rest args)
   (setq-local evil-move-beyond-eol nil
               pixel-scroll-precision-mode nil))
 
@@ -619,13 +619,6 @@
   (sis-ism-lazyman-config "1" "2" 'fcitx5)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
-
-(use-package! evil-pinyin
-  :when (modulep! :editor evil +everywhere)
-  :after evil
-  :config
-  (setq-default evil-pinyin-with-search-rule 'always)
-  (global-evil-pinyin-mode 1))
 
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)
