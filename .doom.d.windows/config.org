@@ -85,8 +85,8 @@
 设置字体与字体大小。
 使用after-setting-font-hook来设置中文字体
 #+begin_src emacs-lisp
-  (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.0))
-  (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
+  (setq doom-font (font-spec :family "BlexMono Nerd Font Medium" :size 11.0))
+  (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
   (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
   (defun my-cjk-font()
@@ -137,6 +137,13 @@
 #+end_src
 
 * 按键
+** Windows下加载键位
+Windows下貌似不会自动加载evil-bindings，非常奇怪。
+手动加载一下。
+#+begin_src emacs-lisp
+  (use-package! doom-evil-bindings)
+#+end_src
+
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
@@ -247,13 +254,6 @@ emacs29新加入的像素滚动模式。
   (evil-ex-define-cmd "Q" 'kill-this-buffer)
   (evil-ex-define-cmd "quit" 'evil-quit)
   (evil-ex-define-cmd "W" 'save-buffer)
-#+end_src
-
-** Windows下加载键位
-Windows下貌似不会自动加载evil-bindings，非常奇怪。
-手动加载一下。
-#+begin_src emacs-lisp
-  (use-package! doom-evil-bindings)
 #+end_src
 
 * 基础插件
@@ -551,7 +551,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             ("图片" (extensions "jpg" "png" "svg" "gif"))
             ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
             ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-    (setq dirvish-default-layout '(0 0 0.5)
+    (setq dirvish-default-layout '(0 0 0.6)
           dirvish-use-mode-line nil
           dirvish-header-line-height '41
           dirvish-path-separators (list "  ~" "   " "/")
@@ -565,13 +565,12 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           dirvish-open-with-programs
           `((,dirvish-audio-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
             (,dirvish-video-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
-            (,dirvish-image-exts . ("eog" "%f"))
-            (("doc" "docx") . ("wps" "%f"))
-            (("ppt" "pptx") . ("wpp" "%f"))
-            (("xls" "xlsx") . ("et" "%f"))
-            (("pdf") . ("evince" "%f"))
-            (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
-            (("epub") . ("koodo-reader" "%f"))))
+            (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
+            (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
+            (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
+            (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
+            (("pdf") . ("C:/Users/jiesamb/AppData/Local/SumatraPDF/SumatraPDF.exe" "%f"))
+            (("epub") . ("C:/Users/jiesamb/AppData/Local/Programs/Koodo Reader/Koodo Reader.exe" "%f"))))
     (map! :map dirvish-mode-map
           :n "h" #'dired-up-directory
           :n "l" #'dired-find-file
@@ -606,14 +605,29 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
         [S-f8]   #'dirvish)
 #+end_src
 
+** 修复dirvish的mediainfo问题
+原始的方法在shell-quote-args文件名后，mediainfo会不认这个文件。
+在此去掉shell-quote-args方法。
+#+begin_src emacs-lisp
+  (defun dirvish-media--metadata-from-mediainfo-win (file)
+      "Return result string from command `mediainfo' for FILE."
+      (read (format "(%s)" (shell-command-to-string
+                            (format "mediainfo --Output='%s' %s"
+                                    dirvish-media--info
+                                    file)))))
+
+  (after! dirvish
+    (advice-add #'dirvish-media--metadata-from-mediainfo :override
+                #'dirvish-media--metadata-from-mediainfo-win))
+#+end_src
+
 ** explorer
 #+begin_src emacs-lisp
   (defun my-open-explorer()
     (interactive)
     (call-process-shell-command "explorer ." nil 0))
 
-  (map! [f9] #'my-open-explorer
-        :map vterm-mode-map [f9] #'my-open-explorer)
+  (map! [f9] #'my-open-explorer)
 #+end_src
 
 * 终端
@@ -840,8 +854,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
 
   (after! python
-    (setq python-shell-interpreter "python")
-    )
+    (setq python-shell-interpreter "python"))
 #+end_src
 
 ** vapoursynth

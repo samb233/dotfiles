@@ -33,8 +33,8 @@
 (setq native-comp-speed -1)
 (setq native-comp-jit-compilation nil)
 
-(setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.0))
-(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
+(setq doom-font (font-spec :family "BlexMono Nerd Font Medium" :size 11.0))
+(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (defun my-cjk-font()
@@ -68,6 +68,8 @@
     (setf (alist-get face solaire-mode-remap-alist) nil)))
 
 (setq word-wrap-by-category t)
+
+(use-package! doom-evil-bindings)
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
@@ -150,8 +152,6 @@
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "quit" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
-
-(use-package! doom-evil-bindings)
 
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
@@ -362,7 +362,7 @@
           ("图片" (extensions "jpg" "png" "svg" "gif"))
           ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
           ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-  (setq dirvish-default-layout '(0 0 0.5)
+  (setq dirvish-default-layout '(0 0 0.6)
         dirvish-use-mode-line nil
         dirvish-header-line-height '41
         dirvish-path-separators (list "  ~" "   " "/")
@@ -376,13 +376,12 @@
         dirvish-open-with-programs
         `((,dirvish-audio-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
           (,dirvish-video-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
-          (,dirvish-image-exts . ("eog" "%f"))
-          (("doc" "docx") . ("wps" "%f"))
-          (("ppt" "pptx") . ("wpp" "%f"))
-          (("xls" "xlsx") . ("et" "%f"))
-          (("pdf") . ("evince" "%f"))
-          (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
-          (("epub") . ("koodo-reader" "%f"))))
+          (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
+          (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
+          (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
+          (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
+          (("pdf") . ("C:/Users/jiesamb/AppData/Local/SumatraPDF/SumatraPDF.exe" "%f"))
+          (("epub") . ("C:/Users/jiesamb/AppData/Local/Programs/Koodo Reader/Koodo Reader.exe" "%f"))))
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
         :n "l" #'dired-find-file
@@ -413,12 +412,22 @@
 (map! [f8]     #'dired-jump
       [S-f8]   #'dirvish)
 
+(defun dirvish-media--metadata-from-mediainfo-win (file)
+    "Return result string from command `mediainfo' for FILE."
+    (read (format "(%s)" (shell-command-to-string
+                          (format "mediainfo --Output='%s' %s"
+                                  dirvish-media--info
+                                  file)))))
+
+(after! dirvish
+  (advice-add #'dirvish-media--metadata-from-mediainfo :override
+              #'dirvish-media--metadata-from-mediainfo-win))
+
 (defun my-open-explorer()
   (interactive)
   (call-process-shell-command "explorer ." nil 0))
 
-(map! [f9] #'my-open-explorer
-      :map vterm-mode-map [f9] #'my-open-explorer)
+(map! [f9] #'my-open-explorer)
 
 (setq shell-file-name "pwsh")
 (defun my/eshell-use-git-prompt-theme()
@@ -570,8 +579,7 @@
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
 
 (after! python
-  (setq python-shell-interpreter "python")
-  )
+  (setq python-shell-interpreter "python"))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
