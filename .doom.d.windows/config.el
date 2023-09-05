@@ -59,7 +59,7 @@
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 50
-        doom-modeline-bar-width 7
+        doom-modeline-bar-width 6
         doom-modeline-window-width-limit 120)
   ;;(set-face-attribute 'mode-line-active nil :background "#f4f4f4")
   )
@@ -288,7 +288,6 @@
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
-  (setq flymake-no-changes-timeout 1.0)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 
@@ -428,9 +427,15 @@
 (defun my/eshell-use-git-prompt-theme()
   (eshell-git-prompt-use-theme 'git-radar))
 (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
+(add-hook! 'eshell-mode-hook #'capf-autosuggest-mode)
+(add-hook! 'eshell-mode-hook (corfu-mode -1))
 
-(map! :n [f4]   #'+eshell/toggle
-      :n [S-f4] #'+eshell/here)
+(map! :ng [f4]   #'project-eshell
+      :ng [S-f4] #'+eshell/here)
+
+(after! eshell
+  (map! :map eshell-mode-map
+        :i "C-e" #'capf-autosuggest-end-of-line))
 
 (setq org-directory "D:/Notes")
 (custom-set-faces
@@ -642,13 +647,6 @@
   (switch-to-buffer "*scratch*"))
 
 (advice-add #'tabspaces-reset-buffer-list :before #'tabspaces-reset-advice)
-
-(use-package! tab-bookmark
-  :commands (tab-bookmark
-             tab-bookmark-handler))
-
-(map! :leader
-      :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
 
 (use-package! fanyi
   :commands (fanyi-dwim

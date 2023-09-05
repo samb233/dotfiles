@@ -122,7 +122,7 @@
           doom-modeline-buffer-encoding t
           doom-modeline-vcs-max-length 20
           doom-modeline-height 50
-          doom-modeline-bar-width 7
+          doom-modeline-bar-width 6
           doom-modeline-window-width-limit 120)
     ;;(set-face-attribute 'mode-line-active nil :background "#f4f4f4")
     )
@@ -451,7 +451,6 @@ flymake和eglot一起用时就不用设置什么了
     :hook ((prog-mode text-mode conf-mode) . flymake-mode)
     :config
     (setq flymake-fringe-indicator-position 'right-fringe)
-    (setq flymake-no-changes-timeout 1.0)
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 #+end_src
@@ -623,15 +622,22 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+end_src
 
 * 终端
+** Eshell
 Windows下就只能用eshell了。
 #+begin_src emacs-lisp
   (setq shell-file-name "pwsh")
   (defun my/eshell-use-git-prompt-theme()
     (eshell-git-prompt-use-theme 'git-radar))
   (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
+  (add-hook! 'eshell-mode-hook #'capf-autosuggest-mode)
+  (add-hook! 'eshell-mode-hook (corfu-mode -1))
 
-  (map! :n [f4]   #'+eshell/toggle
-        :n [S-f4] #'+eshell/here)
+  (map! :ng [f4]   #'project-eshell
+        :ng [S-f4] #'+eshell/here)
+
+  (after! eshell
+    (map! :map eshell-mode-map
+          :i "C-e" #'capf-autosuggest-end-of-line))
 #+end_src
 
 * Org-Mode
@@ -943,16 +949,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (switch-to-buffer "*scratch*"))
 
   (advice-add #'tabspaces-reset-buffer-list :before #'tabspaces-reset-advice)
-#+end_src
-
-** tab-bookmark
-#+begin_src emacs-lisp
-  (use-package! tab-bookmark
-    :commands (tab-bookmark
-               tab-bookmark-handler))
-
-  (map! :leader
-        :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
 #+end_src
 
 ** 单词翻译
