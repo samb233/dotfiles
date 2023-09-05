@@ -328,8 +328,17 @@
                 "\\|\\(?:\\.js\\)?\\.meta\\'"
                 "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
   (map! :map dired-mode-map
-        :ng "q" #'quit-window )
+        :ng "q" #'quit-window)
   (custom-set-faces '(dired-async-message ((t (:inherit success))))))
+
+(defun my-next-line (&rest args)
+  (interactive)
+  (next-line))
+
+(after! dired
+  (add-hook! 'wdired-mode-hook #'evil-normal-state)
+  (map! :map dired-mode-map
+        :ng "j" #'my-next-line))
 
 (use-package! dirvish
   :init (after! dired (dirvish-override-dired-mode))
@@ -622,7 +631,8 @@
   :config
   (sis-ism-lazyman-config nil t 'w32)
   (sis-global-respect-mode t)
-  (sis-global-context-mode t))
+  ;; (sis-global-context-mode t)
+  )
 
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)

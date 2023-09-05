@@ -510,8 +510,23 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
                   "\\|\\(?:\\.js\\)?\\.meta\\'"
                   "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
     (map! :map dired-mode-map
-          :ng "q" #'quit-window )
+          :ng "q" #'quit-window)
     (custom-set-faces '(dired-async-message ((t (:inherit success))))))
+
+#+end_src
+
+dired临时修复，修复两个问题:
+1. 跳行
+2. 进入wdired后无法立刻进行编辑
+#+begin_src emacs-lisp
+  (defun my-next-line (&rest args)
+    (interactive)
+    (next-line))
+
+  (after! dired
+    (add-hook! 'wdired-mode-hook #'evil-normal-state)
+    (map! :map dired-mode-map
+          :ng "j" #'my-next-line))
 #+end_src
 
 ** dirvish
@@ -917,7 +932,8 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     :config
     (sis-ism-lazyman-config nil t 'w32)
     (sis-global-respect-mode t)
-    (sis-global-context-mode t))
+    ;; (sis-global-context-mode t)
+    )
 #+end_src
 
 ** tabspaces
