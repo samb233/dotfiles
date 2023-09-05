@@ -8,8 +8,8 @@
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\msys64\\usr\\bin")
-(setenv "PATH" (concat "d:/Env/magick/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\magick")
+(setenv "PATH" (concat "d:/Env/imagemagick/;" (getenv "PATH")))
+(add-to-list 'exec-path "d:\\Env\\imagemagick")
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -35,13 +35,14 @@
 
 (setq doom-font (font-spec :family "BlexMono Nerd Font Medium" :size 11.0))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
-(setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
+;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
     (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)
-    (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'append)))
+    ;; (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'append)
+    ))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -287,15 +288,9 @@
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
   (setq flymake-fringe-indicator-position 'right-fringe)
+  (setq flymake-no-changes-timeout 1.0)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
-
-(use-package! flymake-triangle-bitmap
-  :after flymake
-  :config
-  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
-        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
-        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
@@ -380,7 +375,7 @@
           (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
           (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
           (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
-          (("pdf") . ("C:/Users/jiesamb/AppData/Local/SumatraPDF/SumatraPDF.exe" "%f"))
+          (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
           (("epub") . ("C:/Users/jiesamb/AppData/Local/Programs/Koodo Reader/Koodo Reader.exe" "%f"))))
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
@@ -722,3 +717,43 @@
 (setq +org-present-text-scale 3)
 (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
 (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
+
+(use-package! fringe-scale
+  :init
+  (set-fringe-mode 16)
+  :config
+  (fringe-scale-setup))
+
+(setq builtin-bitmaps
+      ' ((question-mark [#x3c #x7e #xc3 #xc3 #x0c #x18 #x18 #x00 #x18 #x18])
+     (exclamation-mark [#x18 #x18 #x18 #x18 #x18 #x18 #x18 #x00 #x18 #x18])
+     (left-arraw [#x18 #x30 #x60 #xfc #xfc #x60 #x30 #x18])
+     (right-arrow [#x18 #x0c #x06 #x3f #x3f #x06 #x0c #x18])
+     (up-arrow [#x18 #x3c #x7e #xff #x18 #x18 #x18 #x18])
+     (down-arrow [#x18 #x18 #x18 #x18 #xff #x7e #x3c #x18])
+     (left-curly-arrow [#x3c #x7c #xc0 #xe4 #xfc #x7c #x3c #x7c])
+     (right-curly-arrow [#x3c #x3e #x03 #x27 #x3f #x3e #x3c #x3e])
+     (left-triangle [#x03 #x0f #x1f #x3f #x3f #x1f #x0f #x03])
+     (right-triangle [#xc0 #xf0 #xf8 #xfc #xfc #xf8 #xf0 #xc0])
+     (top-left-angle [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #x00])
+     (top-right-angle [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x00])
+     (bottom-left-angle [#x00 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
+     (bottom-right-angle [#x00 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
+     (left-bracket [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
+     (right-bracket [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
+     (filled-rectangle [#xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe])
+     (hollow-rectangle [#xfe #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #xfe])
+     (hollow-square [#x7e #x42 #x42 #x42 #x42 #x7e])
+     (filled-square [#x7e #x7e #x7e #x7e #x7e #x7e])
+     (vertical-bar [#xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0])
+     (horizontal-bar [#xfe #xfe])))
+
+(dolist (bitmap builtin-bitmaps)
+  (define-fringe-bitmap (car bitmap) (cadr bitmap)))
+
+(use-package! flymake-triangle-bitmap
+  :after flymake
+  :config
+  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
