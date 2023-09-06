@@ -123,10 +123,8 @@
 (map! :leader
       (:prefix ("v" . "my personal bindings")
        :desc "Open dirvish" "v" #'dirvish
-       :desc "Open Normal Dired" "n" #'dired-jump
-       :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
-       :desc "Fd in dirvish" "F" #'dirvish-fd
+       :desc "Fd in dirvish" "F" #'dirvish-fd-ask
        :desc "Jump using fd" "J" #'dirvish-fd-jump
        :desc "Jump recent dir" "j" #'consult-dir
        :desc "Fd find file in dir" "f" #'+vertico/consult-fd
@@ -365,7 +363,7 @@
           ("图片" (extensions "jpg" "png" "svg" "gif"))
           ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
           ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-  (setq dirvish-default-layout '(0 0 0.6)
+  (setq dirvish-default-layout '(0 0 0.5)
         dirvish-use-mode-line nil
         dirvish-header-line-height '41
         dirvish-path-separators (list "  ~" "   " "/")
@@ -394,7 +392,7 @@
         :n "q" #'dirvish-quit
         :n "s" #'dirvish-quicksort
         :n "a" #'dirvish-quick-access
-        :n "F" #'dirvish-fd
+        :n "F" #'dirvish-fd-ask
         :n "S" #'dirvish-fd-switches-menu
         :n "y" #'dirvish-yank-menu
         :n "f" #'dirvish-file-info-menu
@@ -415,17 +413,6 @@
 (map! [f8]     #'dired-jump
       [S-f8]   #'dirvish)
 
-(defun dirvish-media--metadata-from-mediainfo-win (file)
-    "Return result string from command `mediainfo' for FILE."
-    (read (format "(%s)" (shell-command-to-string
-                          (format "mediainfo --Output='%s' %s"
-                                  dirvish-media--info
-                                  file)))))
-
-(after! dirvish
-  (advice-add #'dirvish-media--metadata-from-mediainfo :override
-              #'dirvish-media--metadata-from-mediainfo-win))
-
 (defun my-open-explorer()
   (interactive)
   (call-process-shell-command "explorer ." nil 0))
@@ -439,8 +426,9 @@
 (add-hook! 'eshell-mode-hook #'capf-autosuggest-mode)
 (add-hook! 'eshell-mode-hook (corfu-mode -1))
 
-(map! :ng [f4]   #'project-eshell
-      :ng [S-f4] #'+eshell/here)
+(use-package! doom-eshell-toggle)
+(map! :ng [f4]   #'doom-eshell-toggle-project
+      :ng [S-f4] #'project-eshell)
 
 (after! eshell
   (map! :map eshell-mode-map
@@ -490,9 +478,6 @@
 (add-hook 'org-mode-hook #'org-appear-mode)
 
 (setq org-roam-directory "D:/Notes/Roam")
-(map! :leader
-      :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
-      :desc "org-roam node Insert" "v i" #'org-roam-node-insert)
 
 (after! org-roam
   (setq org-roam-completion-everywhere nil))
@@ -575,12 +560,6 @@
   :commands (dockerfile-mode)
   :mode("\\Dockerfile\\'" . dockerfile-mode))
 
-(after! sh-script
-  (set-formatter! 'shfmt
-    '("shfmt" "-ci"
-      ("-i" "%d" (unless indent-tabs-mode tab-width))
-      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
-
 (after! org
   (add-to-list 'org-src-lang-modes '("py" . python-mode)))
 
@@ -614,9 +593,6 @@
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 
-(after! lua-mode
-  (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
-
 (defun my-open-current-file-with-app()
   (interactive)
   (progn
@@ -630,9 +606,7 @@
 (use-package! sis
   :config
   (sis-ism-lazyman-config nil t 'w32)
-  (sis-global-respect-mode t)
-  ;; (sis-global-context-mode t)
-  )
+  (sis-global-respect-mode t))
 
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)
@@ -693,7 +667,6 @@
   :commands (texfrag-mode)
   :init
   (setq texfrag-markdown-preview-image-links nil
-        texfrag-scale 0.25
         texfrag-subdir ".texfrag"))
 
 (defun my-toggle-texfrag-preview-document()

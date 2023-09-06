@@ -218,10 +218,8 @@ emacs29新加入的像素滚动模式。
   (map! :leader
         (:prefix ("v" . "my personal bindings")
          :desc "Open dirvish" "v" #'dirvish
-         :desc "Open Normal Dired" "n" #'dired-jump
-         :desc "Quit dirvish" "q" #'dirvish-quit
          :desc "Toggle dirvish-side" "s" #'dirvish-side
-         :desc "Fd in dirvish" "F" #'dirvish-fd
+         :desc "Fd in dirvish" "F" #'dirvish-fd-ask
          :desc "Jump using fd" "J" #'dirvish-fd-jump
          :desc "Jump recent dir" "j" #'consult-dir
          :desc "Fd find file in dir" "f" #'+vertico/consult-fd
@@ -557,7 +555,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             ("图片" (extensions "jpg" "png" "svg" "gif"))
             ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
             ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-    (setq dirvish-default-layout '(0 0 0.6)
+    (setq dirvish-default-layout '(0 0 0.5)
           dirvish-use-mode-line nil
           dirvish-header-line-height '41
           dirvish-path-separators (list "  ~" "   " "/")
@@ -586,7 +584,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "q" #'dirvish-quit
           :n "s" #'dirvish-quicksort
           :n "a" #'dirvish-quick-access
-          :n "F" #'dirvish-fd
+          :n "F" #'dirvish-fd-ask
           :n "S" #'dirvish-fd-switches-menu
           :n "y" #'dirvish-yank-menu
           :n "f" #'dirvish-file-info-menu
@@ -611,22 +609,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
         [S-f8]   #'dirvish)
 #+end_src
 
-** 修复dirvish的mediainfo问题
-原始的方法在shell-quote-args文件名后，mediainfo会不认这个文件。
-在此去掉shell-quote-args方法。
-#+begin_src emacs-lisp
-  (defun dirvish-media--metadata-from-mediainfo-win (file)
-      "Return result string from command `mediainfo' for FILE."
-      (read (format "(%s)" (shell-command-to-string
-                            (format "mediainfo --Output='%s' %s"
-                                    dirvish-media--info
-                                    file)))))
-
-  (after! dirvish
-    (advice-add #'dirvish-media--metadata-from-mediainfo :override
-                #'dirvish-media--metadata-from-mediainfo-win))
-#+end_src
-
 ** explorer
 #+begin_src emacs-lisp
   (defun my-open-explorer()
@@ -647,8 +629,9 @@ Windows下就只能用eshell了。
   (add-hook! 'eshell-mode-hook #'capf-autosuggest-mode)
   (add-hook! 'eshell-mode-hook (corfu-mode -1))
 
-  (map! :ng [f4]   #'project-eshell
-        :ng [S-f4] #'+eshell/here)
+  (use-package! doom-eshell-toggle)
+  (map! :ng [f4]   #'doom-eshell-toggle-project
+        :ng [S-f4] #'project-eshell)
 
   (after! eshell
     (map! :map eshell-mode-map
@@ -720,9 +703,6 @@ doom为org-mode设计了一些用不上的快捷键。
 设置笔记文件夹
 #+begin_src emacs-lisp
   (setq org-roam-directory "D:/Notes/Roam")
-  (map! :leader
-        :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
-        :desc "org-roam node Insert" "v i" #'org-roam-node-insert)
 #+end_src
 
 禁用补全
@@ -844,18 +824,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     :mode("\\Dockerfile\\'" . dockerfile-mode))
 #+end_src
 
-** shell
-设置shell的formatter
-我已经忘了我为什么要设置这个。
-似乎是不设置会报错。
-#+begin_src emacs-lisp
-  (after! sh-script
-    (set-formatter! 'shfmt
-      '("shfmt" "-ci"
-        ("-i" "%d" (unless indent-tabs-mode tab-width))
-        ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
-#+end_src
-
 ** python
 设置在org和markdown的代码块中，"py"打开python-mode
 自己用还是尽量写全python，主要是为了阅读其他人写的"py"代码块
@@ -904,12 +872,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 #+end_src
 
-** lua
-#+begin_src emacs-lisp
-  (after! lua-mode
-    (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
-#+end_src
-
 ** image
 使用快捷键打开系统图片浏览器。依赖dirvish。
 #+begin_src emacs-lisp
@@ -931,9 +893,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (use-package! sis
     :config
     (sis-ism-lazyman-config nil t 'w32)
-    (sis-global-respect-mode t)
-    ;; (sis-global-context-mode t)
-    )
+    (sis-global-respect-mode t))
 #+end_src
 
 ** tabspaces
@@ -1015,7 +975,6 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
     :commands (texfrag-mode)
     :init
     (setq texfrag-markdown-preview-image-links nil
-          texfrag-scale 0.25
           texfrag-subdir ".texfrag"))
 
   (defun my-toggle-texfrag-preview-document()
