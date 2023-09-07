@@ -35,13 +35,11 @@
 
 (setq doom-font (font-spec :family "BlexMono Nerd Font Medium" :size 11.0))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
-;; (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (defun my-cjk-font()
-  (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
     (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)
-    ;; (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'append)
     ))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
@@ -295,9 +293,9 @@
         eldoc-echo-area-prefer-doc-buffer t)
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-(defun my-corfu-frame-visible-h ()
-  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+;; (defun my-corfu-frame-visible-h ()
+;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
@@ -413,13 +411,23 @@
 (map! [f8]     #'dired-jump
       [S-f8]   #'dirvish)
 
+(defun dirvish-media--metadata-from-mediainfo-win (file)
+    "Return result string from command `mediainfo' for FILE."
+    (read (format "(%s)" (shell-command-to-string
+                          (format "mediainfo --Output='%s' %s"
+                                  dirvish-media--info
+                                  file)))))
+
+(after! dirvish
+  (advice-add #'dirvish-media--metadata-from-mediainfo :override
+              #'dirvish-media--metadata-from-mediainfo-win))
+
 (defun my-open-explorer()
   (interactive)
   (call-process-shell-command "explorer ." nil 0))
 
 (map! [f9] #'my-open-explorer)
 
-(setq shell-file-name "pwsh")
 (defun my/eshell-use-git-prompt-theme()
   (eshell-git-prompt-use-theme 'git-radar))
 (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
@@ -428,7 +436,8 @@
 
 (use-package! doom-eshell-toggle)
 (map! :ng [f4]   #'doom-eshell-toggle-project
-      :ng [S-f4] #'project-eshell)
+      :ng [S-f4] #'project-eshell
+      :leader "o e" #'doom-shell-toggle-project)
 
 (after! eshell
   (map! :map eshell-mode-map
@@ -605,7 +614,9 @@
 
 (use-package! sis
   :config
+  (setq sis-respect-prefix-and-buffer nil)
   (sis-ism-lazyman-config nil t 'w32)
+  (add-hook! 'after-init-hook #'sis-set-english)
   (sis-global-respect-mode t))
 
 (use-package! tabspaces

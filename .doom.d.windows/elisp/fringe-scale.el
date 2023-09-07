@@ -67,7 +67,7 @@
          (width (or (nth 3 r) 8))
          (align (or (nth 4 r) 'center)))
     (when (and (< width fringe-scale-width))
-      (message "Scaling fringe bitmap %s: width %d to %d" bitmap width fringe-scale-width)
+      ;; (message "Scaling fringe bitmap %s: width %d to %d" bitmap width fringe-scale-width)
       (let* ((new-width fringe-scale-width)
              (new-height (floor (* height (/ (float new-width) width))))
              (bits-w-scaled (mapcar (lambda (x) (fringe-scale--scale-width x width new-width)) bits))
