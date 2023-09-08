@@ -1,20 +1,11 @@
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
-;; (setq-default buffer-file-coding-system 'utf-8-unix)
-;; (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
-;; (setq-default coding-system-for-read 'utf-8)
-
-(setq default-process-coding-system '(utf-8 . gbk))
-
-;; 解决粘贴中文出现乱码的问题
 (if (eq system-type 'windows-nt)
     (progn
-      ;; (setq selection-coding-system 'utf-16le-dos) ;; 修复从网页剪切文本过来时显示 \nnn \nnn 的问题
-      ;; (set-default selection-coding-system 'utf-16le-dos)
-      (set-selection-coding-system 'utf-16le-dos) ;; 别名set-clipboard-coding-system
-      )
+      (set-selection-coding-system 'utf-16le-dos)
+      (setq default-process-coding-system '(utf-8 . gbk)))
   (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
@@ -467,10 +458,22 @@ Require: `mtn' (executable)"
                          (nth 1 dirvish-path-separators)
                          (concat rmt "/") face))
                     ("c:" (dirvish--register-path-seg
-                          " C:"
+                          "  C:"
                           (concat rmt "c:/") face))
                     ("d:" (dirvish--register-path-seg
-                          " D:"
+                          "  D:"
+                          (concat rmt "c:/") face))
+                    ("e:" (dirvish--register-path-seg
+                          "  E:"
+                          (concat rmt "c:/") face))
+                    ("f:" (dirvish--register-path-seg
+                          "  F:"
+                          (concat rmt "c:/") face))
+                    ("g:" (dirvish--register-path-seg
+                          "  G:"
+                          (concat rmt "c:/") face))
+                    ("h:" (dirvish--register-path-seg
+                          "  H:"
                           (concat rmt "c:/") face))))
            (path (cl-loop for idx from 2
                           for sp = (format
