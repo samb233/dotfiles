@@ -1,0 +1,57 @@
+patch:
+  keyboard_layout: last
+  preset_color_schemes:
+    simple_dark:
+      name: Simple Dark
+      author: Alex Lu <alexluigit@gmail.com>
+      line_spacing: 5                         # 候选词之间的行间距（需要开启纵向排列）
+      spacing: 5                              # 预编辑与候选栏的行间距（需要开启双行显示）
+      corner_radius: 4                        # 候选条圆角
+      hilited_corner_radius: 4                # 高亮圆角
+      border_height: 6                        # 窗口边界高度，大于圆角半径才生效
+      text_color: 0xffffff                    # 拼音行文字颜色，24位色值，16进制，BGR顺序
+      back_color: 0x252320                    # 候选条背景色
+      label_color: 0x888785                   # 预选栏编号颜色
+      border_color: 0x252320                  # 边框色
+      border_color_width: 5                   # 边框宽度
+      inline_candidate: false                 # 预览候选
+      inline_preedit: true                    # 内嵌编码
+      hilited_text_color: 0xffffff            # 高亮拼音 (需要开启内嵌编码)
+      hilited_back_color: 0x252320            # 高亮拼音 (需要开启内嵌编码)
+      hilited_candidate_text_color: 0xf4cc9d  # 第一候选项文字颜色
+      hilited_candidate_back_color: 0x252320  # 第一候选项背景背景色
+      hilited_candidate_label_color: 0xdedddd # 第一候选项编号颜色
+      candidate_text_color: 0xffffff          # 次选文字色
+      candidate_back_color: 0x252320          # 次选背景色
+      comment_text_color: 0x888785            # 拼音等提示文字颜色
+      hilited_comment_text_color: 0xbbbbbb    # 注解文字高亮
+  style:
+    alpha: 0.0
+    color_scheme: simple_dark
+    font_face: "Microsoft YaHei"
+    label_font_face: "Microsoft YaHei"
+    comment_font_face: "Microsoft YaHei"
+    font_point: 11                          # 候选字词大小
+    label_font_point: 11                    # 候选编号大小
+    comment_font_point: 11                  # 候选项编码提示字体字号
+    label_format: "%s. "                        # 不显示数字编号
+    layout:
+      align_type: center # 对齐：top ; center ; bottom
+      max_height: 0 # 候选框最大高度
+      max_width: 0 # 候选框最大宽度，超过会折叠
+      min_height: 0 # 最小高度
+      min_width: 160
+      type: vertical # horizontal（横向）；vertical（竖向） ; vertical_text（竖排文本） ; vertical+fullscreen（全屏） ; horizontal+fullscreen（横向全屏）
+      border_width: 3 # 边框宽度，又名 border
+      margin_x: 12 # 元素偏离候选边框 X 轴距离；为负值时，不显示候选框
+      margin_y: 12 # 元素偏离候选边框 Y 轴距离；为负值时，不显示候选框
+      spacing: 10 # 默认间隙
+      candidate_spacing: 5 # 候选项之间的间隔
+      hilite_spacing: 4 # 候选和标签的间隔
+      hilite_padding: 2 # 高亮区域和边框的间隔。当值 ≥ margin 的值时，高亮颜色会覆盖整个选中的候选区域，实现「天圆地方」的效果。参考文件末的配置
+      hilite_padding_x: 2 # 高亮区域和边框的 X 轴间隔
+      hilite_padding_y: 2 # 高亮区域和边框的 y 轴间隔
+      shadow_offset_x: 4 # 阴影偏离和圆角大小
+      shadow_offset_y: 4
+      shadow_radius: 0
+      round_corner: 4  # 高亮区域圆角；又名 hilited_corner_radius
