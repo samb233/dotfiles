@@ -1,18 +1,27 @@
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
-(setq-default buffer-file-coding-system 'utf-8-unix)
-(set-default-coding-systems 'utf-8-unix)
+;; (setq-default buffer-file-coding-system 'utf-8-unix)
+;; (set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
-(setq system-time-locale "C")
+;; (setq-default coding-system-for-read 'utf-8)
+
+(setq default-process-coding-system '(utf-8 . gbk))
+
+;; 解决粘贴中文出现乱码的问题
+(if (eq system-type 'windows-nt)
+    (progn
+      ;; (setq selection-coding-system 'utf-16le-dos) ;; 修复从网页剪切文本过来时显示 \nnn \nnn 的问题
+      ;; (set-default selection-coding-system 'utf-16le-dos)
+      (set-selection-coding-system 'utf-16le-dos) ;; 别名set-clipboard-coding-system
+      )
+  (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\msys64\\usr\\bin")
-(setenv "PATH" (concat "d:/Env/imagemagick/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\imagemagick")
 
-(pushnew! default-frame-alist '(width . 80) '(height . 50))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
+(pushnew! default-frame-alist '(width . 190) '(height . 50))
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -39,8 +48,7 @@
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)
-    ))
+    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -56,11 +64,9 @@
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
-        doom-modeline-height 50
+        doom-modeline-height 42
         doom-modeline-bar-width 6
-        doom-modeline-window-width-limit 120)
-  ;;(set-face-attribute 'mode-line-active nil :background "#f4f4f4")
-  )
+        doom-modeline-window-width-limit 120))
 
 (after! solaire-mode
  (dolist (face '(mode-line mode-line-inactive))
@@ -350,7 +356,7 @@
      ("b" "D:/Books/"          "Books")))
   :config
   (dirvish-side-follow-mode 1)
-  (add-to-list 'dirvish-video-exts "m2ts")
+  (add-to-list 'dirvish-audio-exts "m2ts")
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
@@ -363,7 +369,7 @@
           ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
   (setq dirvish-default-layout '(0 0 0.5)
         dirvish-use-mode-line nil
-        dirvish-header-line-height '41
+        dirvish-header-line-height '36
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-subtree-file-viewer #'dired-find-file
         dirvish-header-line-format
@@ -411,16 +417,72 @@
 (map! [f8]     #'dired-jump
       [S-f8]   #'dirvish)
 
-(defun dirvish-media--metadata-from-mediainfo-win (file)
-    "Return result string from command `mediainfo' for FILE."
-    (read (format "(%s)" (shell-command-to-string
-                          (format "mediainfo --Output='%s' %s"
-                                  dirvish-media--info
-                                  file)))))
+(setenv "PATH" (concat "d:/Env/media/poppler/bin/;" (getenv "PATH")))
+(add-to-list 'exec-path "d:\\Env\\media\\poppler\\bin")
+(setenv "PATH" (concat "d:/Env/media/imagemagick/;" (getenv "PATH")))
+(add-to-list 'exec-path "d:\\Env\\media\\imagemagick")
+(setenv "PATH" (concat "d:/Env/media/mtn/;" (getenv "PATH")))
+(add-to-list 'exec-path "d:\\Env\\media\\mtn")
 
 (after! dirvish
-  (advice-add #'dirvish-media--metadata-from-mediainfo :override
-              #'dirvish-media--metadata-from-mediainfo-win))
+  (dirvish-define-preview mtn (file ext preview-window)
+    "Preview video files.
+Require: `mtn' (executable)"
+    :require ("mtn")
+    (when (member ext dirvish-video-exts)
+      (let* ((width (dirvish-media--img-size preview-window))
+             (height (dirvish-media--img-size preview-window 'height))
+             (cache (dirvish-media--cache-path file (format "images/%s" width) ".jpg"))
+             (path (dirvish--get-parent-path cache)))
+        (if (file-exists-p cache)
+            `(img . ,(create-image cache nil nil :max-width width :max-height height))
+          `(cache . ("mtn" "-P" "-i" "-c" "1" "-r" "1" "-O" ,path ,file "-o"
+                     ,(format ".%s.jpg" ext) "-w"
+                     ,(number-to-string width)))))))
+  (add-to-list 'dirvish-preview-dispatchers 'mtn)
+
+  (dirvish-define-preview ls (file)
+    "Use `ls' to generate directory preview."
+    :require ("ls")
+    (when (file-directory-p file)
+      `(shell . ("ls" "-l" "--almost-all" "--human-readable"
+                 "--group-directories-first" "--no-group" "--time-style=iso",file))))
+  (add-to-list 'dirvish-preview-dispatchers 'ls)
+
+  (dirvish-define-mode-line pathwin
+    "Path of file under the cursor."
+    (let* ((directory-abbrev-alist nil) ; TODO: support custom `directory-abbrev-alist'
+           (index (dired-current-directory))
+           (face (if (dirvish--window-selected-p dv) 'dired-header 'shadow))
+           (rmt (dirvish-prop :remote))
+           (abvname (if rmt (file-local-name index) (abbreviate-file-name index)))
+           (host (propertize (if rmt (concat " " (substring rmt 1)) "")
+                             'face 'font-lock-builtin-face))
+           (segs (nbutlast (split-string abvname "/")))
+           (scope (pcase (car segs)
+                    ("~" (dirvish--register-path-seg
+                          (nth 0 dirvish-path-separators)
+                          (concat rmt "~/") face))
+                    ("" (dirvish--register-path-seg
+                         (nth 1 dirvish-path-separators)
+                         (concat rmt "/") face))
+                    ("c:" (dirvish--register-path-seg
+                          " C:"
+                          (concat rmt "c:/") face))
+                    ("d:" (dirvish--register-path-seg
+                          " D:"
+                          (concat rmt "c:/") face))))
+           (path (cl-loop for idx from 2
+                          for sp = (format
+                                    "%s%s" (or rmt "")
+                                    (mapconcat #'concat (seq-take segs idx) "/"))
+                          for s in (cdr segs) concat
+                          (format "%s%s" (nth 2 dirvish-path-separators)
+                                  (dirvish--register-path-seg s sp face)))))
+      (replace-regexp-in-string "%" "%%%%" (format "%s%s%s " host scope path))))
+
+  (setq dirvish-header-line-format
+        '(:left (pathwin) :right (yank sort index " "))))
 
 (defun my-open-explorer()
   (interactive)
@@ -431,8 +493,8 @@
 (defun my/eshell-use-git-prompt-theme()
   (eshell-git-prompt-use-theme 'git-radar))
 (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
-(add-hook! 'eshell-mode-hook #'capf-autosuggest-mode)
 (add-hook! 'eshell-mode-hook (corfu-mode -1))
+(add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
 
 (use-package! doom-eshell-toggle)
 (map! :ng [f4]   #'doom-eshell-toggle-project

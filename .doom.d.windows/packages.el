@@ -77,7 +77,6 @@
 (package! fanyi)
 (package! texfrag)
 (package! eshell-git-prompt)
-(package! capf-autosuggest)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

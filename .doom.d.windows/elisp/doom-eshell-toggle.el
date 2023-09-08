@@ -5,9 +5,8 @@
   (interactive "P")
   (let ((eshell-buffer
          (get-buffer-create
-          (format "*eshell-popup:%s*"
-                  (or (doom-project-root)
-                      default-directory))))
+          (format "*doom:eshell-popup:%s*"
+                  (or (doom-project-root) default-directory))))
         confirm-kill-processes
         current-prefix-arg)
     (when arg
