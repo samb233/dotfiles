@@ -440,6 +440,14 @@ Require: `mtn' (executable)"
                  "--group-directories-first" "--no-group" "--time-style=iso",file))))
   (add-to-list 'dirvish-preview-dispatchers 'ls)
 
+  (dirvish-define-preview pdfinfo (file preview-window)
+  "Preview epub files.
+Require: `pdfinfo' (executable)"
+  :require ("pdfinfo")
+  (when (equal ext "pdf")
+    `(shell . ("pdfinfo" ,file))))
+  (add-to-list 'dirvish-preview-dispatchers 'pdfinfo)
+
   (dirvish-define-mode-line pathwin
     "Path of file under the cursor."
     (let* ((directory-abbrev-alist nil) ; TODO: support custom `directory-abbrev-alist'
