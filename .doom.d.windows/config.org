@@ -31,7 +31,7 @@
 设置窗口的大小。
 我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
 #+begin_src emacs-lisp
-  (pushnew! default-frame-alist '(width . 190) '(height . 50))
+  ;; (pushnew! default-frame-alist '(width . 190) '(height . 50))
   ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 #+end_src
 
@@ -89,7 +89,7 @@
   (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
 
   (defun my-cjk-font()
-    (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
+    ;; (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
     (dolist (charset '(kana han cjk-misc symbol bopomofo))
       (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)))
 
@@ -105,6 +105,11 @@
 稍微小一点
 #+begin_src emacs-lisp
   (setq all-the-icons-scale-factor 1.0)
+#+end_src
+
+使用nerd-icons
+#+begin_src emacs-lisp
+  ;; (use-package! nerd-icons)
 #+end_src
 
 ** modeline
@@ -415,9 +420,9 @@ modeline设置，不在modeline上显示eglot任何信息
   (after! corfu-popupinfo
     (setq corfu-popupinfo-delay nil))
 
-  (setq +corfu-auto-delay 0.02)
   (after! corfu
     (setq corfu-preselect 'prompt
+          corfu-auto-delay 0.02
           corfu-on-exact-match nil
           corfu-popupinfo-max-height 20
           corfu-count 10)
@@ -431,9 +436,7 @@ modeline设置，不在modeline上显示eglot任何信息
           :i "C-g" #'corfu-quit)
     (map! :i "C-S-p" #'cape-file)
     (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
-    (set-face-attribute 'corfu-current nil :background "#cde1f8")
-    (use-package! kind-all-the-icons)
-    (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
+    (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 #+end_src
 
 ** flymake
@@ -558,12 +561,12 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           dirvish-header-line-format
           '(:left (path) :right (yank sort index " "))
           dirvish-attributes
-          '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg)
+          '(file-time nerd-icons file-size collapse vc-state)
           dired-listing-switches
           "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
           dirvish-open-with-programs
-          `((,dirvish-audio-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
-            (,dirvish-video-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
+          `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
+            (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
             (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
             (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
             (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
@@ -586,8 +589,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "H" #'dirvish-history-jump
           :n "TAB" #'dirvish-subtree-toggle
           :n [backtab] #'dirvish-subtree-up
-          :n "<mouse-1>" #'dirvish-subtree-toggle
-          :n "<mouse-2>" #'dirvish-subtree-toggle
+          :n "<mouse-1>" nil
+          :n "<mouse-2>" nil
           :n "<mouse-3>" #'dired-find-file
           :n "<mouse-8>" #'dired-up-directory
           :n "<mouse-9>" #'dired-find-file
@@ -642,10 +645,11 @@ Windows下就只能用eshell了。
   (use-package! doom-eshell-toggle)
   (map! :ng [f4]   #'doom-eshell-toggle-project
         :ng [S-f4] #'project-eshell
-        :leader "o e" #'doom-shell-toggle-project)
+        :leader "o e" #'doom-eshell-toggle-project)
 
   (after! eshell
     (map! :map eshell-mode-map
+          :nig "C-c C-c" #'eshell-kill-process
           :i "C-e" #'capf-autosuggest-end-of-line))
 #+end_src
 
@@ -1067,7 +1071,6 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
 
   (dolist (bitmap builtin-bitmaps)
     (define-fringe-bitmap (car bitmap) (cadr bitmap)))
-
 #+end_src
 
 更改flymake指示的bitmap样式

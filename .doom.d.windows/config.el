@@ -11,7 +11,7 @@
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\msys64\\usr\\bin")
 
-(pushnew! default-frame-alist '(width . 190) '(height . 50))
+;; (pushnew! default-frame-alist '(width . 190) '(height . 50))
 ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
@@ -37,7 +37,7 @@
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
 
 (defun my-cjk-font()
-  (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
+  ;; (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
     (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)))
 
@@ -46,6 +46,8 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (setq all-the-icons-scale-factor 1.0)
+
+;; (use-package! nerd-icons)
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
@@ -256,9 +258,9 @@
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay nil))
 
-(setq +corfu-auto-delay 0.02)
 (after! corfu
   (setq corfu-preselect 'prompt
+        corfu-auto-delay 0.02
         corfu-on-exact-match nil
         corfu-popupinfo-max-height 20
         corfu-count 10)
@@ -272,9 +274,7 @@
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
-  (set-face-attribute 'corfu-current nil :background "#cde1f8")
-  (use-package! kind-all-the-icons)
-  (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
+  (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
 (use-package! flymake
   :commands (flymake-mode)
@@ -366,12 +366,12 @@
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))
         dirvish-attributes
-        '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg)
+        '(file-time nerd-icons file-size collapse vc-state)
         dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
         dirvish-open-with-programs
-        `((,dirvish-audio-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
-          (,dirvish-video-exts . ("D:/Applications/mpv.net/mpvnet.exe" "%f"))
+        `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
+          (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
           (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
           (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
           (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
@@ -394,8 +394,8 @@
         :n "H" #'dirvish-history-jump
         :n "TAB" #'dirvish-subtree-toggle
         :n [backtab] #'dirvish-subtree-up
-        :n "<mouse-1>" #'dirvish-subtree-toggle
-        :n "<mouse-2>" #'dirvish-subtree-toggle
+        :n "<mouse-1>" nil
+        :n "<mouse-2>" nil
         :n "<mouse-3>" #'dired-find-file
         :n "<mouse-8>" #'dired-up-directory
         :n "<mouse-9>" #'dired-find-file
@@ -433,10 +433,11 @@
 (use-package! doom-eshell-toggle)
 (map! :ng [f4]   #'doom-eshell-toggle-project
       :ng [S-f4] #'project-eshell
-      :leader "o e" #'doom-shell-toggle-project)
+      :leader "o e" #'doom-eshell-toggle-project)
 
 (after! eshell
   (map! :map eshell-mode-map
+        :nig "C-c C-c" #'eshell-kill-process
         :i "C-e" #'capf-autosuggest-end-of-line))
 
 (setq org-directory "D:/Notes")

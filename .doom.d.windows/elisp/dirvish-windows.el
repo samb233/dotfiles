@@ -11,7 +11,7 @@ Require: `mtn' (executable)"
            (path (dirvish--get-parent-path cache)))
       (if (file-exists-p cache)
           `(img . ,(create-image cache nil nil :max-width width :max-height height))
-        `(cache . ("mtn" "-P" "-i" "-c" "1" "-r" "1" "-O" ,path ,file "-o"
+        `(cache . ("mtn" "-P" "-i" "-c" "1" "-r" "1" "-t" "-O" ,path ,file "-o"
                    ,(format ".%s.jpg" ext) "-w"
                    ,(number-to-string width)))))))
 (add-to-list 'dirvish-preview-dispatchers 'mtn)

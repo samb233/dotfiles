@@ -15,6 +15,7 @@
 ;;      directory (for easy access to its source code).
 
 (setq evil-disable-insert-state-bindings t)
+(pushnew! default-frame-alist '(width . 210) '(height . 65))
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
@@ -28,7 +29,7 @@
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
        vertico             ; the search engine of the future
-       (corfu +tng)
+       (corfu +tng +icons +orderless)
 
        :ui
        ;;deft              ; notational velocity for Emacs
@@ -52,7 +53,7 @@
        (vc-gutter +pretty) ; vcs diff in the fringe
        ;;vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        (window-select
-                +numbers)  ; visually switch windows
+        +numbers)  ; visually switch windows
        ;;workspaces        ; tab emulation, persistence & separate workspaces
        zen                 ; distraction-free coding or writing
 
@@ -92,7 +93,7 @@
        ;;ansible
        ;;biblio            ; Writes a PhD for you (citation needed)
        ;;debugger          ; FIXME stepping through code, to help you add bugs
-       direnv
+       ;;direnv
        ;;docker
        ;;editorconfig      ; let someone else argue about tabs vs spaces
        ;;ein               ; tame Jupyter notebooks with emacs
@@ -125,7 +126,6 @@
        ;;coq               ; proofs-as-programs
        ;;crystal           ; ruby at the speed of c
        (csharp +lsp
-               +unity
                +dotnet)    ; unity, .NET, and mono shenanigans
        data                ; config/data formats
        ;;(dart +flutter)   ; paint ui and not much else
@@ -170,7 +170,6 @@
        ;;plantuml          ; diagrams for confusing people more
        ;;purescript        ; javascript, but functional
        (python +lsp
-               +cython
                +conda)     ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
