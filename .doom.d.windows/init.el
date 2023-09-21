@@ -53,13 +53,13 @@
        (vc-gutter +pretty) ; vcs diff in the fringe
        ;;vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        (window-select
-        +numbers)  ; visually switch windows
+        +numbers)          ; visually switch windows
        ;;workspaces        ; tab emulation, persistence & separate workspaces
        zen                 ; distraction-free coding or writing
 
        :editor
        (evil +everywhere)  ; come to the dark side, we have cookies
-       file-templates      ; auto-snippets for empty files
+       ;;file-templates    ; auto-snippets for empty files
        fold                ; (nigh) universal code folding
        (format +onsave)    ; automated prettiness
        ;;god               ; run Emacs commands without modifier keys
@@ -106,7 +106,7 @@
        ;;pass              ; password manager for nerds
        ;;pdf               ; pdf enhancements
        ;;prodigy           ; FIXME managing external services & code builders
-       rgb                 ; creating color strings
+       ;;rgb               ; creating color strings
        ;;taskrunner        ; taskrunner for all your projects
        ;;terraform         ; infrastructure as code
        ;;tmux              ; an API for interacting with tmux
@@ -142,7 +142,7 @@
        ;;fstar             ; (dependent) types and (monadic) effects and Z3
        (gdscript +lsp)     ; the language you waited for
        (go +lsp)           ; the hipster dialect
-       ;;(graphql +lsp)    ; Give queries a REST
+       (graphql +lsp)      ; Give queries a REST
        ;;(haskell +lsp)    ; a language that's lazier than I am
        ;;hy                ; readability of scheme w/ speed of python
        ;;idris             ; a language you can depend on
@@ -186,9 +186,9 @@
        ;;solidity          ; do you need a blockchain? No.
        ;;swift             ; who asked for emoji variables?
        ;;terra             ; Earth and Moon in alignment for performance.
-       ;;web               ; the tubes
+       web                 ; the tubes
        (yaml +lsp)         ; JSON, but readable
-       ;;zig               ; C, but simpler
+       (zig +lsp)          ; C, but simpler
 
        :email
        ;;(mu4e +org +gmail)

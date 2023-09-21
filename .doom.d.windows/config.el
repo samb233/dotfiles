@@ -24,6 +24,17 @@
                            (if (buffer-modified-p) "*"))
                  "emacs"))))
 
+(defun my-frame-recenter (&optional frame)
+  "Center FRAME on the screen.
+FRAME can be a frame name, a terminal name, or a frame.
+If FRAME is omitted or nil, use currently selected frame."
+  (interactive)
+  (unless (eq 'maximised (frame-parameter nil 'fullscreen))
+    (modify-frame-parameters
+     frame '((user-position . t) (top . 0.5) (left . 0.5)))))
+
+(add-hook! 'doom-after-init-hook #'my-frame-recenter)
+
 (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 
 (setq auth-source-save-behavior nil)
@@ -37,7 +48,7 @@
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
 
 (defun my-cjk-font()
-  ;; (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
+  (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
     (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)))
 
