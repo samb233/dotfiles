@@ -91,6 +91,8 @@
 (package! pipenv :disable t)
 (package! esh-help :disable t)
 
+(package! yasnippet-capf :disable t)
+
 ;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
 (package! ob-go :disable t)

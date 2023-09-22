@@ -5,7 +5,7 @@
 (if (eq system-type 'windows-nt)
     (progn
       (set-selection-coding-system 'utf-16le-dos)
-      (setq default-process-coding-system '(utf-8 . gbk)))
+      (setq default-process-coding-system '(utf-8-unix . gbk-dos)))
   (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
@@ -44,13 +44,13 @@ If FRAME is omitted or nil, use currently selected frame."
 (setq native-comp-speed -1)
 (setq native-comp-jit-compilation nil)
 
-(setq doom-font (font-spec :family "BlexMono Nerd Font Medium" :size 11.0))
-(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font Medium"))
+(setq doom-font (font-spec :family "consolas" :size 11.5))
+(setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil 'prepend)))
+    (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil)))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -309,6 +309,8 @@ If FRAME is omitted or nil, use currently selected frame."
   :config
   (setq dabbrev-abbrev-char-regexp "[A-Za-z-_]"))
 
+(setq completion-ignore-case t)
+
 (use-package! dired
   :commands dired-jump
   :hook
@@ -377,7 +379,7 @@ If FRAME is omitted or nil, use currently selected frame."
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))
         dirvish-attributes
-        '(file-time nerd-icons file-size collapse vc-state)
+        '(file-time nerd-icons file-size collapse)
         dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
         dirvish-open-with-programs
@@ -394,7 +396,7 @@ If FRAME is omitted or nil, use currently selected frame."
         :n "l" #'dired-find-file
         :n "e" #'dired-create-empty-file
         :n "." #'dired-omit-mode
-        :n "C-." #'dirvish-emerge-mode
+        :n "o" #'dirvish-emerge-mode
         :n "q" #'dirvish-quit
         :n "s" #'dirvish-quicksort
         :n "a" #'dirvish-quick-access
