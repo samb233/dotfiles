@@ -5,7 +5,7 @@
 (if (eq system-type 'windows-nt)
     (progn
       (set-selection-coding-system 'utf-16le-dos)
-      (setq default-process-coding-system '(utf-8-unix . gbk-dos)))
+      (setq default-process-coding-system '(utf-8-unix . gbk)))
   (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
@@ -44,13 +44,14 @@ If FRAME is omitted or nil, use currently selected frame."
 (setq native-comp-speed -1)
 (setq native-comp-jit-compilation nil)
 
-(setq doom-font (font-spec :family "consolas" :size 11.5))
+(setq doom-font (font-spec :family "Consolas" :size 11.5))
+;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
 
 (defun my-cjk-font()
   (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil)))
+    (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'prepend)))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -151,6 +152,9 @@ If FRAME is omitted or nil, use currently selected frame."
       "f E" nil
       "f p" nil
       "f P" nil
+      "f u" nil
+      "f U" nil
+      "f l" nil
       "s e" nil
       "s t" nil
       "h g" nil)
@@ -586,7 +590,8 @@ If FRAME is omitted or nil, use currently selected frame."
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
 
 (after! python
-  (setq python-shell-interpreter "python"))
+  (setq python-shell-interpreter "python")
+  (setenv "PYTHONIOENCODING" "utf-8"))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
@@ -594,14 +599,14 @@ If FRAME is omitted or nil, use currently selected frame."
   "Vapoursynth preview this script."
   (interactive)
   (async-shell-command
-   (format "D:/Env/vapoursynth/python.exe -m vspreview %s" buffer-file-name)
+   (format "D:/Env/vapoursynth/python.exe -m vspreview %s" (shell-quote-argument buffer-file-name))
    "*vspreview*"))
 
 (defun vsbench()
   "Vapoursynth bench this script."
   (interactive)
   (async-shell-command
-   (format "D:/Env/vapoursynth/VSPipe.exe -p %s ." buffer-file-name)
+   (format "D:/Env/vapoursynth/VSPipe.exe -p %s ." (shell-quote-argument buffer-file-name))
    "*vsbench*"))
 
 (map! :map python-mode-map

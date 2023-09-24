@@ -104,7 +104,7 @@ must be present.")
                  (str (cadr icon-entry))
                  (props (cddr icon-entry))
                  (extra-face (plist-get props :face))
-                 (space (propertize " " 'display '(space :width 1)))
+                 (space (propertize " " 'display '(space :width 0.5)))
                  (str (concat " " str space)))
             (when extra-face
               (put-text-property 0 3 'face extra-face str))
