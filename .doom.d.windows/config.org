@@ -1008,25 +1008,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
           "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
 #+end_src
 
-** indent-bars
-#+begin_src emacs-lisp
-  (use-package! indent-bars
-    :hook ((prog-mode text-mode conf-mode) . indent-bars-mode)
-    :config
-    (setq indent-bars-prefer-character t
-          indent-bars-color '(highlight :face-bg t :blend 0.2)
-          indent-bars-pattern "."
-          indent-bars-width-frac 0.1
-          indent-bars-pad-frac 0.1
-          indent-bars-zigzag nil
-          indent-bars-color-by-depth nil
-          indent-bars-highlight-current-depth nil
-          indent-bars-display-on-blank-lines nil))
-
-  (add-hook! 'org-mode-hook (indent-bars-mode -1))
-  (add-hook! 'markdown-mode-hook (indent-bars-mode -1))
-#+end_src
-
 ** texfrag
 用来在markdown-mode中查看latex公式
 texfrag很好用，但是会在当前文件夹下生成额外的文件，且不能将他们移到cache文件夹。

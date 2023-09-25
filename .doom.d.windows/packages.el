@@ -77,10 +77,6 @@
 (package! fanyi)
 (package! texfrag)
 (package! eshell-git-prompt)
-(package! indent-bars
-  :recipe (:host github :repo "jdtsmith/indent-bars"
-           :files ("*")))
-
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

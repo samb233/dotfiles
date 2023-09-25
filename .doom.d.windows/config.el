@@ -690,22 +690,6 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq restclient-mvar-regexp
         "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
 
-(use-package! indent-bars
-  :hook ((prog-mode text-mode conf-mode) . indent-bars-mode)
-  :config
-  (setq indent-bars-prefer-character t
-        indent-bars-color '(highlight :face-bg t :blend 0.2)
-        indent-bars-pattern "."
-        indent-bars-width-frac 0.1
-        indent-bars-pad-frac 0.1
-        indent-bars-zigzag nil
-        indent-bars-color-by-depth nil
-        indent-bars-highlight-current-depth nil
-        indent-bars-display-on-blank-lines nil))
-
-(add-hook! 'org-mode-hook (indent-bars-mode -1))
-(add-hook! 'markdown-mode-hook (indent-bars-mode -1))
-
 (use-package! texfrag
   :commands (texfrag-mode)
   :init
