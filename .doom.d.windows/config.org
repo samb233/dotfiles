@@ -18,7 +18,7 @@
       (progn
         (set-selection-coding-system 'utf-16le-dos)
         (setq file-name-coding-system 'gb18030)
-        (setq default-process-coding-system '(utf-8-unix . gbk)))
+        (setq default-process-coding-system '(utf-8 . gbk)))
     (set-selection-coding-system 'utf-8))
 #+end_src
 
@@ -259,6 +259,7 @@ emacs29新加入的像素滚动模式。
         "f P" nil
         "f u" nil
         "f U" nil
+        "b u" nil
         "f l" nil
         "s e" nil
         "s t" nil

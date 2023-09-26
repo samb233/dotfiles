@@ -98,3 +98,10 @@
 (package! ob-go :disable t)
 (package! go-guru :disable t)
 (package! go-eldoc :disable t)
+
+;; 默认的go-tag在我的配置下会有一些问题
+;; 使用我自己的go-tag
+(unpin! go-tag)
+(package! go-tag
+  :recipe (:host github :repo "samb233/emacs-go-tag"
+           :files ("*")))

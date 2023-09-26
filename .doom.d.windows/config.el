@@ -6,7 +6,7 @@
     (progn
       (set-selection-coding-system 'utf-16le-dos)
       (setq file-name-coding-system 'gb18030)
-      (setq default-process-coding-system '(utf-8-unix . gbk)))
+      (setq default-process-coding-system '(utf-8 . gbk)))
   (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
@@ -155,6 +155,7 @@ If FRAME is omitted or nil, use currently selected frame."
       "f P" nil
       "f u" nil
       "f U" nil
+      "b u" nil
       "f l" nil
       "s e" nil
       "s t" nil
