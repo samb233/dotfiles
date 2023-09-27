@@ -366,7 +366,7 @@ If FRAME is omitted or nil, use currently selected frame."
      ("b" "D:/Books/"          "Books")))
   :config
   (dirvish-side-follow-mode 1)
-  (add-to-list 'dirvish-audio-exts "m2ts")
+  (add-to-list 'dirvish-video-exts "m2ts")
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
@@ -377,8 +377,8 @@ If FRAME is omitted or nil, use currently selected frame."
           ("图片" (extensions "jpg" "png" "svg" "gif"))
           ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
           ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-  (setq dirvish-default-layout '(0 0 0.5)
-        dirvish-use-mode-line nil
+  (setq dirvish-use-mode-line nil
+        ;; dirvish-default-layout '(0 0 0.5)
         dirvish-header-line-height '36
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-subtree-file-viewer #'dired-find-file
@@ -618,6 +618,9 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
+
+(setenv "PATH" (concat (getenv "PATH") ";d:/Env/clangd/bin"))
+(add-to-list 'exec-path "d:\\Env\\clangd\\bin")
 
 (defun my-open-current-file-with-app()
   (interactive)

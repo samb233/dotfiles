@@ -1,5 +1,7 @@
 ;;; elisp/dirvish-windows.el -*- lexical-binding: t; -*-
 
+;; Download mtn here
+;; https://www.videohelp.com/software/movie-thumbnailer
 (dirvish-define-preview mtn (file ext preview-window)
   "Preview video files.
 Require: `mtn' (executable)"
@@ -16,13 +18,14 @@ Require: `mtn' (executable)"
                    ,(number-to-string width)))))))
 (add-to-list 'dirvish-preview-dispatchers 'mtn)
 
-(dirvish-define-preview ls (file)
-  "Use `ls' to generate directory preview."
-  :require ("ls")
+(dirvish-define-preview eza (file)
+  "Use `eza' to generate directory preview."
+  :require ("eza")
   (when (file-directory-p file)
-    `(shell . ("ls" "-l" "--almost-all" "--human-readable"
-               "--group-directories-first" "--no-group" "--time-style=iso",file))))
-(add-to-list 'dirvish-preview-dispatchers 'ls)
+    `(shell . ("eza" "-al" "--color=always" "--icons"
+               "--no-permissions" "--time-style" "iso"
+               "--group-directories-first" ,file))))
+(add-to-list 'dirvish-preview-dispatchers 'eza)
 
 (dirvish-define-preview pdfinfo (file preview-window)
   "Preview epub files.
