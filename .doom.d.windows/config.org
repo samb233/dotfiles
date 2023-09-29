@@ -889,6 +889,15 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
     (setenv "PYTHONIOENCODING" "utf-8"))
 #+end_src
 
+加载pyright配置
+#+begin_src emacs-lisp
+  (setq-hook! 'python-mode-hook eglot-workspace-configuration
+              '(:python.analysis (:autoSearchPaths t
+                                  :useLibraryCodeForTypes t
+                                  :typeCheckingMode "basic"
+                                  :diagnosticMode "openFilesOnly")))
+#+end_src
+
 ** vapoursynth
 设置用python-mode打开vpy文件
 #+begin_src emacs-lisp

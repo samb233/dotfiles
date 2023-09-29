@@ -602,6 +602,12 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq python-shell-interpreter "python")
   (setenv "PYTHONIOENCODING" "utf-8"))
 
+(setq-hook! 'python-mode-hook eglot-workspace-configuration
+            '(:python.analysis (:autoSearchPaths t
+                                :useLibraryCodeForTypes t
+                                :typeCheckingMode "basic"
+                                :diagnosticMode "openFilesOnly")))
+
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
 (defun vspreview()

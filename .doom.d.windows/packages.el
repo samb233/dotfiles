@@ -103,5 +103,5 @@
 ;; 使用我自己的go-tag
 (unpin! go-tag)
 (package! go-tag
-  :recipe (:host github :repo "samb233/emacs-go-tag"
-           :files ("*")))
+          :recipe (:host github :repo "samb233/emacs-go-tag"
+                   :files ("*")))
