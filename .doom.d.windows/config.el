@@ -181,9 +181,9 @@ If FRAME is omitted or nil, use currently selected frame."
 (use-package! projectile
   :commands (project-projectile))
 
-(defun projectile-root-default-directory (dir)
-  "Retrieve the root directory of the project at DIR using `default-directory'."
-  default-directory)
+;; (defun projectile-root-default-directory (dir)
+;;   "Retrieve the root directory of the project at DIR using `default-directory'."
+;;   default-directory)
 
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
@@ -191,8 +191,7 @@ If FRAME is omitted or nil, use currently selected frame."
                                             projectile-root-marked
                                             projectile-root-top-down
                                             projectile-root-bottom-up
-                                            projectile-root-top-down-recurring
-                                            projectile-root-default-directory)))
+                                            projectile-root-top-down-recurring)))
 
 (setq project-find-functions '(project-projectile project-try-vc))
 (setq xref-search-program 'ripgrep)
@@ -264,7 +263,14 @@ If FRAME is omitted or nil, use currently selected frame."
         :desc "LSP reconnect" "c L" #'eglot-reconnect
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  )
+
+(setq eglot-workspace-configuration
+      '(:python.analysis (:autoSearchPaths t
+                          :useLibraryCodeForTypes t
+                          :typeCheckingMode "basic"
+                          :diagnosticMode "openFilesOnly")))
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -305,6 +311,7 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
         eldoc-echo-area-prefer-doc-buffer t)
+  (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
 ;; (defun my-corfu-frame-visible-h ()
