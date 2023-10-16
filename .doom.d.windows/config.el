@@ -50,9 +50,8 @@ If FRAME is omitted or nil, use currently selected frame."
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
 (defun my-cjk-font()
-  (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽") nil 'prepend)))
+    (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
@@ -266,12 +265,6 @@ If FRAME is omitted or nil, use currently selected frame."
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   )
 
-(setq eglot-workspace-configuration
-      '(:python.analysis (:autoSearchPaths t
-                          :useLibraryCodeForTypes t
-                          :typeCheckingMode "basic"
-                          :diagnosticMode "openFilesOnly")))
-
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
   (setq mode-line-misc-info
@@ -358,6 +351,8 @@ If FRAME is omitted or nil, use currently selected frame."
   (add-hook! 'wdired-mode-hook #'evil-normal-state)
   (map! :map dired-mode-map
         :ng "j" #'my-next-line))
+
+(setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
 
 (use-package! dirvish
   :init (after! dired (dirvish-override-dired-mode))
@@ -738,10 +733,6 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
 (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
-
-(setq +org-present-text-scale 3)
-(add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
-(add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
 
 (use-package! fringe-scale
   :init

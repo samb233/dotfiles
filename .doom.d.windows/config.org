@@ -105,9 +105,8 @@
   (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
   (defun my-cjk-font()
-    (set-fontset-font t 'unicode (font-spec :family "Segoe UI Emoji") nil 'prepend)
     (dolist (charset '(kana han cjk-misc symbol bopomofo))
-      (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽") nil 'prepend)))
+      (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
   (add-hook 'after-setting-font-hook #'my-cjk-font)
 #+end_src
@@ -426,15 +425,6 @@ doom默认的200个也太少了，至少1000吧
     )
 #+end_src
 
-lsp server设置
-#+begin_src emacs-lisp
-  (setq eglot-workspace-configuration
-        '(:python.analysis (:autoSearchPaths t
-                            :useLibraryCodeForTypes t
-                            :typeCheckingMode "basic"
-                            :diagnosticMode "openFilesOnly")))
-#+end_src
-
 modeline设置，不在modeline上显示eglot任何信息
 #+begin_src emacs-lisp
   (defun my-remove-eglot-mode-line()
@@ -543,7 +533,6 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
     (map! :map dired-mode-map
           :ng "q" #'quit-window)
     (custom-set-faces '(dired-async-message ((t (:inherit success))))))
-
 #+end_src
 
 dired临时修复，修复两个问题:
@@ -558,6 +547,11 @@ dired临时修复，修复两个问题:
     (add-hook! 'wdired-mode-hook #'evil-normal-state)
     (map! :map dired-mode-map
           :ng "j" #'my-next-line))
+#+end_src
+
+修复consult-fd
+#+begin_src emacs-lisp
+  (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
 #+end_src
 
 ** dirvish
@@ -932,7 +926,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 #+end_src
 
-** c
+** cpp
 增加clangd的路径
 #+begin_src emacs-lisp
   (setenv "PATH" (concat (getenv "PATH") ";d:/Env/clangd/bin"))
@@ -1075,14 +1069,6 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
 
   (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
   (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
-#+end_src
-
-** org-tree-slide
-懒得做ppt
-#+begin_src emacs-lisp
-  (setq +org-present-text-scale 3)
-  (add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
-  (add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
 #+end_src
 
 ** fringe-scale
