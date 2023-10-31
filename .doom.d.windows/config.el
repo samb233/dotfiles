@@ -456,10 +456,14 @@ If FRAME is omitted or nil, use currently selected frame."
       :ng [S-f4] #'project-eshell
       :leader "o e" #'doom-eshell-toggle-project)
 
+
 (after! eshell
+  (defun keyboard-quit-advice (&rest args)
+    (keyboard-quit))
   (map! :map eshell-mode-map
         :nig "C-c C-c" #'eshell-kill-process
-        :i "C-e" #'capf-autosuggest-end-of-line))
+        :i "C-e" #'capf-autosuggest-end-of-line)
+  (advice-add #'eshell-interrupt-process :after #'keyboard-quit-advice))
 
 (setq org-directory "D:/Notes")
 (custom-set-faces
@@ -627,9 +631,6 @@ If FRAME is omitted or nil, use currently selected frame."
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 
-(setenv "PATH" (concat (getenv "PATH") ";d:/Env/clangd/bin"))
-(add-to-list 'exec-path "d:\\Env\\clangd\\bin")
-
 (defun my-open-current-file-with-app()
   (interactive)
   (progn
@@ -689,18 +690,6 @@ If FRAME is omitted or nil, use currently selected frame."
 (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2)
-
-(after! restclient
-  (setq restclient-use-var-regexp
-        "{{\([^{ \n]+\)}}$")
-  (setq restclient-var-regexp
-        (concat "^\\(@[^@= ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
-  (setq restclient-svar-regexp
-        "^\\(@[^@= ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
-  (setq restclient-evar-regexp
-        "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
-  (setq restclient-mvar-regexp
-        "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
 
 (use-package! texfrag
   :commands (texfrag-mode)

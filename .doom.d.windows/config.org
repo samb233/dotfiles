@@ -676,10 +676,14 @@ Windows下就只能用eshell了。
         :ng [S-f4] #'project-eshell
         :leader "o e" #'doom-eshell-toggle-project)
 
+
   (after! eshell
+    (defun keyboard-quit-advice (&rest args)
+      (keyboard-quit))
     (map! :map eshell-mode-map
           :nig "C-c C-c" #'eshell-kill-process
-          :i "C-e" #'capf-autosuggest-end-of-line))
+          :i "C-e" #'capf-autosuggest-end-of-line)
+    (advice-add #'eshell-interrupt-process :after #'keyboard-quit-advice))
 #+end_src
 
 * Org-Mode
@@ -926,13 +930,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 #+end_src
 
-** cpp
-增加clangd的路径
-#+begin_src emacs-lisp
-  (setenv "PATH" (concat (getenv "PATH") ";d:/Env/clangd/bin"))
-  (add-to-list 'exec-path "d:\\Env\\clangd\\bin")
-#+end_src
-
 ** image
 使用快捷键打开系统图片浏览器。依赖dirvish。
 #+begin_src emacs-lisp
@@ -1010,23 +1007,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
   (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
   (map! :leader
         :desc "Translate word" "v t" #'fanyi-dwim2)
-#+end_src
-
-** restclient
-配置restclient，使之与vscode的restclient兼容。
-代码来源：[[https://github.com/yurifrl/restclient/blob/b025b6f87fb85a3e6471e475aca8ffb7005f6163/restclient.el#LL187C1-L201C1][restclient-vscode-compatible]]
-#+begin_src emacs-lisp
-  (after! restclient
-    (setq restclient-use-var-regexp
-          "{{\([^{ \n]+\)}}$")
-    (setq restclient-var-regexp
-          (concat "^\\(@[^@= ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
-    (setq restclient-svar-regexp
-          "^\\(@[^@= ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
-    (setq restclient-evar-regexp
-          "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
-    (setq restclient-mvar-regexp
-          "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
 #+end_src
 
 ** texfrag
