@@ -79,7 +79,7 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (setq word-wrap-by-category t)
 
-(use-package! doom-evil-bindings)
+;; (use-package! doom-evil-bindings)
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
@@ -113,7 +113,7 @@ If FRAME is omitted or nil, use currently selected frame."
       :n  "] W"   #'evil-window-up
       :leader
       :desc "jump to references" "c r" #'+lookup/references
-      :desc "consult buffer" "<" #'consult-buffer
+      ;; :desc "consult buffer" "<" #'consult-buffer
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
       :desc "dired jump" ">" #'dired-jump
       :desc "find-file other window" "w ." #'find-file-other-window
@@ -443,27 +443,24 @@ If FRAME is omitted or nil, use currently selected frame."
   (interactive)
   (call-process-shell-command "explorer ." nil 0))
 
-(map! [f9] #'my-open-explorer)
+(map! [f9] #'my-open-explorer
+      :leader "o e" #'my-open-explorer)
 
-(defun my/eshell-use-git-prompt-theme()
-  (eshell-git-prompt-use-theme 'git-radar))
-(add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
-(add-hook! 'eshell-mode-hook (corfu-mode -1))
-(add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
+(defun my-open-windows-terminal-project()
+  (interactive)
+  (call-process-shell-command
+   (format "wt -d %s" (or (doom-project-root) default-directory)) nil 0))
 
-(use-package! doom-eshell-toggle)
-(map! :ng [f4]   #'doom-eshell-toggle-project
-      :ng [S-f4] #'project-eshell
-      :leader "o e" #'doom-eshell-toggle-project)
+(defun my-open-windows-terminal-directory()
+  (interactive)
+  (call-process-shell-command
+   (format "wt -d %s" default-directory) nil 0))
 
-
-(after! eshell
-  (defun keyboard-quit-advice (&rest args)
-    (keyboard-quit))
-  (map! :map eshell-mode-map
-        :nig "C-c C-c" #'eshell-kill-process
-        :i "C-e" #'capf-autosuggest-end-of-line)
-  (advice-add #'eshell-interrupt-process :after #'keyboard-quit-advice))
+(map! [f4] #'my-open-windows-terminal-project
+      [S-f4] #'my-open-windows-terminal-directory
+      :leader
+      "o t" #'my-open-windows-terminal-project
+      "o T" #'my-open-windows-terminal-directory)
 
 (setq org-directory "D:/Notes")
 (custom-set-faces
@@ -656,7 +653,7 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq tab-bar-show nil)
   (tab-rename "Default")
   :custom
-  (tabspaces-use-filtered-buffers-as-default t)
+  (tabspaces-use-filtered-buffers-as-default nil)
   (tabspaces-default-tab "Default")
   (tabspaces-remove-to-default t)
   (tabspaces-include-buffers '("*scratch*"))
@@ -671,6 +668,25 @@ If FRAME is omitted or nil, use currently selected frame."
   (switch-to-buffer "*scratch*"))
 
 (advice-add #'tabspaces-reset-buffer-list :before #'tabspaces-reset-advice)
+
+(after! consult
+  ;; hide full buffer list (still available with "b" prefix)
+  (consult-customize consult--source-buffer :hidden t :default nil)
+  ;; set consult-workspace buffer list
+  (defvar consult--source-workspace
+    (list :name     "Workspace Buffers"
+          :narrow   ?w
+          :history  'buffer-name-history
+          :category 'buffer
+          :state    #'consult--buffer-state
+          :default  t
+          :items    (lambda () (consult--buffer-query
+                                :predicate #'tabspaces--local-buffer-p
+                                :sort 'visibility
+                                :as #'buffer-name)))
+
+    "Set workspace buffer list for consult-buffer.")
+  (add-to-list 'consult-buffer-sources 'consult--source-workspace))
 
 (use-package! fanyi
   :commands (fanyi-dwim

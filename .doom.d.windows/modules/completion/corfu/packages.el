@@ -5,7 +5,7 @@
 (package! cape :pin "bee13e568d42ffec9010fbf795e8f942973da174")
 (when (modulep! +icons)
   (package! nerd-icons-completion :pin "c2db8557a3c1a9588d111f8c8e91cae96ee85010")
-  (package! nerd-icons-corfu :pin "5082a22dfbdea092fcc475db3484cb3ff812b730"))
+  (package! nerd-icons-corfu :pin "7077bb76fefc15aed967476406a19dc5c2500b3c"))
 (when (modulep! +orderless)
   (package! orderless :pin "d6b402a89e234d0e6166247ed6025f9acc8b4d9a"))
 (when (modulep! :os tty)
