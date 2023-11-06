@@ -328,6 +328,7 @@ If FRAME is omitted or nil, use currently selected frame."
         dired-recursive-copies  'always
         dired-recursive-deletes 'always
         dired-create-destination-dirs 'ask
+        delete-by-moving-to-trash t
         dired-clean-confirm-killing-deleted-buffers nil)
   :config
   (setq dired-async-skip-fast t)

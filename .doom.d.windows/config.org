@@ -525,6 +525,7 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
           dired-recursive-copies  'always
           dired-recursive-deletes 'always
           dired-create-destination-dirs 'ask
+          delete-by-moving-to-trash t
           dired-clean-confirm-killing-deleted-buffers nil)
     :config
     (setq dired-async-skip-fast t)
