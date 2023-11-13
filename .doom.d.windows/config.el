@@ -1,3 +1,5 @@
+;; (add-hook! 'doom-after-init-hook #'server-start)
+
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
@@ -279,6 +281,7 @@ If FRAME is omitted or nil, use currently selected frame."
         corfu-auto-delay 0.02
         corfu-on-exact-match nil
         corfu-popupinfo-max-height 20
+        corfu-separator 32
         corfu-count 10)
   (map! :map corfu-map
         :i "C-j" #'corfu-next
@@ -604,6 +607,17 @@ If FRAME is omitted or nil, use currently selected frame."
                                 :useLibraryCodeForTypes t
                                 :typeCheckingMode "basic"
                                 :diagnosticMode "openFilesOnly")))
+
+(after! apheleia
+  (push '(ruff . ("ruff" "format"
+             "--silent"
+             (apheleia-formatters-fill-column "--line-length")
+             "--stdin-filename" filepath
+             "-"))
+      apheleia-formatters)
+
+  (setf (alist-get 'python-mode apheleia-mode-alist)
+      '(ruff)))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 

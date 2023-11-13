@@ -9,6 +9,11 @@
 3. 熟悉vertico的各种命令，增加效率
 4. sis为什么不能用
 
+* server
+#+begin_src emacs-lisp
+  ;; (add-hook! 'doom-after-init-hook #'server-start)
+#+end_src
+
 * 基础行为 & 变量
 ** 你的名字
 #+begin_src emacs-lisp
@@ -450,6 +455,7 @@ modeline设置，不在modeline上显示eglot任何信息
           corfu-auto-delay 0.02
           corfu-on-exact-match nil
           corfu-popupinfo-max-height 20
+          corfu-separator 32
           corfu-count 10)
     (map! :map corfu-map
           :i "C-j" #'corfu-next
@@ -898,6 +904,21 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
                                   :useLibraryCodeForTypes t
                                   :typeCheckingMode "basic"
                                   :diagnosticMode "openFilesOnly")))
+#+end_src
+
+设置使用ruff格式化python代码
+apheleia更新后可以删除push ruff的代码
+#+begin_src emacs-lisp
+  (after! apheleia
+    (push '(ruff . ("ruff" "format"
+               "--silent"
+               (apheleia-formatters-fill-column "--line-length")
+               "--stdin-filename" filepath
+               "-"))
+        apheleia-formatters)
+
+    (setf (alist-get 'python-mode apheleia-mode-alist)
+        '(ruff)))
 #+end_src
 
 ** vapoursynth
