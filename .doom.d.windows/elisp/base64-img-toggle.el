@@ -17,13 +17,13 @@
           (fundamental-mode)
           (erase-buffer)))
     (if-let (win (get-buffer-window img-buffer))
-        (delete-window win)
+        (delete-window win))
     (with-current-buffer img-buffer
       (insert img)
       (if (eq major-mode 'image-mode)
             (run-hooks 'image-mode-hook)
           (image-mode))
-      (image-increase-size 10)))
+      (image-increase-size 10))
     (pop-to-buffer img-buffer)))
 
 (provide 'base64-img-toggle)

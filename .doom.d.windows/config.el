@@ -804,6 +804,6 @@ If FRAME is omitted or nil, use currently selected frame."
 (use-package! base64-img-toggle
   :commands (base64-img-toggle-region))
 
-(set-popup-rule! "^\\*base64-img-toggle" :size 0.1 :modeline nil :quit t)
+(set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
 (map! :leader
       :desc "View Base64 img" "v b" #'base64-img-toggle-region)
