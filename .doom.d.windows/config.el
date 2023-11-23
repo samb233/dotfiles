@@ -36,7 +36,7 @@ If FRAME is omitted or nil, use currently selected frame."
     (modify-frame-parameters
      frame '((user-position . t) (top . 0.5) (left . 0.5)))))
 
-(add-hook! 'doom-after-init-hook #'my-frame-recenter)
+;; (add-hook! 'doom-after-init-hook #'my-frame-recenter)
 
 (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 
@@ -653,6 +653,13 @@ If FRAME is omitted or nil, use currently selected frame."
       :ng "W" #'my-open-current-file-with-app
       "<double-mouse-1>" #'my-open-current-file-with-app)
 
+(after! apheleia
+  (setf (alist-get 'rustfmt apheleia-formatters)
+      '("rustfmt" "--quiet" "--emit" "stdout" "--edition" "2021")))
+
+(setenv "PATH" (concat (getenv "PATH") ";d:/Env/omnisharp/" ))
+(add-to-list 'exec-path "d:\\Env\\omnisharp")
+
 (use-package! sis
   :config
   (setq sis-respect-prefix-and-buffer nil)
@@ -793,3 +800,10 @@ If FRAME is omitted or nil, use currently selected frame."
   (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
         flymake-error-bitmap   '(my-small-left-triangle compilation-error)
         flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
+
+(use-package! base64-img-toggle
+  :commands (base64-img-toggle-region))
+
+(set-popup-rule! "^\\*base64-img-toggle" :size 0.1 :modeline nil :quit t)
+(map! :leader
+      :desc "View Base64 img" "v b" #'base64-img-toggle-region)

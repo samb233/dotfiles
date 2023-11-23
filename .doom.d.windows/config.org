@@ -8,6 +8,8 @@
 2. 更好的终端。eat，或者使用外部的终端。打开三方终端，然后使用windows的api进行分屏，似乎是一个解决方案。
 3. 熟悉vertico的各种命令，增加效率
 4. sis为什么不能用
+5. 项目中新增文件时为什么会这么慢
+
 
 * server
 #+begin_src emacs-lisp
@@ -77,7 +79,7 @@
       (modify-frame-parameters
        frame '((user-position . t) (top . 0.5) (left . 0.5)))))
 
-  (add-hook! 'doom-after-init-hook #'my-frame-recenter)
+  ;; (add-hook! 'doom-after-init-hook #'my-frame-recenter)
 #+end_src
 
 让doom在启动时不再显示加载了多少包
@@ -969,6 +971,21 @@ apheleia更新后可以删除push ruff的代码
         "<double-mouse-1>" #'my-open-current-file-with-app)
 #+end_src
 
+** rust
+设置rustfmt的edition信息
+#+begin_src emacs-lisp
+  (after! apheleia
+    (setf (alist-get 'rustfmt apheleia-formatters)
+        '("rustfmt" "--quiet" "--emit" "stdout" "--edition" "2021")))
+#+end_src
+
+** csharp
+加入omnisharp的路径
+#+begin_src emacs-lisp
+  (setenv "PATH" (concat (getenv "PATH") ";d:/Env/omnisharp/" ))
+  (add-to-list 'exec-path "d:\\Env\\omnisharp")
+#+end_src
+
 * 工具包
 ** 输入法切换
 使用sis实现中英文输入法自动切换。
@@ -1146,4 +1163,15 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
     (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
           flymake-error-bitmap   '(my-small-left-triangle compilation-error)
           flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
+#+end_src
+
+** base64-img-toggle
+直接在emacs里看base64的验证码
+#+begin_src emacs-lisp
+  (use-package! base64-img-toggle
+    :commands (base64-img-toggle-region))
+
+  (set-popup-rule! "^\\*base64-img-toggle" :size 0.1 :modeline nil :quit t)
+  (map! :leader
+        :desc "View Base64 img" "v b" #'base64-img-toggle-region)
 #+end_src
