@@ -1,4 +1,4 @@
-;; (add-hook! 'doom-after-init-hook #'server-start)
+(add-hook! 'doom-after-init-hook #'server-start)
 
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
@@ -113,6 +113,7 @@ If FRAME is omitted or nil, use currently selected frame."
       :n  "[ w"   #'evil-window-left
       :n  "[ W"   #'evil-window-down
       :n  "] W"   #'evil-window-up
+      :v  "<mouse-3>" #'kill-ring-save
       :leader
       :desc "jump to references" "c r" #'+lookup/references
       ;; :desc "consult buffer" "<" #'consult-buffer
@@ -709,6 +710,10 @@ If FRAME is omitted or nil, use currently selected frame."
 
     "Set workspace buffer list for consult-buffer.")
   (add-to-list 'consult-buffer-sources 'consult--source-workspace))
+
+(use-package! tab-bookmark
+  :commands (tab-bookmark
+             tab-bookmark-handler))
 
 (use-package! fanyi
   :commands (fanyi-dwim

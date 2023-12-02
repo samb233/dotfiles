@@ -13,7 +13,7 @@
 
 * server
 #+begin_src emacs-lisp
-  ;; (add-hook! 'doom-after-init-hook #'server-start)
+  (add-hook! 'doom-after-init-hook #'server-start)
 #+end_src
 
 * 基础行为 & 变量
@@ -216,6 +216,7 @@ emacs29新加入的像素滚动模式。
         :n  "[ w"   #'evil-window-left
         :n  "[ W"   #'evil-window-down
         :n  "] W"   #'evil-window-up
+        :v  "<mouse-3>" #'kill-ring-save
         :leader
         :desc "jump to references" "c r" #'+lookup/references
         ;; :desc "consult buffer" "<" #'consult-buffer
@@ -1049,6 +1050,13 @@ apheleia更新后可以删除push ruff的代码
 
       "Set workspace buffer list for consult-buffer.")
     (add-to-list 'consult-buffer-sources 'consult--source-workspace))
+#+end_src
+
+使用tab-bookmark来保存tab
+#+begin_src emacs-lisp
+  (use-package! tab-bookmark
+    :commands (tab-bookmark
+               tab-bookmark-handler))
 #+end_src
 
 ** 单词翻译
