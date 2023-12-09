@@ -57,6 +57,22 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
+(defun my-set-frame-font (&optional frame)
+  (let ((mon (alist-get 'name (frame-monitor-attributes frame))))
+    (when (equal mon "\\\\.\\DISPLAY1")
+      (internal-set-lisp-face-attribute
+       'default :font (font-spec :family "Consolas"
+                                 :size 11.5)))
+    (when (equal mon "\\\\.\\DISPLAY2")
+      (internal-set-lisp-face-attribute
+       'default :font (font-spec :family "Consolas"
+                                 :size 9.0)))))
+
+(defun my-frame-moved-monitors (frame)
+  (when (frame-size-changed-p)
+    (my-set-frame-font frame)))
+(push 'my-frame-moved-monitors window-size-change-functions)
+
 (setq doom-theme 'doom-tomorrow-day)
 
 (setq all-the-icons-scale-factor 1.0)
@@ -714,6 +730,9 @@ If FRAME is omitted or nil, use currently selected frame."
 (use-package! tab-bookmark
   :commands (tab-bookmark
              tab-bookmark-handler))
+
+(map! :leader
+      :desc "Bookmark Tab" "v m" #'tab-bookmark)
 
 (use-package! fanyi
   :commands (fanyi-dwim

@@ -4,11 +4,10 @@
 /多花时间编程，少花时间折腾/
 
 * 闲时折腾
-1. 更好的工作区切换。当前的工作区内切换buffer时貌似不能智能排序。
-2. 更好的终端。eat，或者使用外部的终端。打开三方终端，然后使用windows的api进行分屏，似乎是一个解决方案。
-3. 熟悉vertico的各种命令，增加效率
-4. sis为什么不能用
-5. 项目中新增文件时为什么会这么慢
+1. 熟悉vertico的各种命令，增加效率
+2. sis为什么不能用
+3. 项目中新增文件时为什么会这么慢
+4. 中文输入法的候选字母小
 
 
 * server
@@ -122,6 +121,26 @@
       (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
   (add-hook 'after-setting-font-hook #'my-cjk-font)
+#+end_src
+
+** 多显示器设置
+切换不同显示器时变更字体大小
+#+begin_src emacs-lisp
+  (defun my-set-frame-font (&optional frame)
+    (let ((mon (alist-get 'name (frame-monitor-attributes frame))))
+      (when (equal mon "\\\\.\\DISPLAY1")
+        (internal-set-lisp-face-attribute
+         'default :font (font-spec :family "Consolas"
+                                   :size 11.5)))
+      (when (equal mon "\\\\.\\DISPLAY2")
+        (internal-set-lisp-face-attribute
+         'default :font (font-spec :family "Consolas"
+                                   :size 9.0)))))
+
+  (defun my-frame-moved-monitors (frame)
+    (when (frame-size-changed-p)
+      (my-set-frame-font frame)))
+  (push 'my-frame-moved-monitors window-size-change-functions)
 #+end_src
 
 ** 主题
@@ -1057,6 +1076,9 @@ apheleia更新后可以删除push ruff的代码
   (use-package! tab-bookmark
     :commands (tab-bookmark
                tab-bookmark-handler))
+
+  (map! :leader
+        :desc "Bookmark Tab" "v m" #'tab-bookmark)
 #+end_src
 
 ** 单词翻译
