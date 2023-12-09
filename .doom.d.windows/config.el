@@ -61,16 +61,22 @@ If FRAME is omitted or nil, use currently selected frame."
   "Set font size based on display size and pixel size."
   (let ((mm-size (alist-get 'mm-size (frame-monitor-attributes frame)))
         (pixel-size (nthcdr 2 (frame-monitor-geometry))))
-      ;; 16:10, 16 inch
+
+      ;; 4k, 16:10, 16 inch
       (when (and (equal pixel-size '(3840 2400)) (equal mm-size '(344 215)))
+        (setq doom-font (font-spec :family "Consolas" :size 11.5))
+        (set-face-attribute
+         'help-key-binding nil :font (font-spec :family "Consolas" :size 11.5))
         (internal-set-lisp-face-attribute
-         'default :font (font-spec :family "Consolas"
-                                   :size 11.5)))
-      ;; 16:9, 27 inch
+         'default :font (font-spec :family "Consolas" :size 11.5)))
+
+      ;; 4k, 16:9, 27 inch
       (when (and (equal pixel-size '(3840 2160)) (equal mm-size '(597 336)))
+        (setq doom-font (font-spec :family "Consolas" :size 9.0))
+        (set-face-attribute
+         'help-key-binding nil :font (font-spec :family "Consolas" :size 9.0))
         (internal-set-lisp-face-attribute
-         'default :font (font-spec :family "Consolas"
-                                   :size 9.0)))))
+         'default :font (font-spec :family "Consolas" :size 9.0)))))
 
 (defun my-frame-moved-monitors (frame)
   "Hook func to set font size based on display size and pixel size."
@@ -82,8 +88,6 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (setq all-the-icons-scale-factor 1.0)
 
-;; (use-package! nerd-icons)
-
 (after! doom-modeline
   (setq doom-modeline-modal nil
         doom-modeline-icon nil
@@ -92,7 +96,7 @@ If FRAME is omitted or nil, use currently selected frame."
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
-        doom-modeline-height 42
+        doom-modeline-height 32
         doom-modeline-bar-width 6
         doom-modeline-window-width-limit 120))
 
