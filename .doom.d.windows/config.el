@@ -58,17 +58,22 @@ If FRAME is omitted or nil, use currently selected frame."
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
 (defun my-set-frame-font (&optional frame)
-  (let ((mon (alist-get 'name (frame-monitor-attributes frame))))
-    (when (equal mon "\\\\.\\DISPLAY1")
-      (internal-set-lisp-face-attribute
-       'default :font (font-spec :family "Consolas"
-                                 :size 11.5)))
-    (when (equal mon "\\\\.\\DISPLAY2")
-      (internal-set-lisp-face-attribute
-       'default :font (font-spec :family "Consolas"
-                                 :size 9.0)))))
+  "Set font size based on display size and pixel size."
+  (let ((mm-size (alist-get 'mm-size (frame-monitor-attributes frame)))
+        (pixel-size (nthcdr 2 (frame-monitor-geometry))))
+      ;; 16:10, 16 inch
+      (when (and (equal pixel-size '(3840 2400)) (equal mm-size '(344 215)))
+        (internal-set-lisp-face-attribute
+         'default :font (font-spec :family "Consolas"
+                                   :size 11.5)))
+      ;; 16:9, 27 inch
+      (when (and (equal pixel-size '(3840 2160)) (equal mm-size '(597 336)))
+        (internal-set-lisp-face-attribute
+         'default :font (font-spec :family "Consolas"
+                                   :size 9.0)))))
 
 (defun my-frame-moved-monitors (frame)
+  "Hook func to set font size based on display size and pixel size."
   (when (frame-size-changed-p)
     (my-set-frame-font frame)))
 (push 'my-frame-moved-monitors window-size-change-functions)
