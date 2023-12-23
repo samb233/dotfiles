@@ -281,6 +281,7 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (after! eglot
   (setq eglot-events-buffer-size 0)
+  (setq eglot-send-changes-idle-time 0.1)
   (setq eglot-stay-out-of '(yasnippet))
   (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (map! :map eglot-mode-map
@@ -290,8 +291,7 @@ If FRAME is omitted or nil, use currently selected frame."
         :desc "LSP reconnect" "c L" #'eglot-reconnect
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-  )
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -325,6 +325,7 @@ If FRAME is omitted or nil, use currently selected frame."
   :commands (flymake-mode)
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
+  (setq flymake-no-changes-timeout 0.1)
   (setq flymake-fringe-indicator-position 'right-fringe)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))

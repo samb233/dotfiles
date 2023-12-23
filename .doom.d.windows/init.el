@@ -15,7 +15,7 @@
 ;;      directory (for easy access to its source code).
 
 (setq evil-disable-insert-state-bindings t)
-(pushnew! default-frame-alist '(width . 120) '(height . 35))
+(pushnew! default-frame-alist '(width . 140) '(height . 40))
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
