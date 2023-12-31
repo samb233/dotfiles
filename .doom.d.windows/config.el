@@ -1,4 +1,4 @@
-(add-hook! 'doom-after-init-hook #'server-start)
+;; (add-hook! 'doom-after-init-hook #'server-start)
 
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
@@ -8,6 +8,8 @@
     (progn
       (set-selection-coding-system 'utf-16le-dos)
       (setq file-name-coding-system 'gb18030)
+      (setq shell-file-name "bash")
+      (setq explicit-shell-file-name "bash")
       (setq default-process-coding-system '(utf-8 . gbk)))
   (set-selection-coding-system 'utf-8))
 
@@ -44,7 +46,6 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (setq uniquify-buffer-name-style 'forward)
 
-(setq native-comp-speed -1)
 (setq native-comp-jit-compilation nil)
 
 (setq doom-font (font-spec :family "Consolas" :size 11.5))
@@ -487,11 +488,33 @@ If FRAME is omitted or nil, use currently selected frame."
   (call-process-shell-command
    (format "wt -d %s" default-directory) nil 0))
 
-(map! [f4] #'my-open-windows-terminal-project
-      [S-f4] #'my-open-windows-terminal-directory
-      :leader
+(map! :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
+
+(defun my/eshell-use-git-prompt-theme()
+  (eshell-git-prompt-use-theme 'git-radar))
+(add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
+(add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
+(add-hook! 'eshell-mode-hook
+  (defun my-corfu-add-cape-history-h()
+    (add-hook 'completion-at-point-functions #'cape-history 0 t)))
+
+(use-package! doom-eshell-toggle)
+(map! [f4] #'doom-eshell-toggle-project
+      [S-f4] #'project-eshell
+      :leader
+      "o s" #'doom-eshell-toggle-project
+      "o S" #'project-eshell
+      "o c" #'+eshell/toggle
+      "o C" #'eshell)
+
+;; (after! eshell
+;;   (defun keyboard-quit-advice (&rest args)
+;;     (keyboard-quit))
+;;   (map! :map eshell-mode-map
+;;         :nig "C-c C-c" #'eshell-kill-process)
+;;   (advice-add #'eshell-interrupt-process :after #'keyboard-quit-advice))
 
 (setq org-directory "D:/Notes")
 (custom-set-faces
