@@ -76,7 +76,7 @@
 ;; 工具包
 (package! fanyi)
 (package! texfrag)
-(package! eshell-git-prompt)
+(package! shelldon)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

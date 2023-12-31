@@ -1,5 +1,3 @@
-;; (add-hook! 'doom-after-init-hook #'server-start)
-
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
@@ -8,6 +6,7 @@
     (progn
       (set-selection-coding-system 'utf-16le-dos)
       (setq file-name-coding-system 'gb18030)
+      (setq tramp-mode nil)
       (setq shell-file-name "bash")
       (setq explicit-shell-file-name "bash")
       (setq default-process-coding-system '(utf-8 . gbk)))
@@ -16,31 +15,12 @@
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\msys64\\usr\\bin")
 
-;; (pushnew! default-frame-alist '(width . 190) '(height . 50))
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-;; (add-to-list 'default-frame-alist '(alpha-background . 95))
-;; (add-to-list 'default-frame-alist (cons 'alpha 90))
-
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (concat "emacs: "
                            (abbreviate-file-name (buffer-file-name))
                            (if (buffer-modified-p) "*"))
                  "emacs"))))
-
-(defun my-frame-recenter (&optional frame)
-  "Center FRAME on the screen.
-FRAME can be a frame name, a terminal name, or a frame.
-If FRAME is omitted or nil, use currently selected frame."
-  (interactive)
-  (unless (eq 'maximised (frame-parameter nil 'fullscreen))
-    (modify-frame-parameters
-     frame '((user-position . t) (top . 0.5) (left . 0.5)))))
-
-;; (add-hook! 'doom-after-init-hook #'my-frame-recenter)
-
-(remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 
 (setq auth-source-save-behavior nil)
 
@@ -87,8 +67,6 @@ If FRAME is omitted or nil, use currently selected frame."
 
 (setq doom-theme 'doom-tomorrow-day)
 
-(setq all-the-icons-scale-factor 1.0)
-
 (after! doom-modeline
   (setq doom-modeline-modal nil
         doom-modeline-icon nil
@@ -106,8 +84,6 @@ If FRAME is omitted or nil, use currently selected frame."
     (setf (alist-get face solaire-mode-remap-alist) nil)))
 
 (setq word-wrap-by-category t)
-
-;; (use-package! doom-evil-bindings)
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
@@ -488,33 +464,30 @@ If FRAME is omitted or nil, use currently selected frame."
   (call-process-shell-command
    (format "wt -d %s" default-directory) nil 0))
 
-(map! :leader
+(map! [f4] #'my-open-windows-terminal-project
+      [S-f4] #'my-open-windows-terminal-directory
+      :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
 
-(defun my/eshell-use-git-prompt-theme()
-  (eshell-git-prompt-use-theme 'git-radar))
-(add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
-(add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
-(add-hook! 'eshell-mode-hook
-  (defun my-corfu-add-cape-history-h()
-    (add-hook 'completion-at-point-functions #'cape-history 0 t)))
+(use-package! shelldon
+  :commands (shelldon)
+  :config
+  (set-popup-rule! "^\\*shelldon" :size 0.15 :modeline nil :quit t))
 
-(use-package! doom-eshell-toggle)
-(map! [f4] #'doom-eshell-toggle-project
-      [S-f4] #'project-eshell
-      :leader
-      "o s" #'doom-eshell-toggle-project
-      "o S" #'project-eshell
-      "o c" #'+eshell/toggle
-      "o C" #'eshell)
+;; (add-hook! 'shelldon-mode-hook
+;;   (defun my-corfu-add-cape-history-h()
+;;     (add-hook 'completion-at-point-functions #'cape-history 0 t)))
 
-;; (after! eshell
-;;   (defun keyboard-quit-advice (&rest args)
-;;     (keyboard-quit))
-;;   (map! :map eshell-mode-map
-;;         :nig "C-c C-c" #'eshell-kill-process)
-;;   (advice-add #'eshell-interrupt-process :after #'keyboard-quit-advice))
+(defun shelldon-project()
+  "Run shelldon in current project."
+  (interactive)
+  (let ((default-directory (or (doom-project-root) default-directory)))
+    (shelldon)))
+
+(map! :leader
+      :desc "Open Shelldon project dir" "o s" #'shelldon-project
+      :desc "Open Shelldon current dir" "o S" #'shelldon)
 
 (setq org-directory "D:/Notes")
 (custom-set-faces

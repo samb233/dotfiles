@@ -1,19 +1,7 @@
 #+title: Samb's Doom Emacs Config
 #+author: Samb
 
-/多花时间编程，少花时间折腾/
-
-* 闲时折腾
-1. sis为什么不能用
-2. 项目中新增文件时为什么会这么慢 - lsp action 慢
-3. 中文输入法的候选字母小
-
-* server
-#+begin_src emacs-lisp
-  ;; (add-hook! 'doom-after-init-hook #'server-start)
-#+end_src
-
-* 基础行为 & 变量
+* 基本设置
 ** 你的名字
 #+begin_src emacs-lisp
   (setq user-full-name "Jie Samb"
@@ -28,6 +16,7 @@
       (progn
         (set-selection-coding-system 'utf-16le-dos)
         (setq file-name-coding-system 'gb18030)
+        (setq tramp-mode nil)
         (setq shell-file-name "bash")
         (setq explicit-shell-file-name "bash")
         (setq default-process-coding-system '(utf-8 . gbk)))
@@ -40,22 +29,7 @@
   (add-to-list 'exec-path "d:\\Env\\msys64\\usr\\bin")
 #+end_src
 
-** 窗口大小 & 名称
-设置窗口的大小。
-我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
-#+begin_src emacs-lisp
-  ;; (pushnew! default-frame-alist '(width . 190) '(height . 50))
-  ;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
-#+end_src
-
-设置窗口透明度。
-设置alpha是调用系统窗口混合器来实现半透明，文字和图片也会半透明化
-而alpha-background是emacs29新引入的特性，只半透明背景，不会半透明文字和图片。
-#+begin_src emacs-lisp
-  ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
-  ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
-#+end_src
-
+** 窗口
 设置标题栏名称。
 我将其设置为文件路径。
 #+begin_src emacs-lisp
@@ -65,26 +39,6 @@
                              (abbreviate-file-name (buffer-file-name))
                              (if (buffer-modified-p) "*"))
                    "emacs"))))
-#+end_src
-
-窗口位置
-#+begin_src emacs-lisp
-  (defun my-frame-recenter (&optional frame)
-    "Center FRAME on the screen.
-  FRAME can be a frame name, a terminal name, or a frame.
-  If FRAME is omitted or nil, use currently selected frame."
-    (interactive)
-    (unless (eq 'maximised (frame-parameter nil 'fullscreen))
-      (modify-frame-parameters
-       frame '((user-position . t) (top . 0.5) (left . 0.5)))))
-
-  ;; (add-hook! 'doom-after-init-hook #'my-frame-recenter)
-#+end_src
-
-让doom在启动时不再显示加载了多少包
-这能使我更专注与使用而不是折腾插件
-#+begin_src emacs-lisp
-  (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
 #+end_src
 
 ** auth-save
@@ -158,14 +112,8 @@
   (setq doom-theme 'doom-tomorrow-day)
 #+end_src
 
-** icon
-稍微小一点
-#+begin_src emacs-lisp
-  (setq all-the-icons-scale-factor 1.0)
-#+end_src
-
 ** modeline
-简洁一点，去掉doom-modeline的部分图标
+简洁一点，去掉doom-modeline的所有图标
 #+begin_src emacs-lisp
   (after! doom-modeline
     (setq doom-modeline-modal nil
@@ -190,13 +138,6 @@
 #+end_src
 
 * 按键
-** Windows下加载键位
-Windows下貌似不会自动加载evil-bindings，非常奇怪。
-手动加载一下。
-#+begin_src emacs-lisp
-  ;; (use-package! doom-evil-bindings)
-#+end_src
-
 ** 鼠标
 滚轮
 #+begin_src emacs-lisp
@@ -717,37 +658,35 @@ Eshell不够好用，所以就用外部程序替代。
     (call-process-shell-command
      (format "wt -d %s" default-directory) nil 0))
 
-  (map! :leader
+  (map! [f4] #'my-open-windows-terminal-project
+        [S-f4] #'my-open-windows-terminal-directory
+        :leader
         "o t" #'my-open-windows-terminal-project
         "o T" #'my-open-windows-terminal-directory)
 #+end_src
 
-** eshell
-保留eshell。
+** shelldon
+用来替代async-shell-command，来执行一些简单的命令
+或许用不顺手了就删了。
 #+begin_src emacs-lisp
-  (defun my/eshell-use-git-prompt-theme()
-    (eshell-git-prompt-use-theme 'git-radar))
-  (add-hook! 'eshell-prompt-load-hook #'my/eshell-use-git-prompt-theme)
-  (add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
-  (add-hook! 'eshell-mode-hook
-    (defun my-corfu-add-cape-history-h()
-      (add-hook 'completion-at-point-functions #'cape-history 0 t)))
+  (use-package! shelldon
+    :commands (shelldon)
+    :config
+    (set-popup-rule! "^\\*shelldon" :size 0.15 :modeline nil :quit t))
 
-  (use-package! doom-eshell-toggle)
-  (map! [f4] #'doom-eshell-toggle-project
-        [S-f4] #'project-eshell
-        :leader
-        "o s" #'doom-eshell-toggle-project
-        "o S" #'project-eshell
-        "o c" #'+eshell/toggle
-        "o C" #'eshell)
+  ;; (add-hook! 'shelldon-mode-hook
+  ;;   (defun my-corfu-add-cape-history-h()
+  ;;     (add-hook 'completion-at-point-functions #'cape-history 0 t)))
 
-  ;; (after! eshell
-  ;;   (defun keyboard-quit-advice (&rest args)
-  ;;     (keyboard-quit))
-  ;;   (map! :map eshell-mode-map
-  ;;         :nig "C-c C-c" #'eshell-kill-process)
-  ;;   (advice-add #'eshell-interrupt-process :after #'keyboard-quit-advice))
+  (defun shelldon-project()
+    "Run shelldon in current project."
+    (interactive)
+    (let ((default-directory (or (doom-project-root) default-directory)))
+      (shelldon)))
+
+  (map! :leader
+        :desc "Open Shelldon project dir" "o s" #'shelldon-project
+        :desc "Open Shelldon current dir" "o S" #'shelldon)
 #+end_src
 
 * Org-Mode
