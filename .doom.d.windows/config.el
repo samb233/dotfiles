@@ -24,6 +24,8 @@
 
 (setq auth-source-save-behavior nil)
 
+(remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
+
 (setq uniquify-buffer-name-style 'forward)
 
 (setq native-comp-jit-compilation nil)
@@ -202,6 +204,8 @@
 
 (after! recentf
   (setq recentf-max-saved-items 1000))
+
+(add-hook 'kill-emacs-hook #'recentf-cleanup -10)
 
 (setq magit-clone-default-directory "D:/Codes/Lab/")
 
@@ -434,9 +438,6 @@
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu))
 
-(map! [f8]     #'dired-jump
-      [S-f8]   #'dirvish)
-
 (setenv "PATH" (concat "d:/Env/media/poppler/bin/;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\media\\poppler\\bin")
 (setenv "PATH" (concat "d:/Env/media/imagemagick/;" (getenv "PATH")))
@@ -474,10 +475,6 @@
   :commands (shelldon)
   :config
   (set-popup-rule! "^\\*shelldon" :size 0.15 :modeline nil :quit t))
-
-;; (add-hook! 'shelldon-mode-hook
-;;   (defun my-corfu-add-cape-history-h()
-;;     (add-hook 'completion-at-point-functions #'cape-history 0 t)))
 
 (defun shelldon-project()
   "Run shelldon in current project."

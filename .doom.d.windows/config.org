@@ -47,6 +47,14 @@
   (setq auth-source-save-behavior nil)
 #+end_src
 
+** 启动
+让doom在启动时不再显示加载了多少包
+这能使我更专注与使用而不是折腾插件
+#+begin_src emacs-lisp
+  (remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
+#+end_src
+
+
 ** buffer-name
 设置buffer name重复时的处理。
 在前面添加路径
@@ -306,6 +314,11 @@ doom默认的200个也太少了，至少1000吧
 #+begin_src emacs-lisp
   (after! recentf
     (setq recentf-max-saved-items 1000))
+#+end_src
+
+将关闭时清理recentf的hook提前，避免在Windows上清理不掉的问题
+#+begin_src emacs-lisp
+  (add-hook 'kill-emacs-hook #'recentf-cleanup -10)
 #+end_src
 
 ** magit
@@ -612,12 +625,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           "M-m" #'dirvish-mark-menu))
 #+end_src
 
-设置方便的快捷键
-#+begin_src emacs-lisp
-  (map! [f8]     #'dired-jump
-        [S-f8]   #'dirvish)
-#+end_src
-
 ** dirvish Windows适配
 使用mtn来生成视频缩略图。
 使用ls来生成文件夹预览(避免乱码)
@@ -673,10 +680,6 @@ Eshell不够好用，所以就用外部程序替代。
     :commands (shelldon)
     :config
     (set-popup-rule! "^\\*shelldon" :size 0.15 :modeline nil :quit t))
-
-  ;; (add-hook! 'shelldon-mode-hook
-  ;;   (defun my-corfu-add-cape-history-h()
-  ;;     (add-hook 'completion-at-point-functions #'cape-history 0 t)))
 
   (defun shelldon-project()
     "Run shelldon in current project."
