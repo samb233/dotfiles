@@ -328,20 +328,15 @@
 
 (setq completion-ignore-case t)
 
-(use-package! dired
-  :commands dired-jump
-  :hook
-  (dired-mode . dired-omit-mode)
-  (dired-mode . dired-async-mode)
-  :init
+(after! dired
   (setq dired-dwim-target t
         dired-hide-details-hide-symlink-targets nil
         dired-recursive-copies  'always
         dired-recursive-deletes 'always
         dired-create-destination-dirs 'ask
         delete-by-moving-to-trash t
-        dired-clean-confirm-killing-deleted-buffers nil)
-  :config
+        dired-clean-confirm-killing-deleted-buffers nil
+        dired-kill-when-opening-new-dired-buffer t)
   (setq dired-async-skip-fast t)
   (setq dired-omit-files
         (concat "\\`[.][.]?\\'"
@@ -351,23 +346,29 @@
                 "\\|^\\.ccls-cache\\'"
                 "\\|\\(?:\\.js\\)?\\.meta\\'"
                 "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
+  (setq ls-lisp-dirs-first t
+        ls-lisp-verbosity nil
+        ls-lisp-format-time-list '("%Y-%m-%d %H:%M" "%Y-%m-%d %H:%M")
+        ls-lisp-use-localized-time-format t)
   (map! :map dired-mode-map
-        :ng "q" #'quit-window)
+        :ng "l" #'dired-find-file
+        :ng "h" #'dired-up-directory
+        :ng "." #'dired-omit-mode
+        :ng "a" #'dirvish-quick-access
+        :ng "<mouse-1>" nil
+        :ng "<mouse-2>" nil
+        :ng "<mouse-3>" #'dired-find-file
+        :ng "<mouse-8>" #'dired-up-directory
+        :ng "<mouse-9>" #'dired-find-file
+        :ng "<double-mouse-1>" #'dired-find-file
+        :ng "<double-mouse-3>" #'dired-up-directory)
+  (add-hook! 'wdired-mode-hook #'evil-insert-state)
   (custom-set-faces '(dired-async-message ((t (:inherit success))))))
-
-(defun my-next-line (&rest args)
-  (interactive)
-  (next-line))
-
-(after! dired
-  (add-hook! 'wdired-mode-hook #'evil-normal-state)
-  (map! :map dired-mode-map
-        :ng "j" #'my-next-line))
 
 (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
 
-(use-package! dirvish
-  :init (after! dired (dirvish-override-dired-mode))
+(use-package! dirvish-quick-access
+  :commands (dirvish-quick-access)
   :custom
   (dirvish-quick-access-entries
    '(("h" "~/"                 "Home")
@@ -377,76 +378,7 @@
      ("P" "D:/Pictures/"       "Pictures")
      ("v" "D:/VCBs/"           "Videos")
      ("n" "D:/Notes/"          "Notes")
-     ("b" "D:/Books/"          "Books")))
-  :config
-  (dirvish-side-follow-mode 1)
-  (add-to-list 'dirvish-video-exts "m2ts")
-  (setq dirvish-side-width 40
-        dirvish-side-auto-close t
-        dirvish-side-display-alist `((side . right) (slot . -1)))
-  (setq dirvish-emerge-groups
-        '(("24h" (predicate . recent-files-today))
-          ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
-          ("视频" (extensions "mp4" "mkv" "webm"))
-          ("图片" (extensions "jpg" "png" "svg" "gif"))
-          ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
-          ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-  (setq dirvish-use-mode-line nil
-        ;; dirvish-default-layout '(0 0 0.5)
-        dirvish-header-line-height '36
-        dirvish-path-separators (list "  ~" "   " "/")
-        dirvish-subtree-file-viewer #'dired-find-file
-        dirvish-header-line-format
-        '(:left (path) :right (yank sort index " "))
-        dirvish-attributes
-        '(file-time nerd-icons file-size collapse)
-        dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
-        dirvish-open-with-programs
-        `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-          (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-          (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
-          (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
-          (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
-          (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
-          (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-          (("epub") . ("C:/Users/jiesamb/AppData/Local/Programs/Koodo Reader/Koodo Reader.exe" "%f"))))
-  (map! :map dirvish-mode-map
-        :n "h" #'dired-up-directory
-        :n "l" #'dired-find-file
-        :n "e" #'dired-create-empty-file
-        :n "." #'dired-omit-mode
-        :n "o" #'dirvish-emerge-mode
-        :n "q" #'dirvish-quit
-        :n "s" #'dirvish-quicksort
-        :n "a" #'dirvish-quick-access
-        :n "F" #'dirvish-fd-ask
-        :n "S" #'dirvish-fd-switches-menu
-        :n "y" #'dirvish-yank-menu
-        :n "f" #'dirvish-file-info-menu
-        :n "H" #'dirvish-history-jump
-        :n "TAB" #'dirvish-subtree-toggle
-        :n [backtab] #'dirvish-subtree-up
-        :n "<mouse-1>" nil
-        :n "<mouse-2>" nil
-        :n "<mouse-3>" #'dired-find-file
-        :n "<mouse-8>" #'dired-up-directory
-        :n "<mouse-9>" #'dired-find-file
-        :n "<double-mouse-1>" #'dired-find-file
-        :n "<double-mouse-3>" #'dired-up-directory
-        "M-t" #'dirvish-layout-toggle
-        "M-j" #'dirvish-fd-jump
-        "M-m" #'dirvish-mark-menu))
-
-(setenv "PATH" (concat "d:/Env/media/poppler/bin/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\media\\poppler\\bin")
-(setenv "PATH" (concat "d:/Env/media/imagemagick/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\media\\imagemagick")
-(setenv "PATH" (concat "d:/Env/media/mtn/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\media\\mtn")
-
-(after! dirvish
-  (use-package! dirvish-windows))
+     ("b" "D:/Books/"          "Books"))))
 
 (defun my-open-explorer()
   (interactive)
@@ -470,21 +402,6 @@
       :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
-
-(use-package! shelldon
-  :commands (shelldon)
-  :config
-  (set-popup-rule! "^\\*shelldon" :size 0.15 :modeline nil :quit t))
-
-(defun shelldon-project()
-  "Run shelldon in current project."
-  (interactive)
-  (let ((default-directory (or (doom-project-root) default-directory)))
-    (shelldon)))
-
-(map! :leader
-      :desc "Open Shelldon project dir" "o s" #'shelldon-project
-      :desc "Open Shelldon current dir" "o S" #'shelldon)
 
 (setq org-directory "D:/Notes")
 (custom-set-faces

@@ -67,7 +67,7 @@
 (package! sis)
 
 ;; 文件管理
-(package! dirvish)
+;; (package! dirvish)
 
 ;; Org-Mode
 (package! org-modern)
@@ -76,7 +76,6 @@
 ;; 工具包
 (package! fanyi)
 (package! texfrag)
-(package! shelldon)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

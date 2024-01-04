@@ -23,7 +23,7 @@ Require: `mtn' (executable)"
   :require ("eza")
   (when (file-directory-p file)
     `(shell . ("eza" "-al" "--color=always" "--icons"
-               "--no-permissions" "--time-style" "iso"
+               "--no-permissions" "--time-style" "long-iso" "--no-filesize"
                "--group-directories-first" ,file))))
 (add-to-list 'dirvish-preview-dispatchers 'eza)
 
