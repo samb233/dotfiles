@@ -4,12 +4,14 @@
 (prefer-coding-system 'utf-8-unix)
 (if (eq system-type 'windows-nt)
     (progn
+      ;; not needed if use utf-8-beta
+      ;; (setq default-process-coding-system '(utf-8 . cp936))
+      ;; (setq file-name-coding-system 'cp936)
+
       (set-selection-coding-system 'utf-16le-dos)
-      (setq file-name-coding-system 'cp936)
       (setq tramp-mode nil)
       (setq shell-file-name "bash")
-      (setq explicit-shell-file-name "bash")
-      (setq default-process-coding-system '(utf-8 . cp936)))
+      (setq explicit-shell-file-name "bash"))
   (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
@@ -203,9 +205,8 @@
 (setq xref-search-program 'ripgrep)
 
 (after! recentf
-  (setq recentf-max-saved-items 1000))
-
-(add-hook 'kill-emacs-hook #'recentf-cleanup -10)
+  (setq recentf-max-saved-items 1000)
+  (add-hook 'kill-emacs-hook #'recentf-cleanup -10))
 
 (setq magit-clone-default-directory "D:/Codes/Lab/")
 
@@ -297,7 +298,6 @@
         corfu-count 10)
   (map! :map corfu-map
         :i "C-j" #'corfu-next
-        :i "TAB" #'corfu-next
         :i "C-k" #'corfu-previous
         :i "C-i" #'corfu-insert-separator
         :i "C-s" #'corfu-insert-separator
@@ -326,9 +326,10 @@
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-;; (defun my-corfu-frame-visible-h ()
-;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+(defun my-corfu-frame-visible-h ()
+  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+
+(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
@@ -525,7 +526,7 @@
   :config
   (setq org-modern-block-name nil
         org-modern-table nil)
-  (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
+  (setq org-modern-star '("◉" "◎" "✸" "✽" "○" "◈"))
   (set-face-attribute 'org-modern-label nil :height 1.0))
 
 (add-hook 'org-mode-hook #'org-modern-mode)

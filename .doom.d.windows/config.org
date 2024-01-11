@@ -14,12 +14,14 @@
   (prefer-coding-system 'utf-8-unix)
   (if (eq system-type 'windows-nt)
       (progn
+        ;; not needed if use utf-8-beta
+        ;; (setq default-process-coding-system '(utf-8 . cp936))
+        ;; (setq file-name-coding-system 'cp936)
+
         (set-selection-coding-system 'utf-16le-dos)
-        (setq file-name-coding-system 'cp936)
         (setq tramp-mode nil)
         (setq shell-file-name "bash")
-        (setq explicit-shell-file-name "bash")
-        (setq default-process-coding-system '(utf-8 . cp936)))
+        (setq explicit-shell-file-name "bash"))
     (set-selection-coding-system 'utf-8))
 #+end_src
 
@@ -310,14 +312,11 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
 ** recentf
 设置recentf最大储存项
 doom默认的200个也太少了，至少1000吧
+并将关闭时清理recentf的hook提前，避免在Windows上清理不掉的问题
 #+begin_src emacs-lisp
   (after! recentf
-    (setq recentf-max-saved-items 1000))
-#+end_src
-
-将关闭时清理recentf的hook提前，避免在Windows上清理不掉的问题
-#+begin_src emacs-lisp
-  (add-hook 'kill-emacs-hook #'recentf-cleanup -10)
+    (setq recentf-max-saved-items 1000)
+    (add-hook 'kill-emacs-hook #'recentf-cleanup -10))
 #+end_src
 
 ** magit
@@ -448,7 +447,6 @@ modeline设置，不在modeline上显示eglot任何信息
           corfu-count 10)
     (map! :map corfu-map
           :i "C-j" #'corfu-next
-          :i "TAB" #'corfu-next
           :i "C-k" #'corfu-previous
           :i "C-i" #'corfu-insert-separator
           :i "C-s" #'corfu-insert-separator
@@ -493,9 +491,10 @@ flymake和eglot一起用时就不用设置什么了
 ** yasnippet
 兼容yas和corfu的tab
 #+begin_src emacs-lisp
-  ;; (defun my-corfu-frame-visible-h ()
-  ;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-  ;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+  (defun my-corfu-frame-visible-h ()
+    (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+
+  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 #+end_src
 
 ** dabbrev
@@ -751,7 +750,7 @@ doom为org-mode设计了一些用不上的快捷键。
     :config
     (setq org-modern-block-name nil
           org-modern-table nil)
-    (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
+    (setq org-modern-star '("◉" "◎" "✸" "✽" "○" "◈"))
     (set-face-attribute 'org-modern-label nil :height 1.0))
 
   (add-hook 'org-mode-hook #'org-modern-mode)
