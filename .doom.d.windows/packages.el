@@ -70,13 +70,11 @@
 (package! dirvish)
 
 ;; Org-Mode
-(package! org-modern)
 (package! org-appear)
 
 ;; 工具包
 (package! fanyi)
 (package! texfrag)
-(package! shelldon)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

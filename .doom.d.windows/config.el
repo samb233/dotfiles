@@ -8,10 +8,8 @@
       ;; (setq default-process-coding-system '(utf-8 . cp936))
       ;; (setq file-name-coding-system 'cp936)
 
-      (set-selection-coding-system 'utf-16le-dos)
       (setq tramp-mode nil)
-      (setq shell-file-name "bash")
-      (setq explicit-shell-file-name "bash"))
+      (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
 
 (setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
@@ -73,8 +71,8 @@
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
-        doom-modeline-icon nil
         doom-modeline-lsp nil
+        doom-modeline-icon nil
         doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
@@ -205,8 +203,11 @@
 (setq xref-search-program 'ripgrep)
 
 (after! recentf
-  (setq recentf-max-saved-items 1000)
-  (add-hook 'kill-emacs-hook #'recentf-cleanup -10))
+  (setq recentf-max-saved-items 1000
+        recentf-auto-cleanup 'mode)
+  (remove-hook 'kill-emacs-hook #'recentf-cleanup))
+
+;; (add-hook 'kill-emacs-hook #'recentf-cleanup -10)
 
 (setq magit-clone-default-directory "D:/Codes/Lab/")
 
@@ -267,9 +268,9 @@
 (after! eglot
   (eglot-booster)
   (setq eglot-events-buffer-size 0)
-  (setq eglot-send-changes-idle-time 0.1)
+  (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of '(yasnippet))
-  (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
+  ;; (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (map! :map eglot-mode-map
         :nv "g D" nil
         :leader
@@ -314,7 +315,7 @@
   :commands (flymake-mode)
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
-  (setq flymake-no-changes-timeout 0.1)
+  (setq flymake-no-changes-timeout 0.2)
   (setq flymake-fringe-indicator-position 'right-fringe)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
@@ -322,7 +323,8 @@
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
-        eldoc-echo-area-prefer-doc-buffer t)
+        eldoc-echo-area-prefer-doc-buffer t
+        eldoc-idle-delay 0.2)
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
@@ -480,21 +482,6 @@
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
 
-(use-package! shelldon
-  :commands (shelldon)
-  :config
-  (set-popup-rule! "^\\*shelldon" :size 0.15 :modeline nil :quit t))
-
-(defun shelldon-project()
-  "Run shelldon in current project."
-  (interactive)
-  (let ((default-directory (or (doom-project-root) default-directory)))
-    (shelldon)))
-
-(map! :leader
-      :desc "Open Shelldon project dir" "o s" #'shelldon-project
-      :desc "Open Shelldon current dir" "o S" #'shelldon)
-
 (setq org-directory "D:/Notes")
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
@@ -520,16 +507,6 @@
         :i "C-h" nil
         :i "C-j" nil
         :i "C-k" nil))
-
-(use-package! org-modern
-  :commands (org-modern-mode)
-  :config
-  (setq org-modern-block-name nil
-        org-modern-table nil)
-  (setq org-modern-star '("◉" "◎" "✸" "✽" "○" "◈"))
-  (set-face-attribute 'org-modern-label nil :height 1.0))
-
-(add-hook 'org-mode-hook #'org-modern-mode)
 
 (use-package! org-appear
   :commands (org-appear-mode)
