@@ -8,6 +8,8 @@
       ;; (setq default-process-coding-system '(utf-8 . cp936))
       ;; (setq file-name-coding-system 'cp936)
 
+      (setq explicit-shell-file-name "bash.exe")
+      (setq shell-file-name "bash.exe")
       (setq tramp-mode nil)
       (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
@@ -476,11 +478,46 @@
   (call-process-shell-command
    (format "wt -d %s" default-directory) nil 0))
 
-(map! [f4] #'my-open-windows-terminal-project
-      [S-f4] #'my-open-windows-terminal-directory
-      :leader
+(map!         :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
+
+(use-package! eat
+  :commands (eat)
+  :config
+  (use-package! eat-windows)
+  (map! :map 'eat-mode-map
+        :i "C-v" #'eat-yank
+        :n "p" #'eat-yank))
+
+(add-hook! 'eat-mode-hook #'evil-insert-state)
+;; (add-hook! 'eat-mode-hook
+;;   (defun my-eat-add-cape-history-h ()
+;;     (add-hook 'completion-at-point-functions #'cape-history -10 t)))
+
+(setq-hook! 'eat-mode-hook
+  evil-move-beyond-eol t
+  evil-move-cursor-back nil)
+
+(set-popup-rule! "^\\*eat*" :size 0.3 :modeline nil :quit nil)
+
+(defun my-eat-project()
+  "Run eat in current project."
+  (interactive)
+  (let* ((default-directory (or (doom-project-root) default-directory))
+         (eat-buffer-name (format "*eat: %s*" default-directory))
+         (confirm-kill-processes nil))
+    (if-let (win (get-buffer-window eat-buffer-name))
+        (let (confirm-kill-processes)
+          (delete-window win))
+      (eat)
+      (pop-to-buffer eat-buffer-name))))
+
+(map! [f4] #'my-eat-project
+      [S-f4] #'eat
+      :leader
+      :desc "Open eat project dir" "o s" #'my-eat-project
+      :desc "Open eat current dir" "o S" #'eat)
 
 (setq org-directory "D:/Notes")
 (custom-set-faces

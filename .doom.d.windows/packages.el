@@ -75,6 +75,7 @@
 ;; 工具包
 (package! fanyi)
 (package! texfrag)
+(package! eat :pin "77bc6d7acc8e6d26905310ad9e9ca09469a7ef1c")
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)
