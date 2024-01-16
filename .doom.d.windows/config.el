@@ -460,6 +460,9 @@
 (after! dirvish
   (use-package! dirvish-windows))
 
+(add-hook! 'dirvish-setup-hook
+  (use-package! dirvish-video-mediainfo-enhance))
+
 (defun my-open-explorer()
   (interactive)
   (call-process-shell-command "explorer ." nil 0))
