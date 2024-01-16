@@ -75,6 +75,10 @@
 ;; 工具包
 (package! fanyi)
 (package! texfrag)
+(package! eglot-booster
+          :recipe (:host github :repo "jdtsmith/eglot-booster"
+                   :files ("*")))
+(package! jsonrpc :built-in 'prefer)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

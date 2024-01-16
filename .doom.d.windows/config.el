@@ -9,6 +9,7 @@
       ;; (setq file-name-coding-system 'cp936)
 
       (setq tramp-mode nil)
+      (setq default-process-coding-system '(utf-8 . utf-8))
       (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
 
@@ -263,14 +264,13 @@
 (advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
 
 (use-package! eglot-booster
-  :commands (eglot-booster))
+  :after eglot
+  :config (eglot-booster-mode))
 
 (after! eglot
-  (eglot-booster)
   (setq eglot-events-buffer-size 0)
   (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of '(yasnippet))
-  ;; (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
   (map! :map eglot-mode-map
         :nv "g D" nil
         :leader
@@ -278,7 +278,8 @@
         :desc "LSP reconnect" "c L" #'eglot-reconnect
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  (set-face-attribute 'eglot-inlay-hint-face nil :height 0.9))
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -469,12 +470,14 @@
 (defun my-open-windows-terminal-project()
   (interactive)
   (call-process-shell-command
-   (format "wt -d %s" (or (doom-project-root) default-directory)) nil 0))
+   (format "wt -d %s" (shell-quote-argument
+                       (or (doom-project-root) default-directory))) nil 0))
 
 (defun my-open-windows-terminal-directory()
   (interactive)
   (call-process-shell-command
-   (format "wt -d %s" default-directory) nil 0))
+   (format "wt -d %s" (shell-quote-argument
+                       default-directory)) nil 0))
 
 (map! [f4] #'my-open-windows-terminal-project
       [S-f4] #'my-open-windows-terminal-directory
@@ -615,12 +618,12 @@
                                 :diagnosticMode "openFilesOnly")))
 
 (after! apheleia
-  (push '(ruff . ("ruff" "format"
-             "--silent"
-             (apheleia-formatters-fill-column "--line-length")
-             "--stdin-filename" filepath
-             "-"))
-      apheleia-formatters)
+  ;; (push '(ruff . ("ruff" "format"
+  ;;            "--silent"
+  ;;            (apheleia-formatters-fill-column "--line-length")
+  ;;            "--stdin-filename" filepath
+  ;;            "-"))
+  ;;     apheleia-formatters)
 
   (setf (alist-get 'python-mode apheleia-mode-alist)
       '(ruff)))
@@ -671,7 +674,8 @@
   (setq sis-respect-prefix-and-buffer nil)
   (sis-ism-lazyman-config nil t 'w32)
   (add-hook! 'after-init-hook #'sis-set-english)
-  (sis-global-respect-mode t))
+  (sis-global-respect-mode t)
+  (sis-global-context-mode t))
 
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)
