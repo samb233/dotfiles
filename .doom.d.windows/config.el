@@ -463,6 +463,16 @@
 (add-hook! 'dirvish-setup-hook
   (use-package! dirvish-video-mediainfo-enhance))
 
+(use-package! dired-7z
+  :after dired
+  :config
+  (set-popup-rule! "^\\*7z-compress*" :size 0.3 :modeline nil :quit t)
+  (set-popup-rule! "^\\*7z-extract*" :size 0.3 :modeline nil :quit t)
+  (map! :map 'dired-mode-map
+        :localleader
+        "c" #'dired-7z-compress
+        "e" #'dired-7z-extract))
+
 (defun my-open-explorer()
   (interactive)
   (call-process-shell-command "explorer ." nil 0))

@@ -665,6 +665,20 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (use-package! dirvish-video-mediainfo-enhance))
 #+end_src
 
+** 7z
+使用7z压缩和解压
+#+begin_src emacs-lisp
+  (use-package! dired-7z
+    :after dired
+    :config
+    (set-popup-rule! "^\\*7z-compress*" :size 0.3 :modeline nil :quit t)
+    (set-popup-rule! "^\\*7z-extract*" :size 0.3 :modeline nil :quit t)
+    (map! :map 'dired-mode-map
+          :localleader
+          "c" #'dired-7z-compress
+          "e" #'dired-7z-extract))
+#+end_src
+
 ** explorer
 #+begin_src emacs-lisp
   (defun my-open-explorer()
