@@ -473,11 +473,21 @@
         "z" #'dired-7z-compress
         "e" #'dired-7z-extract))
 
+;; (defun dired-copy-file-to-windows-clipboard()
+;;   (interactive)
+;;   (if (w32-shell-execute "copy" (dired-get-filename))
+;;       (message "Copied")
+;;     (message "Copy failed")))
+
 (defun dired-copy-file-to-windows-clipboard()
   (interactive)
-  (if (w32-shell-execute "copy" (dired-get-filename))
-      (message "Copied")
-    (message "Copy failed")))
+  (let ((files (dired-get-marked-files))
+        (args ""))
+    (dolist (file files)
+      (setf args (format "%s %s" args (file-name-nondirectory file))))
+    (if (w32-shell-execute "open" "file2clip.exe" args 0)
+        (message "Copied")
+      (message "Copy failed"))))
 
 (defun dired-paste-file-from-windows-clipboard()
   (interactive)
@@ -485,10 +495,17 @@
       (message "Pasted")
     (message "Paste failed")))
 
+(defun dired-open-file-properties-windows()
+  (interactive)
+  (if (w32-shell-execute "properties" (dired-get-filename))
+      (message "Open properties")
+    (message "Open properties failed")))
+
 (map! :map 'dired-mode-map
       :localleader
       "c" #'dired-copy-file-to-windows-clipboard
-      "p" #'dired-paste-file-from-windows-clipboard)
+      "p" #'dired-paste-file-from-windows-clipboard
+      "i" #'dired-open-file-properties-windows)
 
 (defun my-open-explorer()
   (interactive)

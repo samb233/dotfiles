@@ -681,12 +681,25 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 
 ** copy & paste
 Windows剪贴板的拷贝&粘贴
+但emacs默认的w32-shell-execute从底层就不支持多个文件输入
+故使用一个三方程序 file2clip 来进行拷贝操作
+https://github.com/rostok/file2clip
 #+begin_src emacs-lisp
+  ;; (defun dired-copy-file-to-windows-clipboard()
+  ;;   (interactive)
+  ;;   (if (w32-shell-execute "copy" (dired-get-filename))
+  ;;       (message "Copied")
+  ;;     (message "Copy failed")))
+
   (defun dired-copy-file-to-windows-clipboard()
     (interactive)
-    (if (w32-shell-execute "copy" (dired-get-filename))
-        (message "Copied")
-      (message "Copy failed")))
+    (let ((files (dired-get-marked-files))
+          (args ""))
+      (dolist (file files)
+        (setf args (format "%s %s" args (file-name-nondirectory file))))
+      (if (w32-shell-execute "open" "file2clip.exe" args 0)
+          (message "Copied")
+        (message "Copy failed"))))
 
   (defun dired-paste-file-from-windows-clipboard()
     (interactive)
@@ -694,10 +707,17 @@ Windows剪贴板的拷贝&粘贴
         (message "Pasted")
       (message "Paste failed")))
 
+  (defun dired-open-file-properties-windows()
+    (interactive)
+    (if (w32-shell-execute "properties" (dired-get-filename))
+        (message "Open properties")
+      (message "Open properties failed")))
+
   (map! :map 'dired-mode-map
         :localleader
         "c" #'dired-copy-file-to-windows-clipboard
-        "p" #'dired-paste-file-from-windows-clipboard)
+        "p" #'dired-paste-file-from-windows-clipboard
+        "i" #'dired-open-file-properties-windows)
 #+end_src
 
 ** explorer
