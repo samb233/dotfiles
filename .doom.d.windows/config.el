@@ -466,12 +466,29 @@
 (use-package! dired-7z
   :after dired
   :config
-  (set-popup-rule! "^\\*7z-compress*" :size 0.3 :modeline nil :quit t)
-  (set-popup-rule! "^\\*7z-extract*" :size 0.3 :modeline nil :quit t)
+  (set-popup-rule! "^\\*7z-compress*" :size 0.3 :modeline nil :quit t :select t)
+  (set-popup-rule! "^\\*7z-extract*" :size 0.3 :modeline nil :quit t :select t)
   (map! :map 'dired-mode-map
         :localleader
-        "c" #'dired-7z-compress
+        "z" #'dired-7z-compress
         "e" #'dired-7z-extract))
+
+(defun dired-copy-file-to-windows-clipboard()
+  (interactive)
+  (if (w32-shell-execute "copy" (dired-get-filename))
+      (message "Copied")
+    (message "Copy failed")))
+
+(defun dired-paste-file-from-windows-clipboard()
+  (interactive)
+  (if (w32-shell-execute "paste" default-directory)
+      (message "Pasted")
+    (message "Paste failed")))
+
+(map! :map 'dired-mode-map
+      :localleader
+      "c" #'dired-copy-file-to-windows-clipboard
+      "p" #'dired-paste-file-from-windows-clipboard)
 
 (defun my-open-explorer()
   (interactive)
