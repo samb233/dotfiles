@@ -9,6 +9,9 @@
       ;; (setq file-name-coding-system 'cp936)
 
       (setq tramp-mode nil)
+      (setenv "LANG" "zh_CN.UTF-8")
+      (setq shell-file-name "bash"
+            explicit-shell-file-name "bash")
       (setq default-process-coding-system '(utf-8 . utf-8))
       (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
@@ -267,6 +270,12 @@
   :after eglot
   :config (eglot-booster-mode))
 
+(add-hook! 'eglot-booster-mode-hook
+  (defun my-eglot-booster-fix-h()
+    (add-to-list 'eglot-server-programs
+                 '((yaml-mode yaml-ts-mode)
+                   . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
+
 (after! eglot
   (setq eglot-events-buffer-size 0)
   (setq eglot-send-changes-idle-time 0.2)
@@ -279,7 +288,7 @@
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-  (set-face-attribute 'eglot-inlay-hint-face nil :height 0.9))
+  (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -466,11 +475,10 @@
 (use-package! dired-7z
   :after dired
   :config
-  (set-popup-rule! "^\\*7z-compress*" :size 0.3 :modeline nil :quit t :select t)
-  (set-popup-rule! "^\\*7z-extract*" :size 0.3 :modeline nil :quit t :select t)
   (map! :map 'dired-mode-map
         :localleader
         "z" #'dired-7z-compress
+        "Z" #'dired-7z-compress-with-password
         "e" #'dired-7z-extract))
 
 (use-package! dired-windows-clipboard

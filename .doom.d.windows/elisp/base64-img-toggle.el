@@ -1,7 +1,7 @@
 ;;; elisp/base64-img-toggle.el -*- lexical-binding: t; -*-
 
 (defun base64-img-toggle-region (beg end)
-  "Decode a base64 string to a image and toggle."
+  "Decode base64 string within BEG and END to a image and show."
   (interactive
    (if (use-region-p)
        (list (region-beginning) (region-end))
