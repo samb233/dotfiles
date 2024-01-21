@@ -2,17 +2,18 @@
       user-mail-address "samb233@hotmail.com")
 
 (prefer-coding-system 'utf-8-unix)
+
 (if (eq system-type 'windows-nt)
     (progn
-      ;; not needed if use utf-8-beta
-      ;; (setq default-process-coding-system '(utf-8 . cp936))
-      ;; (setq file-name-coding-system 'cp936)
-
       (setq tramp-mode nil)
       (setenv "LANG" "zh_CN.UTF-8")
       (setq shell-file-name "bash"
             explicit-shell-file-name "bash")
       (setq default-process-coding-system '(utf-8 . utf-8))
+
+      ;; not needed if use utf-8-beta
+      ;; (setq default-process-coding-system '(utf-8 . cp936))
+      ;; (setq file-name-coding-system 'cp936)
       (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
 
@@ -34,6 +35,8 @@
 
 (setq native-comp-jit-compilation nil)
 
+(setq word-wrap-by-category t)
+
 (setq doom-font (font-spec :family "Consolas" :size 11.5))
 ;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
@@ -43,6 +46,8 @@
     (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
+
+(setq display-line-numbers-type 'relative)
 
 (defun my-set-frame-font (&optional frame)
   "Set font size based on display size and pixel size."
@@ -89,8 +94,6 @@
  (dolist (face '(mode-line mode-line-inactive))
     (setf (alist-get face solaire-mode-remap-alist) nil)))
 
-(setq word-wrap-by-category t)
-
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
 (setq mouse-wheel-scroll-amount
@@ -104,34 +107,28 @@
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
 
-(map! :ig  "C-v"  #'yank
-      :ig  "M-v"  #'yank
-      :v  "J"     #'drag-stuff-down
-      :v  "K"     #'drag-stuff-up
-      :ni "C-s"   #'consult-line
-      :ni "C-z"   #'undo-only
-      :ni "C-S-z" #'undo-redo
-      :nv "g r"   #'+lookup/references
-      :n  "q"     #'doom/escape
-      :n  "U"     #'evil-redo
-      :n  "g a"   #'avy-goto-char-2
-      :n  "] e"   #'flymake-goto-next-error
-      :n  "[ e"   #'flymake-goto-prev-error
-      :n  "] w"   #'evil-window-right
-      :n  "[ w"   #'evil-window-left
-      :n  "[ W"   #'evil-window-down
-      :n  "] W"   #'evil-window-up
+(map! :ig "C-v"       #'yank
+      :ig "M-v"       #'yank
+      :v  "J"         #'drag-stuff-down
+      :v  "K"         #'drag-stuff-up
+      :v  "R"         #'query-replace
+      :ni "C-s"       #'consult-line
+      :ni "C-z"       #'undo-only
+      :ni "C-S-z"     #'undo-redo
+      :nv "g r"       #'+lookup/references
+      :n  "q"         #'doom/escape
+      :n  "U"         #'evil-redo
+      :n  "F"         #'avy-goto-char-2
+      :n  "] e"       #'flymake-goto-next-error
+      :n  "[ e"       #'flymake-goto-prev-error
       :v  "<mouse-3>" #'kill-ring-save
       :leader
-      :desc "jump to references" "c r" #'+lookup/references
-      ;; :desc "consult buffer" "<" #'consult-buffer
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
+      :desc "find-file other window"      "w ." #'find-file-other-window
       :desc "dired jump" ">" #'dired-jump
-      :desc "find-file other window" "w ." #'find-file-other-window
+      :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
-      :desc "toggle format-all" "t f" #'format-all-mode
-      :desc "bookmark list" "b w" #'list-bookmarks
-      :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
+      :desc "bookmark list" "b w" #'list-bookmarks)
 
 (map! :map evil-ex-search-keymap
       "C-v" #'yank
@@ -173,7 +170,7 @@
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
-(evil-ex-define-cmd "quit" 'evil-quit)
+(evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
 
 (setq undo-no-redo t)
@@ -211,8 +208,6 @@
         recentf-auto-cleanup 'mode)
   (remove-hook 'kill-emacs-hook #'recentf-cleanup))
 
-;; (add-hook 'kill-emacs-hook #'recentf-cleanup -10)
-
 (setq magit-clone-default-directory "D:/Codes/Lab/")
 
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
@@ -248,39 +243,11 @@
 
 (add-hook! 'ediff-startup-hook #'ediff-next-difference)
 
-(use-package! pixel-scroll)
-
-(defun my-inline-image-pixel-scroll(&rest args)
-  (setq-local evil-move-beyond-eol t
-              pixel-scroll-precision-mode t))
-
-(defun my-disable-inline-image-pixel-scroll(&rest args)
-  (setq-local evil-move-beyond-eol nil
-              pixel-scroll-precision-mode nil))
-
-(after! markdown-mode
-(advice-add 'markdown-display-inline-images :after #'my-inline-image-pixel-scroll)
-(advice-add 'markdown-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
-
-(after! org
-(advice-add 'org-display-inline-images :after #'my-inline-image-pixel-scroll)
-(advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
-
-(use-package! eglot-booster
-  :after eglot
-  :config (eglot-booster-mode))
-
-(add-hook! 'eglot-booster-mode-hook
-  (defun my-eglot-booster-fix-h()
-    (add-to-list 'eglot-server-programs
-                 '((yaml-mode yaml-ts-mode)
-                   . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
-
 (after! eglot
   (setq eglot-events-buffer-size 0)
   (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of '(yasnippet))
-  (map! :map eglot-mode-map
+  (map! :map 'eglot-mode-map
         :nv "g D" nil
         :leader
         :desc "LSP start/restart" "c l" #'eglot
@@ -296,8 +263,15 @@
             (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
 (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 
-(after! corfu-popupinfo
-  (setq corfu-popupinfo-delay nil))
+(use-package! eglot-booster
+  :after eglot
+  :config (eglot-booster-mode))
+
+(add-hook! 'eglot-booster-mode-hook
+  (defun my-eglot-booster-fix-h()
+    (add-to-list 'eglot-server-programs
+                 '((yaml-mode yaml-ts-mode)
+                   . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
 
 (after! corfu
   (setq corfu-preselect 'prompt
@@ -319,6 +293,9 @@
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
   (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
+(after! corfu-popupinfo
+  (setq corfu-popupinfo-delay nil))
+
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
 (use-package! flymake
@@ -338,10 +315,10 @@
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-(defun my-corfu-frame-visible-h ()
-  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+;; (defun my-corfu-frame-visible-h ()
+;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
 
-(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
@@ -649,13 +626,6 @@
                                 :diagnosticMode "openFilesOnly")))
 
 (after! apheleia
-  ;; (push '(ruff . ("ruff" "format"
-  ;;            "--silent"
-  ;;            (apheleia-formatters-fill-column "--line-length")
-  ;;            "--stdin-filename" filepath
-  ;;            "-"))
-  ;;     apheleia-formatters)
-
   (setf (alist-get 'python-mode apheleia-mode-alist)
       '(ruff)))
 
@@ -683,22 +653,9 @@
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 
-(defun my-open-current-file-with-app()
-  (interactive)
-  (progn
-    (dirvish-find-entry-a buffer-file-name)
-    (quit-window)))
-
-(map! :map image-mode-map
-      :ng "W" #'my-open-current-file-with-app
-      "<double-mouse-1>" #'my-open-current-file-with-app)
-
 (after! apheleia
   (setf (alist-get 'rustfmt apheleia-formatters)
       '("rustfmt" "--quiet" "--emit" "stdout" "--edition" "2021")))
-
-(setenv "PATH" (concat (getenv "PATH") ";d:/Env/omnisharp/" ))
-(add-to-list 'exec-path "d:\\Env\\omnisharp")
 
 (use-package! sis
   :config
@@ -777,21 +734,6 @@
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2)
 
-(use-package! texfrag
-  :commands (texfrag-mode)
-  :init
-  (setq texfrag-markdown-preview-image-links nil
-        texfrag-subdir ".texfrag"))
-
-(defun my-toggle-texfrag-preview-document()
-  (interactive)
-  (if (bound-and-true-p texfrag-mode)
-      (texfrag-mode -1)
-    (progn (texfrag-mode)
-           (texfrag-document))))
-(map! :map markdown-mode-map :localleader
-      :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
-
 (defun my-writeroom-mode-on()
   (if (equal major-mode 'org-mode)
       (org-display-inline-images))
@@ -808,6 +750,13 @@
 
 (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
 (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
+
+(use-package! base64-img-toggle
+  :commands (base64-img-toggle-region))
+
+(set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
+(map! :leader
+      :desc "View Base64 img" "v b" #'base64-img-toggle-region)
 
 (use-package! fringe-scale
   :init
@@ -848,10 +797,3 @@
   (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
         flymake-error-bitmap   '(my-small-left-triangle compilation-error)
         flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
-
-(use-package! base64-img-toggle
-  :commands (base64-img-toggle-region))
-
-(set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
-(map! :leader
-      :desc "View Base64 img" "v b" #'base64-img-toggle-region)

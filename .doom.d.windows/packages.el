@@ -55,6 +55,7 @@
 ;; Emacs自带的包就不要再去下载了
 (package! org :built-in 'prefer)
 (package! eglot :built-in 'prefer)
+(package! jsonrpc :built-in 'prefer)
 (package! project :built-in 'prefer)
 (package! use-package :built-in 'prefer)
 (package! transient :built-in 'prefer)
@@ -74,11 +75,9 @@
 
 ;; 工具包
 (package! fanyi)
-(package! texfrag)
 (package! eglot-booster
           :recipe (:host github :repo "jdtsmith/eglot-booster"
                    :files ("*")))
-(package! jsonrpc :built-in 'prefer)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)
@@ -92,7 +91,6 @@
 (package! tide :disable t)
 (package! pipenv :disable t)
 (package! esh-help :disable t)
-
 (package! yasnippet-capf :disable t)
 
 ;; 过于老旧，取消使用

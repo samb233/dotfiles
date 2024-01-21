@@ -9,20 +9,20 @@
 #+end_src
 
 ** 文件编码
-将文件编码全部设定为utf-8-unix
 #+begin_src emacs-lisp
   (prefer-coding-system 'utf-8-unix)
+
   (if (eq system-type 'windows-nt)
       (progn
-        ;; not needed if use utf-8-beta
-        ;; (setq default-process-coding-system '(utf-8 . cp936))
-        ;; (setq file-name-coding-system 'cp936)
-
         (setq tramp-mode nil)
         (setenv "LANG" "zh_CN.UTF-8")
         (setq shell-file-name "bash"
               explicit-shell-file-name "bash")
         (setq default-process-coding-system '(utf-8 . utf-8))
+
+        ;; not needed if use utf-8-beta
+        ;; (setq default-process-coding-system '(utf-8 . cp936))
+        ;; (setq file-name-coding-system 'cp936)
         (set-selection-coding-system 'utf-16le-dos))
     (set-selection-coding-system 'utf-8))
 #+end_src
@@ -71,6 +71,11 @@
   (setq native-comp-jit-compilation nil)
 #+end_src
 
+** word-wrap
+#+begin_src emacs-lisp
+  (setq word-wrap-by-category t)
+#+end_src
+
 * 外观
 ** 字体
 设置字体与字体大小。
@@ -85,6 +90,12 @@
       (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
   (add-hook 'after-setting-font-hook #'my-cjk-font)
+#+end_src
+
+** 行号
+使用相对行号。
+#+begin_src emacs-lisp
+  (setq display-line-numbers-type 'relative)
 #+end_src
 
 ** 多显示器设置
@@ -143,11 +154,6 @@
       (setf (alist-get face solaire-mode-remap-alist) nil)))
 #+end_src
 
-** word-wrap
-#+begin_src emacs-lisp
-  (setq word-wrap-by-category t)
-#+end_src
-
 * 按键
 ** 鼠标
 滚轮
@@ -175,34 +181,28 @@ emacs29新加入的像素滚动模式。
 
 ** 键位设置
 #+begin_src emacs-lisp
-  (map! :ig  "C-v"  #'yank
-        :ig  "M-v"  #'yank
-        :v  "J"     #'drag-stuff-down
-        :v  "K"     #'drag-stuff-up
-        :ni "C-s"   #'consult-line
-        :ni "C-z"   #'undo-only
-        :ni "C-S-z" #'undo-redo
-        :nv "g r"   #'+lookup/references
-        :n  "q"     #'doom/escape
-        :n  "U"     #'evil-redo
-        :n  "g a"   #'avy-goto-char-2
-        :n  "] e"   #'flymake-goto-next-error
-        :n  "[ e"   #'flymake-goto-prev-error
-        :n  "] w"   #'evil-window-right
-        :n  "[ w"   #'evil-window-left
-        :n  "[ W"   #'evil-window-down
-        :n  "] W"   #'evil-window-up
+  (map! :ig "C-v"       #'yank
+        :ig "M-v"       #'yank
+        :v  "J"         #'drag-stuff-down
+        :v  "K"         #'drag-stuff-up
+        :v  "R"         #'query-replace
+        :ni "C-s"       #'consult-line
+        :ni "C-z"       #'undo-only
+        :ni "C-S-z"     #'undo-redo
+        :nv "g r"       #'+lookup/references
+        :n  "q"         #'doom/escape
+        :n  "U"         #'evil-redo
+        :n  "F"         #'avy-goto-char-2
+        :n  "] e"       #'flymake-goto-next-error
+        :n  "[ e"       #'flymake-goto-prev-error
         :v  "<mouse-3>" #'kill-ring-save
         :leader
-        :desc "jump to references" "c r" #'+lookup/references
-        ;; :desc "consult buffer" "<" #'consult-buffer
         :desc "consult buffer other window" "w ," #'consult-buffer-other-window
+        :desc "find-file other window"      "w ." #'find-file-other-window
         :desc "dired jump" ">" #'dired-jump
-        :desc "find-file other window" "w ." #'find-file-other-window
+        :desc "jump to references" "c r" #'+lookup/references
         :desc "format buffer" "b f" #'+format/buffer
-        :desc "toggle format-all" "t f" #'format-all-mode
-        :desc "bookmark list" "b w" #'list-bookmarks
-        :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
+        :desc "bookmark list" "b w" #'list-bookmarks)
 #+end_src
 
 设置evil搜索时粘贴的快捷键
@@ -256,11 +256,11 @@ emacs29新加入的像素滚动模式。
 #+end_src
 
 ** evil-cmd
-设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:quit
+设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:qa
 #+begin_src emacs-lisp
   (evil-ex-define-cmd "q" 'kill-this-buffer)
   (evil-ex-define-cmd "Q" 'kill-this-buffer)
-  (evil-ex-define-cmd "quit" 'evil-quit)
+  (evil-ex-define-cmd "qa" 'evil-quit)
   (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
 
@@ -320,8 +320,6 @@ doom默认的200个也太少了，至少1000吧
     (setq recentf-max-saved-items 1000
           recentf-auto-cleanup 'mode)
     (remove-hook 'kill-emacs-hook #'recentf-cleanup))
-
-  ;; (add-hook 'kill-emacs-hook #'recentf-cleanup -10)
 #+end_src
 
 ** magit
@@ -379,55 +377,15 @@ doom默认的200个也太少了，至少1000吧
   (add-hook! 'ediff-startup-hook #'ediff-next-difference)
 #+end_src
 
-** pixel-scroll
-设置在打开org和markdown的inline-image时自动开启像素滚动模式。
-#+begin_src emacs-lisp
-  (use-package! pixel-scroll)
-
-  (defun my-inline-image-pixel-scroll(&rest args)
-    (setq-local evil-move-beyond-eol t
-                pixel-scroll-precision-mode t))
-
-  (defun my-disable-inline-image-pixel-scroll(&rest args)
-    (setq-local evil-move-beyond-eol nil
-                pixel-scroll-precision-mode nil))
-
-  (after! markdown-mode
-  (advice-add 'markdown-display-inline-images :after #'my-inline-image-pixel-scroll)
-  (advice-add 'markdown-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
-
-  (after! org
-  (advice-add 'org-display-inline-images :after #'my-inline-image-pixel-scroll)
-  (advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
-#+end_src
-
 * 代码补全
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
-** 使用eglot-booster
-使eglot运行速度变快的魔法: https://github.com/blahgeek/emacs-lsp-booster
-#+begin_src emacs-lisp
-  (use-package! eglot-booster
-    :after eglot
-    :config (eglot-booster-mode))
-#+end_src
-
-其中在使用yaml-language-server时存在一些问题。
-在加载booster后重新设置成绝对路径
-#+begin_src emacs-lisp
-  (add-hook! 'eglot-booster-mode-hook
-    (defun my-eglot-booster-fix-h()
-      (add-to-list 'eglot-server-programs
-                   '((yaml-mode yaml-ts-mode)
-                     . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
-#+end_src
-
 ** eglot
 #+begin_src emacs-lisp
   (after! eglot
     (setq eglot-events-buffer-size 0)
     (setq eglot-send-changes-idle-time 0.2)
     (setq eglot-stay-out-of '(yasnippet))
-    (map! :map eglot-mode-map
+    (map! :map 'eglot-mode-map
           :nv "g D" nil
           :leader
           :desc "LSP start/restart" "c l" #'eglot
@@ -447,11 +405,26 @@ modeline设置，不在modeline上显示eglot任何信息
   (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 #+end_src
 
+** 使用eglot-booster
+使eglot运行速度变快的魔法: https://github.com/blahgeek/emacs-lsp-booster
+#+begin_src emacs-lisp
+  (use-package! eglot-booster
+    :after eglot
+    :config (eglot-booster-mode))
+#+end_src
+
+其中在使用yaml-language-server时存在一些问题。
+在加载booster后重新设置成绝对路径
+#+begin_src emacs-lisp
+  (add-hook! 'eglot-booster-mode-hook
+    (defun my-eglot-booster-fix-h()
+      (add-to-list 'eglot-server-programs
+                   '((yaml-mode yaml-ts-mode)
+                     . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
+#+end_src
+
 ** corfu
 #+begin_src emacs-lisp
-  (after! corfu-popupinfo
-    (setq corfu-popupinfo-delay nil))
-
   (after! corfu
     (setq corfu-preselect 'prompt
           corfu-auto-delay 0.02
@@ -471,6 +444,9 @@ modeline设置，不在modeline上显示eglot任何信息
     (map! :i "C-S-p" #'cape-file)
     (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
     (set-face-attribute 'corfu-current nil :background "#cde1f8"))
+
+  (after! corfu-popupinfo
+    (setq corfu-popupinfo-delay nil))
 #+end_src
 
 设置minibuffer的补全需要两个键
@@ -507,10 +483,10 @@ flymake和eglot一起用时就不用设置什么了
 ** yasnippet
 兼容yas和corfu的tab
 #+begin_src emacs-lisp
-  (defun my-corfu-frame-visible-h ()
-    (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+  ;; (defun my-corfu-frame-visible-h ()
+  ;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
 
-  (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+  ;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 #+end_src
 
 ** dabbrev
@@ -942,13 +918,6 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 apheleia更新后可以删除push ruff的代码
 #+begin_src emacs-lisp
   (after! apheleia
-    ;; (push '(ruff . ("ruff" "format"
-    ;;            "--silent"
-    ;;            (apheleia-formatters-fill-column "--line-length")
-    ;;            "--stdin-filename" filepath
-    ;;            "-"))
-    ;;     apheleia-formatters)
-
     (setf (alist-get 'python-mode apheleia-mode-alist)
         '(ruff)))
 #+end_src
@@ -987,33 +956,12 @@ apheleia更新后可以删除push ruff的代码
   (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 #+end_src
 
-** image
-使用快捷键打开系统图片浏览器。依赖dirvish。
-#+begin_src emacs-lisp
-  (defun my-open-current-file-with-app()
-    (interactive)
-    (progn
-      (dirvish-find-entry-a buffer-file-name)
-      (quit-window)))
-
-  (map! :map image-mode-map
-        :ng "W" #'my-open-current-file-with-app
-        "<double-mouse-1>" #'my-open-current-file-with-app)
-#+end_src
-
 ** rust
 设置rustfmt的edition信息
 #+begin_src emacs-lisp
   (after! apheleia
     (setf (alist-get 'rustfmt apheleia-formatters)
         '("rustfmt" "--quiet" "--emit" "stdout" "--edition" "2021")))
-#+end_src
-
-** csharp
-加入omnisharp的路径
-#+begin_src emacs-lisp
-  (setenv "PATH" (concat (getenv "PATH") ";d:/Env/omnisharp/" ))
-  (add-to-list 'exec-path "d:\\Env\\omnisharp")
 #+end_src
 
 * 工具包
@@ -1114,27 +1062,6 @@ apheleia更新后可以删除push ruff的代码
         :desc "Translate word" "v t" #'fanyi-dwim2)
 #+end_src
 
-** texfrag
-用来在markdown-mode中查看latex公式
-texfrag很好用，但是会在当前文件夹下生成额外的文件，且不能将他们移到cache文件夹。
-需要寻找替代品
-#+begin_src emacs-lisp
-  (use-package! texfrag
-    :commands (texfrag-mode)
-    :init
-    (setq texfrag-markdown-preview-image-links nil
-          texfrag-subdir ".texfrag"))
-
-  (defun my-toggle-texfrag-preview-document()
-    (interactive)
-    (if (bound-and-true-p texfrag-mode)
-        (texfrag-mode -1)
-      (progn (texfrag-mode)
-             (texfrag-document))))
-  (map! :map markdown-mode-map :localleader
-        :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
-#+end_src
-
 ** writeroom
 打开writeroom-mode时，做一系列操作，如打开pixel-scroll、关闭行号等
 #+begin_src emacs-lisp
@@ -1154,6 +1081,17 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
 
   (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
   (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
+#+end_src
+
+** base64-img-toggle
+直接在emacs里看base64的验证码
+#+begin_src emacs-lisp
+  (use-package! base64-img-toggle
+    :commands (base64-img-toggle-region))
+
+  (set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
+  (map! :leader
+        :desc "View Base64 img" "v b" #'base64-img-toggle-region)
 #+end_src
 
 ** fringe-scale
@@ -1204,15 +1142,4 @@ texfrag很好用，但是会在当前文件夹下生成额外的文件，且不�
     (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
           flymake-error-bitmap   '(my-small-left-triangle compilation-error)
           flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
-#+end_src
-
-** base64-img-toggle
-直接在emacs里看base64的验证码
-#+begin_src emacs-lisp
-  (use-package! base64-img-toggle
-    :commands (base64-img-toggle-region))
-
-  (set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
-  (map! :leader
-        :desc "View Base64 img" "v b" #'base64-img-toggle-region)
 #+end_src
