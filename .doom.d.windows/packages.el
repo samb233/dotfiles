@@ -75,6 +75,8 @@
 
 ;; 工具包
 (package! fanyi)
+(package! vlf)
+(package! eshell-git-prompt)
 (package! eglot-booster
           :recipe (:host github :repo "jdtsmith/eglot-booster"
                    :files ("*")))

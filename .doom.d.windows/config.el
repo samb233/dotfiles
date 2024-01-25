@@ -22,10 +22,10 @@
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
-                   (concat "emacs: "
+                   (concat "Editor Macross >> "
                            (abbreviate-file-name (buffer-file-name))
-                           (if (buffer-modified-p) "*"))
-                 "emacs"))))
+                           (if (buffer-modified-p) " *"))
+                 "Editor Macross"))))
 
 (setq auth-source-save-behavior nil)
 
@@ -111,14 +111,14 @@
       :ig "M-v"       #'yank
       :v  "J"         #'drag-stuff-down
       :v  "K"         #'drag-stuff-up
-      :v  "R"         #'query-replace
+      :nv "R"         #'query-replace
       :ni "C-s"       #'consult-line
       :ni "C-z"       #'undo-only
       :ni "C-S-z"     #'undo-redo
       :nv "g r"       #'+lookup/references
       :n  "q"         #'doom/escape
       :n  "U"         #'evil-redo
-      :n  "F"         #'avy-goto-char-2
+      :n  "s"         #'avy-goto-char-2
       :n  "] e"       #'flymake-goto-next-error
       :n  "[ e"       #'flymake-goto-prev-error
       :v  "<mouse-3>" #'kill-ring-save
@@ -129,6 +129,18 @@
       :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
       :desc "bookmark list" "b w" #'list-bookmarks)
+
+(map! :after evil-snipe
+      (:map evil-snipe-local-mode-map
+       :mn "s" nil
+       :mn "S" nil))
+
+(defun avy-goto-char-2-all-window()
+  (interactive)
+  (let ((avy-all-windows t))
+    (call-interactively 'avy-goto-char-2)))
+
+(map! :n "S" #'avy-goto-char-2-all-window)
 
 (map! :map evil-ex-search-keymap
       "C-v" #'yank
@@ -493,6 +505,20 @@
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
 
+(add-hook! 'eshell-prompt-load-hook
+  (defun my/eshell-use-git-prompt-theme()
+    (eshell-git-prompt-use-theme 'git-radar)))
+(add-hook! 'eshell-mode-hook
+  (defun my-corfu-add-cape-history-h()
+    (add-hook 'completion-at-point-functions #'cape-history 0 t)))
+;; (add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
+
+(setq comint-input-ignoredups t)
+(use-package! doom-eshell-toggle)
+(map! :leader
+      "o s" #'doom-eshell-toggle-project
+      "o S" #'project-eshell)
+
 (setq org-directory "D:/Notes")
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
@@ -714,6 +740,74 @@
 
 (map! :leader
       :desc "Bookmark Tab" "v m" #'tab-bookmark)
+
+(defun my-emacs-use-proxy()
+  (interactive)
+  (setenv "http_proxy" "http://127.0.0.1:10809")
+  (setenv "https_proxy" "http://127.0.0.1:10809")
+  (setenv "all_proxy" "socks5://127.0.0.1:10808")
+  (message "Use Proxy"))
+
+(defun my-emacs-not-use-proxy()
+  (interactive)
+  (setenv "http_proxy" "")
+  (setenv "https_proxy" "")
+  (setenv "all_proxy" "")
+  (message "Not use Proxy"))
+
+(map! :leader
+      :desc "use proxy" "v p" #'my-emacs-use-proxy
+      :desc "use proxy" "v P" #'my-emacs-not-use-proxy)
+
+(use-package! vlf
+  :config
+  (map! :map 'vlf-prefix-map
+        :n "C-j" #'vlf-next-batch
+        :n "C-k" #'vlf-prev-batch
+        :n "gj" #'vlf-next-batch
+        :n "gk" #'vlf-prev-batch
+        :n "]]" #'vlf-next-batch
+        :n "[[" #'vlf-prev-batch
+        :n "+" #'vlf-change-batch-size
+        :n "-" #'evil-collection-vlf-decrease-batch-size
+        :n "=" #'vlf-next-batch-from-point
+        :n "gr" #'vlf-revert
+        :n "s" #'vlf-re-search-forward
+        :n "S" #'vlf-re-search-backward
+        :n "gg" #'vlf-beginning-of-file
+        :n "G" #'vlf-end-of-file
+        :n "J" #'vlf-jump-to-chunk
+        :n "E" #'vlf-ediff-buffers
+        :n "g%" #'vlf-query-replace
+        :n "go" #'vlf-occur
+        :n "L" #'vlf-goto-line
+        :n "F" #'vlf-toggle-follow))
+
+(add-hook! 'vlf-mode-hook #'evil-normalize-keymaps)
+
+(defadvice! +files--ask-about-large-file-vlf (size op-type filename offer-raw)
+  "Like `files--ask-user-about-large-file', but with support for `vlf'."
+  :override #'files--ask-user-about-large-file
+  (let ((prompt (format "File %s is large (%s), really %s?"
+                        (file-name-nondirectory filename)
+                        (funcall byte-count-to-string-function size) op-type)))
+    (if (not offer-raw)
+        (if (y-or-n-p prompt) nil 'abort)
+      (let ((choice
+             (car
+              (read-multiple-choice
+               prompt '((?y "yes")
+                        (?n "no")
+                        (?l "literally")
+                        (?v "vlf"))
+               (files--ask-user-about-large-file-help-text
+                op-type (funcall byte-count-to-string-function size))))))
+        (cond ((eq choice ?y) nil)
+              ((eq choice ?l) 'raw)
+              ((eq choice ?v)
+               (vlf filename)
+               (error ""))
+              (t 'abort))))))
 
 (use-package! fanyi
   :commands (fanyi-dwim
