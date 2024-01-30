@@ -121,6 +121,8 @@
       :n  "s"         #'avy-goto-char-2
       :n  "] e"       #'flymake-goto-next-error
       :n  "[ e"       #'flymake-goto-prev-error
+      :n  "] w"       #'evil-window-next
+      :n  "[ w"       #'evil-window-prev
       :v  "<mouse-3>" #'kill-ring-save
       :leader
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
@@ -255,6 +257,13 @@
 
 (add-hook! 'ediff-startup-hook #'ediff-next-difference)
 
+(defun my-disable-auto-lsp()
+  "Override doom's lsp! func to disable auto enable lsp"
+  (interactive))
+
+(advice-add #'lsp! :override #'my-disable-auto-lsp)
+(map! :leader :desc "LSP start/restart" "c l" #'eglot)
+
 (after! eglot
   (setq eglot-events-buffer-size 0)
   (setq eglot-send-changes-idle-time 0.2)
@@ -263,7 +272,7 @@
         :nv "g D" nil
         :leader
         :desc "LSP start/restart" "c l" #'eglot
-        :desc "LSP reconnect" "c L" #'eglot-reconnect
+        :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
@@ -706,7 +715,9 @@
   (tabspaces-session nil)
   (tabspaces-session-auto-restore nil)
   :config
-  (map! :leader
+  (map! :n "[ TAB" #'tab-previous
+        :n "] TAB" #'tab-next
+        :leader
         :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
         :desc "close current tab" [backtab] #'tab-bar-close-tab))
 
@@ -760,6 +771,7 @@
       :desc "use proxy" "v P" #'my-emacs-not-use-proxy)
 
 (use-package! vlf
+  :commands (vlf vlf-mode)
   :config
   (map! :map 'vlf-prefix-map
         :n "C-j" #'vlf-next-batch

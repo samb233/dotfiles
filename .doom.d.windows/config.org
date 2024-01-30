@@ -193,6 +193,8 @@ emacs29新加入的像素滚动模式。
         :n  "s"         #'avy-goto-char-2
         :n  "] e"       #'flymake-goto-next-error
         :n  "[ e"       #'flymake-goto-prev-error
+        :n  "] w"       #'evil-window-next
+        :n  "[ w"       #'evil-window-prev
         :v  "<mouse-3>" #'kill-ring-save
         :leader
         :desc "consult buffer other window" "w ," #'consult-buffer-other-window
@@ -391,6 +393,18 @@ doom默认的200个也太少了，至少1000吧
 #+end_src
 
 * 代码补全
+** 关闭lsp
+尝试不启用lsp进行编程。
+doom里将lsp!这个方法override即可
+#+begin_src emacs-lisp
+  (defun my-disable-auto-lsp()
+    "Override doom's lsp! func to disable auto enable lsp"
+    (interactive))
+
+  (advice-add #'lsp! :override #'my-disable-auto-lsp)
+  (map! :leader :desc "LSP start/restart" "c l" #'eglot)
+#+end_src
+
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
 ** eglot
 #+begin_src emacs-lisp
@@ -402,7 +416,7 @@ doom默认的200个也太少了，至少1000吧
           :nv "g D" nil
           :leader
           :desc "LSP start/restart" "c l" #'eglot
-          :desc "LSP reconnect" "c L" #'eglot-reconnect
+          :desc "LSP reconnect" "c L" #'eglot-shutdown
           :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
@@ -1026,7 +1040,9 @@ apheleia更新后可以删除push ruff的代码
     (tabspaces-session nil)
     (tabspaces-session-auto-restore nil)
     :config
-    (map! :leader
+    (map! :n "[ TAB" #'tab-previous
+          :n "] TAB" #'tab-next
+          :leader
           :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
           :desc "close current tab" [backtab] #'tab-bar-close-tab))
 #+end_src
@@ -1096,6 +1112,7 @@ apheleia更新后可以删除push ruff的代码
 使用vlf处理大文件
 #+begin_src emacs-lisp
   (use-package! vlf
+    :commands (vlf vlf-mode)
     :config
     (map! :map 'vlf-prefix-map
           :n "C-j" #'vlf-next-batch

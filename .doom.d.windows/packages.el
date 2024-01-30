@@ -75,11 +75,14 @@
 
 ;; 工具包
 (package! fanyi)
-(package! vlf)
 (package! eshell-git-prompt)
+(package! vlf
+  :recipe (:host github :repo "emacs-straight/vlf"
+           :files ("*")))
+
 (package! eglot-booster
-          :recipe (:host github :repo "jdtsmith/eglot-booster"
-                   :files ("*")))
+  :recipe (:host github :repo "jdtsmith/eglot-booster"
+           :files ("*")))
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)
@@ -92,6 +95,7 @@
 (package! evil-escape :disable t)
 (package! tide :disable t)
 (package! pipenv :disable t)
+(package! anaconda-mode :disable t)
 (package! esh-help :disable t)
 (package! yasnippet-capf :disable t)
 
@@ -105,5 +109,5 @@
 ;; 使用我自己的go-tag
 (unpin! go-tag)
 (package! go-tag
-          :recipe (:host github :repo "samb233/emacs-go-tag"
-                   :files ("*")))
+  :recipe (:host github :repo "samb233/emacs-go-tag"
+           :files ("*")))
