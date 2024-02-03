@@ -165,9 +165,11 @@ Return DEFAULT if user input is empty."
                 nil (not default) nil 'tab-bookmark-history default)))
     (if (string-prefix-p "#" name)
         (or (cdr (assoc name candidates)) name)
-      (format "@%s %s"
-              (tab-bookmark--current-tab-name)
-              (string-trim name)))))
+      (if (string-prefix-p "@" name)
+          (string-trim name)
+        (format "@%s %s"
+                (tab-bookmark--current-tab-name)
+                (string-trim name))))))
 
 (defun tab-bookmark--names ()
   "Return a list of names of all tab bookmarks."

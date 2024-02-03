@@ -257,13 +257,6 @@
 
 (add-hook! 'ediff-startup-hook #'ediff-next-difference)
 
-(defun my-disable-auto-lsp()
-  "Override doom's lsp! func to disable auto enable lsp"
-  (interactive))
-
-(advice-add #'lsp! :override #'my-disable-auto-lsp)
-(map! :leader :desc "LSP start/restart" "c l" #'eglot)
-
 (after! eglot
   (setq eglot-events-buffer-size 0)
   (setq eglot-send-changes-idle-time 0.2)
@@ -343,7 +336,7 @@
 
 (use-package dabbrev
   :config
-  (setq dabbrev-abbrev-char-regexp "[A-Za-z-_]"))
+  (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
 
 (setq completion-ignore-case t)
 
@@ -618,12 +611,18 @@
   (map! :map markdown-mode-map :n "z i" #'markdown-toggle-inline-images)
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
+(setq eglot--managed-mode nil)
 (defun my-eglot-organize-imports ()
-  (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
-(defun my-go-mode-init ()
-  (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
+  (when eglot--managed-mode
+    (ignore-errors(call-interactively 'eglot-code-action-organize-imports))))
+(defun my-eglot-format-buffer()
+  (when eglot--managed-mode
+    (eglot-format-buffer)))
+
+(defun my-go-lsp-init ()
+  (add-hook 'before-save-hook #'my-eglot-format-buffer -10 t)
   (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
-(add-hook 'go-mode-hook #'my-go-mode-init)
+(add-hook 'go-mode-hook #'my-go-lsp-init)
 
 (after! go-mode
   (map! :map go-mode-map
@@ -746,11 +745,11 @@
   (add-to-list 'consult-buffer-sources 'consult--source-workspace))
 
 (use-package! tab-bookmark
-  :commands (tab-bookmark
+  :commands (tab-bookmark-save
              tab-bookmark-handler))
 
 (map! :leader
-      :desc "Bookmark Tab" "v m" #'tab-bookmark)
+      :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
 
 (defun my-emacs-use-proxy()
   (interactive)

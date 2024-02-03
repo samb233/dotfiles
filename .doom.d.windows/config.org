@@ -393,19 +393,9 @@ doom默认的200个也太少了，至少1000吧
 #+end_src
 
 * 代码补全
-** 关闭lsp
-尝试不启用lsp进行编程。
-doom里将lsp!这个方法override即可
-#+begin_src emacs-lisp
-  (defun my-disable-auto-lsp()
-    "Override doom's lsp! func to disable auto enable lsp"
-    (interactive))
-
-  (advice-add #'lsp! :override #'my-disable-auto-lsp)
-  (map! :leader :desc "LSP start/restart" "c l" #'eglot)
-#+end_src
-
 我使用eglot+corfu的组合。尽量多的利用emacs已经合并的插件。
+但我并没有在doom的相应模块中打开lsp。
+我希望写代码能摆脱依赖lsp写代码的这种状态。需要时手动打开eglot即可。
 ** eglot
 #+begin_src emacs-lisp
   (after! eglot
@@ -522,7 +512,7 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
 #+begin_src emacs-lisp
   (use-package dabbrev
     :config
-    (setq dabbrev-abbrev-char-regexp "[A-Za-z-_]"))
+    (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
 #+end_src
 
 ** 忽略大小写
@@ -899,12 +889,18 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 开启lsp的自动import和format。
 因为在开启lsp的情况下，go-mode的这部分功能被关闭了，全部交给了gopls。
 #+begin_src emacs-lisp
+  (setq eglot--managed-mode nil)
   (defun my-eglot-organize-imports ()
-    (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
-  (defun my-go-mode-init ()
-    (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
+    (when eglot--managed-mode
+      (ignore-errors(call-interactively 'eglot-code-action-organize-imports))))
+  (defun my-eglot-format-buffer()
+    (when eglot--managed-mode
+      (eglot-format-buffer)))
+
+  (defun my-go-lsp-init ()
+    (add-hook 'before-save-hook #'my-eglot-format-buffer -10 t)
     (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
-  (add-hook 'go-mode-hook #'my-go-mode-init)
+  (add-hook 'go-mode-hook #'my-go-lsp-init)
 #+end_src
 
 禁用没用的快捷键，以免按错
@@ -1080,11 +1076,11 @@ apheleia更新后可以删除push ruff的代码
 使用tab-bookmark来保存tab
 #+begin_src emacs-lisp
   (use-package! tab-bookmark
-    :commands (tab-bookmark
+    :commands (tab-bookmark-save
                tab-bookmark-handler))
 
   (map! :leader
-        :desc "Bookmark Tab" "v m" #'tab-bookmark)
+        :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
 #+end_src
 
 ** 代理配置
