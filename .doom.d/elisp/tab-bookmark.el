@@ -59,6 +59,7 @@ Return t if the current buffer is supposed to be bookmarked."
 (defun tab-bookmark--make-record ()
   "Return a new bookmark record for the current buffer.
 The current buffer must not have a backing file."
+  ;; (if (and (not buffer-file-name)
   (if (and (not (bookmark-buffer-file-name))
            (eq bookmark-make-record-function #'bookmark-make-record-default))
       `(,(bookmark-buffer-name)
@@ -164,9 +165,11 @@ Return DEFAULT if user input is empty."
                 nil (not default) nil 'tab-bookmark-history default)))
     (if (string-prefix-p "#" name)
         (or (cdr (assoc name candidates)) name)
-      (format "@%s %s"
-              (tab-bookmark--current-tab-name)
-              (string-trim name)))))
+      (if (string-prefix-p "@" name)
+          (string-trim name)
+        (format "@%s %s"
+                (tab-bookmark--current-tab-name)
+                (string-trim name))))))
 
 (defun tab-bookmark--names ()
   "Return a list of names of all tab bookmarks."

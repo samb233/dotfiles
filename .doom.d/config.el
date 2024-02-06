@@ -1,8 +1,6 @@
 (setq user-full-name "Jie Samb"
       user-mail-address "samb233@hotmail.com")
 
-(setq-default buffer-file-coding-system 'utf-8-unix)
-(set-default-coding-systems 'utf-8-unix)
 (prefer-coding-system 'utf-8-unix)
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
@@ -13,58 +11,77 @@
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
-                   (concat (format "emacs@%s: " (system-name))
+                   (concat "Editor Macross > "
                            (abbreviate-file-name (buffer-file-name))
-                           (if (buffer-modified-p) "*"))
-                 (format "emacs@%s" (system-name))))))
-
-(remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
+                           (if (buffer-modified-p) " *"))
+                 "Editor Macross"))))
 
 (setq auth-source-save-behavior nil)
 
+(remove-hook! 'doom-after-init-hook #'doom-display-benchmark-h)
+
 (setq uniquify-buffer-name-style 'forward)
 
-(setq native-comp-speed -1)
 (setq native-comp-jit-compilation nil)
 
-(setq doom-font (font-spec :family "BlexMono Nerd Font" :weight 'medium :size 11.0))
+(setq word-wrap-by-category t)
+
+(setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
-(setq doom-variable-pitch-font (font-spec :family "霞鹜文楷"))
+(setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
 (defun my-cjk-font()
-  (set-fontset-font t 'unicode (font-spec :family "Noto Color Emoji") nil 'prepend)
   (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC") nil)
-    (set-fontset-font t charset (font-spec :family "霞鹜文楷") nil 'append)))
+    (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
 
+(setq display-line-numbers-type 'relative)
+
+(defun my-set-frame-font (&optional frame)
+  "Set font size based on display size and pixel size."
+  (let ((mm-size (alist-get 'mm-size (frame-monitor-attributes frame)))
+        (pixel-size (nthcdr 2 (frame-monitor-geometry))))
+
+      ;; 4k, 16:10, 16 inch
+      (when (and (equal pixel-size '(3840 2400)) (equal mm-size '(344 215)))
+        (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
+        (set-face-attribute
+         'help-key-binding nil :font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
+        (internal-set-lisp-face-attribute
+         'default :font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium)))
+
+      ;; 4k, 16:9, 27 inch
+      (when (and (equal pixel-size '(3840 2160)) (equal mm-size '(597 336)))
+        (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium))
+        (set-face-attribute
+         'help-key-binding nil :font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium))
+        (internal-set-lisp-face-attribute
+         'default :font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium)))))
+
+(defun my-frame-moved-monitors (frame)
+  "Hook func to set font size based on display size and pixel size."
+  (when (frame-size-changed-p)
+    (my-set-frame-font frame)))
+(push 'my-frame-moved-monitors window-size-change-functions)
+
 (setq doom-theme 'doom-tomorrow-day)
-
-(custom-set-faces
- '(line-number ((t (:weight medium))))
- '(line-number-current-line ((t (:weight medium)))))
-
-(setq all-the-icons-scale-factor 1.2)
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
-        doom-modeline-icon nil
         doom-modeline-lsp nil
+        doom-modeline-icon nil
         doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
-        doom-modeline-height 29
-        doom-modeline-window-width-limit 120)
-  ;;(set-face-attribute 'mode-line-active nil :background "#f4f4f4")
-  )
+        doom-modeline-height 20
+        doom-modeline-bar-width 3
+        doom-modeline-window-width-limit 120))
 
 (after! solaire-mode
  (dolist (face '(mode-line mode-line-inactive))
     (setf (alist-get face solaire-mode-remap-alist) nil)))
-
-(setq word-wrap-by-category t)
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
@@ -79,47 +96,55 @@
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
 
-(map! :i  "C-v"   #'yank
-      :i  "M-v"   #'yank
-      :v  "J"     #'drag-stuff-down
-      :v  "K"     #'drag-stuff-up
-      :ni "C-s"   #'consult-line
-      :ni "C-z"   #'undo-only
-      :ni "C-S-z" #'undo-redo
-      :nv "g r"   #'+lookup/references
-      :n  "q"     #'doom/escape
-      :n  "U"     #'evil-redo
-      :n  "g a"   #'avy-goto-char-2
-      :n  "] e"   #'flymake-goto-next-error
-      :n  "[ e"   #'flymake-goto-prev-error
-      :n  "] w"   #'evil-window-right
-      :n  "[ w"   #'evil-window-left
-      :n  "[ W"   #'evil-window-down
-      :n  "] W"   #'evil-window-up
+(map! :ig "C-v"       #'yank
+      :ig "M-v"       #'yank
+      :v  "J"         #'drag-stuff-down
+      :v  "K"         #'drag-stuff-up
+      :nv "R"         #'query-replace
+      :ni "C-s"       #'consult-line
+      :ni "C-z"       #'undo-only
+      :ni "C-S-z"     #'undo-redo
+      :nv "g r"       #'+lookup/references
+      :n  "q"         #'doom/escape
+      :n  "U"         #'evil-redo
+      :n  "s"         #'avy-goto-char-2
+      :n  "] e"       #'flymake-goto-next-error
+      :n  "[ e"       #'flymake-goto-prev-error
+      :n  "] w"       #'evil-window-next
+      :n  "[ w"       #'evil-window-prev
+      :v  "<mouse-3>" #'kill-ring-save
       :leader
-      :desc "jump to references" "c r" #'+lookup/references
-      :desc "consult buffer" "<" #'consult-buffer
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
+      :desc "find-file other window"      "w ." #'find-file-other-window
       :desc "dired jump" ">" #'dired-jump
-      :desc "find-file other window" "w ." #'find-file-other-window
+      :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
-      :desc "toggle format-all" "t f" #'format-all-mode
-      :desc "bookmark list" "b w" #'list-bookmarks
-      :desc "bookmark jump other window" "b o" #'bookmark-jump-other-window)
+      :desc "bookmark list" "b w" #'list-bookmarks)
+
+(map! :after evil-snipe
+      (:map evil-snipe-local-mode-map
+       :mn "s" nil
+       :mn "S" nil))
+
+(defun avy-goto-char-2-all-window()
+  (interactive)
+  (let ((avy-all-windows t))
+    (call-interactively 'avy-goto-char-2)))
+
+(map! :n "S" #'avy-goto-char-2-all-window)
 
 (map! :map evil-ex-search-keymap
       "C-v" #'yank
       "C-q" #'quoted-insert)
 
-(map! :map vertico-map :g "C-<return>" #'exit-minibuffer)
+(map! :map vertico-map
+      :g "C-<return>" #'exit-minibuffer)
 
 (map! :leader
       (:prefix ("v" . "my personal bindings")
        :desc "Open dirvish" "v" #'dirvish
-       :desc "Open Normal Dired" "n" #'dired-jump
-       :desc "Quit dirvish" "q" #'dirvish-quit
        :desc "Toggle dirvish-side" "s" #'dirvish-side
-       :desc "Fd in dirvish" "F" #'dirvish-fd
+       :desc "Fd in dirvish" "F" #'dirvish-fd-ask
        :desc "Jump using fd" "J" #'dirvish-fd-jump
        :desc "Jump recent dir" "j" #'consult-dir
        :desc "Fd find file in dir" "f" #'+vertico/consult-fd
@@ -138,13 +163,17 @@
       "f E" nil
       "f p" nil
       "f P" nil
+      "f u" nil
+      "f U" nil
+      "b u" nil
+      "f l" nil
       "s e" nil
       "s t" nil
       "h g" nil)
 
 (evil-ex-define-cmd "q" 'kill-this-buffer)
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
-(evil-ex-define-cmd "quit" 'evil-quit)
+(evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
 
 (setq undo-no-redo t)
@@ -162,6 +191,10 @@
 (use-package! projectile
   :commands (project-projectile))
 
+;; (defun projectile-root-default-directory (dir)
+;;   "Retrieve the root directory of the project at DIR using `default-directory'."
+;;   default-directory)
+
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
   (setq projectile-project-root-functions '(projectile-root-local
@@ -171,9 +204,12 @@
                                             projectile-root-top-down-recurring)))
 
 (setq project-find-functions '(project-projectile project-try-vc))
+(setq xref-search-program 'ripgrep)
 
 (after! recentf
-  (setq recentf-max-saved-items 1000))
+  (setq recentf-max-saved-items 1000
+        recentf-auto-cleanup 'mode)
+  (remove-hook 'kill-emacs-hook #'recentf-cleanup))
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
@@ -230,16 +266,17 @@
 
 (after! eglot
   (setq eglot-events-buffer-size 0)
+  (setq eglot-send-changes-idle-time 0.2)
   (setq eglot-stay-out-of '(yasnippet))
-  (setq eglot-ignored-server-capabilities '(:inlayHintProvider))
-  (map! :map eglot-mode-map
+  (map! :map 'eglot-mode-map
         :nv "g D" nil
         :leader
         :desc "LSP start/restart" "c l" #'eglot
-        :desc "LSP reconnect" "c L" #'eglot-reconnect
+        :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4"))
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -247,14 +284,17 @@
             (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
 (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 
-(after! corfu-popupinfo
-  (setq corfu-popupinfo-delay nil))
+(use-package! eglot-booster
+  :after eglot
+  :config (eglot-booster-mode))
 
-(setq +corfu-auto-delay 0.02)
 (after! corfu
   (setq corfu-preselect 'prompt
+        corfu-auto-delay 0.02
+        corfu-auto-prefix 1
         corfu-on-exact-match nil
         corfu-popupinfo-max-height 20
+        corfu-separator 32
         corfu-count 10)
   (map! :map corfu-map
         :i "C-j" #'corfu-next
@@ -266,38 +306,40 @@
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
-  (set-face-attribute 'corfu-current nil :background "#cde1f8")
-  (use-package! kind-all-the-icons)
-  (add-to-list 'corfu-margin-formatters #'kind-all-the-icons-margin-formatter))
+  (set-face-attribute 'corfu-current nil :background "#cde1f8"))
+
+(after! corfu-popupinfo
+  (setq corfu-popupinfo-delay nil))
+
+(setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
 (use-package! flymake
   :commands (flymake-mode)
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
+  (setq flymake-no-changes-timeout 0.2)
   (setq flymake-fringe-indicator-position 'right-fringe)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 
-(use-package! flymake-triangle-bitmap
-  :after flymake
-  :config
-  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
-        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
-        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
-
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
-        eldoc-echo-area-prefer-doc-buffer t)
+        eldoc-echo-area-prefer-doc-buffer t
+        eldoc-idle-delay 0.2)
+  (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-(defun my-corfu-frame-visible-h ()
-  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+;; (defun my-corfu-frame-visible-h ()
+;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+
+;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
-  (setq dabbrev-abbrev-char-regexp "[A-Za-z-_]"))
+  (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
+
+(setq completion-ignore-case t)
 
 (use-package! dired
   :commands dired-jump
@@ -310,6 +352,7 @@
         dired-recursive-copies  'always
         dired-recursive-deletes 'always
         dired-create-destination-dirs 'ask
+        delete-by-moving-to-trash t
         dired-clean-confirm-killing-deleted-buffers nil)
   :config
   (setq dired-async-skip-fast t)
@@ -322,24 +365,32 @@
                 "\\|\\(?:\\.js\\)?\\.meta\\'"
                 "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
   (map! :map dired-mode-map
-        :ng "q" #'quit-window )
+        :ng "q" #'quit-window)
   (custom-set-faces '(dired-async-message ((t (:inherit success))))))
+
+(defun my-next-line (&rest args)
+  (interactive)
+  (next-line))
+
+(after! dired
+  (add-hook! 'wdired-mode-hook #'evil-normal-state)
+  (map! :map dired-mode-map
+        :ng "j" #'my-next-line))
+
+;; (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
 
 (use-package! dirvish
   :init (after! dired (dirvish-override-dired-mode))
   :custom
   (dirvish-quick-access-entries
-   '(("h" "~/"                          "Home")
-     ("c" "~/Codes/"                    "Codes")
-     ("D" "~/Documents/"                "Documents")
-     ("w" "~/Works/"                    "Works")
-     ("d" "~/Downloads/"                "Downloads")
-     ("P" "~/Pictures/"                 "Pictures")
-     ("v" "~/Videos/"                   "Videos")
-     ("s" "~/Share/"                    "Shared")
-     ("n" "~/Notes/"                    "Notes")
-     ("b" "~/Books/"                    "Books")
-     ("M" "/mnt/"                       "Drives")))
+   '(("h" "~/"                "Home")
+     ("c" "~/Codes/"          "Codes")
+     ("w" "~/Works/"          "Works")
+     ("d" "~/Downloads"       "Downloads")
+     ("P" "~/Pictures/"       "Pictures")
+     ("v" "~/VCBs/"           "Videos")
+     ("n" "~/Notes/"          "Notes")
+     ("b" "~/Books/"          "Books")))
   :config
   (dirvish-side-follow-mode 1)
   (add-to-list 'dirvish-video-exts "m2ts")
@@ -353,15 +404,15 @@
           ("图片" (extensions "jpg" "png" "svg" "gif"))
           ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
           ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
-  (setq dirvish-default-layout '(0 0 0.5)
-        dirvish-use-mode-line nil
-        dirvish-header-line-height '41
+  (setq dirvish-use-mode-line nil
+        ;; dirvish-default-layout '(0 0 0.5)
+        dirvish-header-line-height '36
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-subtree-file-viewer #'dired-find-file
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))
         dirvish-attributes
-        '(file-time all-the-icons file-size collapse subtree-state vc-state git-msg)
+        '(file-time nerd-icons file-size collapse subtree-state vc-state git-msg)
         dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
         dirvish-open-with-programs
@@ -379,19 +430,19 @@
         :n "l" #'dired-find-file
         :n "e" #'dired-create-empty-file
         :n "." #'dired-omit-mode
-        :n "C-." #'dirvish-emerge-mode
+        :n "o" #'dirvish-emerge-mode
         :n "q" #'dirvish-quit
         :n "s" #'dirvish-quicksort
         :n "a" #'dirvish-quick-access
-        :n "F" #'dirvish-fd
+        :n "F" #'dirvish-fd-ask
         :n "S" #'dirvish-fd-switches-menu
         :n "y" #'dirvish-yank-menu
         :n "f" #'dirvish-file-info-menu
         :n "H" #'dirvish-history-jump
         :n "TAB" #'dirvish-subtree-toggle
         :n [backtab] #'dirvish-subtree-up
-        :n "<mouse-1>" #'dirvish-subtree-toggle
-        :n "<mouse-2>" #'dirvish-subtree-toggle
+        :n "<mouse-1>" nil
+        :n "<mouse-2>" nil
         :n "<mouse-3>" #'dired-find-file
         :n "<mouse-8>" #'dired-up-directory
         :n "<mouse-9>" #'dired-find-file
@@ -401,15 +452,24 @@
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu))
 
-(map! [f8]     #'dired-jump
-      [S-f8]   #'dirvish)
+(add-hook! 'dirvish-setup-hook
+  (use-package! dirvish-video-mediainfo-enhance))
 
-(defun my-open-nautilus()
+(use-package! dired-7z
+  :after dired
+  :config
+  (map! :map 'dired-mode-map
+        :localleader
+        "z" #'dired-7z-compress
+        "Z" #'dired-7z-compress-with-password
+        "e" #'dired-7z-extract))
+
+(defun my-open-explorer()
   (interactive)
-  (call-process-shell-command "nautilus ." nil 0))
+  (call-process-shell-command "natilus ." nil 0))
 
-(map! [f9] #'my-open-nautilus
-      :map vterm-mode-map [f9] #'my-open-nautilus)
+(map! [f9] #'my-open-explorer
+      :leader "o e" #'my-open-explorer)
 
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
@@ -449,7 +509,7 @@
 
 (after! org
   (setq org-src-preserve-indentation nil
-        org-image-actual-width 640
+        org-image-actual-width 1280
         org-hide-emphasis-markers t
         org-support-shift-select t)
   (map! :map org-mode-map
@@ -462,16 +522,6 @@
         :i "C-j" nil
         :i "C-k" nil))
 
-(use-package! org-modern
-  :commands (org-modern-mode)
-  :config
-  (setq org-modern-block-name nil
-        org-modern-table nil)
-  (setq org-modern-star '("◉" "○" "✸" "✿" "◈" "◇"))
-  (set-face-attribute 'org-modern-label nil :height 1.0))
-
-(add-hook 'org-mode-hook #'org-modern-mode)
-
 (use-package! org-appear
   :commands (org-appear-mode)
   :init
@@ -480,9 +530,6 @@
 (add-hook 'org-mode-hook #'org-appear-mode)
 
 (setq org-roam-directory "~/Notes/Roam")
-(map! :leader
-      :desc "Zettelkasten with org-roam" "v z" #'org-roam-node-find
-      :desc "org-roam node Insert" "v i" #'org-roam-node-insert)
 
 (after! org-roam
   (setq org-roam-completion-everywhere nil))
@@ -492,7 +539,7 @@
       '(("d" "default" entry
          "* %?"
          :target (file+head "%<%Y>/%<%Y-%m>/%<%Y-%m-%d>.org"
-                            "#+title: %<%Y-%m-%d %A>\n"))))
+                            "#+title: %<%Y-%m-%d>\n"))))
 (map! :leader
       :desc "my Journal today" "J" #'org-roam-dailies-goto-today
       :desc "org-roam find node" "Z" #'org-roam-node-find)
@@ -565,17 +612,25 @@
   :commands (dockerfile-mode)
   :mode("\\Dockerfile\\'" . dockerfile-mode))
 
-(after! sh-script
-  (set-formatter! 'shfmt
-    '("shfmt" "-ci"
-      ("-i" "%d" (unless indent-tabs-mode tab-width))
-      ("-ln" "%s" (pcase sh-shell (`bash "bash") (`zsh "bash") (`mksh "mksh") (_ "posix"))))))
-
 (after! org
   (add-to-list 'org-src-lang-modes '("py" . python-mode)))
 
 (after! markdown-mode
   (add-to-list 'markdown-code-lang-modes '("py" . python-mode)))
+
+(after! python
+  (setq python-shell-interpreter "python")
+  (setenv "PYTHONIOENCODING" "utf-8"))
+
+(setq-hook! 'python-mode-hook eglot-workspace-configuration
+            '(:python.analysis (:autoSearchPaths t
+                                :useLibraryCodeForTypes t
+                                :typeCheckingMode "basic"
+                                :diagnosticMode "openFilesOnly")))
+
+(after! apheleia
+  (setf (alist-get 'python-mode apheleia-mode-alist)
+      '(ruff)))
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
@@ -601,18 +656,12 @@
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
 
+(after! apheleia
+  (setf (alist-get 'rustfmt apheleia-formatters)
+      '("rustfmt" "--quiet" "--emit" "stdout" "--edition" "2021")))
+
 (after! lua-mode
   (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
-
-(defun my-open-current-file-with-app()
-  (interactive)
-  (progn
-    (dirvish-find-entry-a buffer-file-name)
-    (quit-window)))
-
-(map! :map image-mode-map
-      :ng "W" #'my-open-current-file-with-app
-      "<double-mouse-1>" #'my-open-current-file-with-app)
 
 (use-package! sis
   :config
@@ -628,14 +677,16 @@
   (setq tab-bar-show nil)
   (tab-rename "Default")
   :custom
-  (tabspaces-use-filtered-buffers-as-default t)
+  (tabspaces-use-filtered-buffers-as-default nil)
   (tabspaces-default-tab "Default")
   (tabspaces-remove-to-default t)
   (tabspaces-include-buffers '("*scratch*"))
   (tabspaces-session nil)
   (tabspaces-session-auto-restore nil)
   :config
-  (map! :leader
+  (map! :n "[ TAB" #'tab-previous
+        :n "] TAB" #'tab-next
+        :leader
         :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
         :desc "close current tab" [backtab] #'tab-bar-close-tab))
 
@@ -644,12 +695,100 @@
 
 (advice-add #'tabspaces-reset-buffer-list :before #'tabspaces-reset-advice)
 
+(after! consult
+  ;; hide full buffer list (still available with "b" prefix)
+  (consult-customize consult--source-buffer :hidden t :default nil)
+  ;; set consult-workspace buffer list
+  (defvar consult--source-workspace
+    (list :name     "Workspace Buffers"
+          :narrow   ?w
+          :history  'buffer-name-history
+          :category 'buffer
+          :state    #'consult--buffer-state
+          :default  t
+          :items    (lambda () (consult--buffer-query
+                                :predicate #'tabspaces--local-buffer-p
+                                :sort 'visibility
+                                :as #'buffer-name)))
+
+    "Set workspace buffer list for consult-buffer.")
+  (add-to-list 'consult-buffer-sources 'consult--source-workspace))
+
 (use-package! tab-bookmark
-  :commands (tab-bookmark
+  :commands (tab-bookmark-save
              tab-bookmark-handler))
 
 (map! :leader
-      :desc "Bookmark Tab" "b TAB" #'tab-bookmark)
+      :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
+
+(defun my-emacs-use-proxy()
+  (interactive)
+  (setenv "http_proxy" "http://127.0.0.1:20171")
+  (setenv "https_proxy" "http://127.0.0.1:20171")
+  (setenv "all_proxy" "socks5://127.0.0.1:20170")
+  (message "Use Proxy"))
+
+(defun my-emacs-not-use-proxy()
+  (interactive)
+  (setenv "http_proxy" "")
+  (setenv "https_proxy" "")
+  (setenv "all_proxy" "")
+  (message "Not use Proxy"))
+
+(map! :leader
+      :desc "use proxy" "v p" #'my-emacs-use-proxy
+      :desc "use proxy" "v P" #'my-emacs-not-use-proxy)
+
+(use-package! vlf
+  :commands (vlf vlf-mode)
+  :config
+  (map! :map 'vlf-prefix-map
+        :n "C-j" #'vlf-next-batch
+        :n "C-k" #'vlf-prev-batch
+        :n "gj" #'vlf-next-batch
+        :n "gk" #'vlf-prev-batch
+        :n "]]" #'vlf-next-batch
+        :n "[[" #'vlf-prev-batch
+        :n "+" #'vlf-change-batch-size
+        :n "-" #'evil-collection-vlf-decrease-batch-size
+        :n "=" #'vlf-next-batch-from-point
+        :n "gr" #'vlf-revert
+        :n "s" #'vlf-re-search-forward
+        :n "S" #'vlf-re-search-backward
+        :n "gg" #'vlf-beginning-of-file
+        :n "G" #'vlf-end-of-file
+        :n "J" #'vlf-jump-to-chunk
+        :n "E" #'vlf-ediff-buffers
+        :n "g%" #'vlf-query-replace
+        :n "go" #'vlf-occur
+        :n "L" #'vlf-goto-line
+        :n "F" #'vlf-toggle-follow))
+
+(add-hook! 'vlf-mode-hook #'evil-normalize-keymaps)
+
+(defadvice! +files--ask-about-large-file-vlf (size op-type filename offer-raw)
+  "Like `files--ask-user-about-large-file', but with support for `vlf'."
+  :override #'files--ask-user-about-large-file
+  (let ((prompt (format "File %s is large (%s), really %s?"
+                        (file-name-nondirectory filename)
+                        (funcall byte-count-to-string-function size) op-type)))
+    (if (not offer-raw)
+        (if (y-or-n-p prompt) nil 'abort)
+      (let ((choice
+             (car
+              (read-multiple-choice
+               prompt '((?y "yes")
+                        (?n "no")
+                        (?l "literally")
+                        (?v "vlf"))
+               (files--ask-user-about-large-file-help-text
+                op-type (funcall byte-count-to-string-function size))))))
+        (cond ((eq choice ?y) nil)
+              ((eq choice ?l) 'raw)
+              ((eq choice ?v)
+               (vlf filename)
+               (error ""))
+              (t 'abort))))))
 
 (use-package! fanyi
   :commands (fanyi-dwim
@@ -670,34 +809,6 @@
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2)
 
-(after! restclient
-  (setq restclient-use-var-regexp
-        "{{\([^{ \n]+\)}}$")
-  (setq restclient-var-regexp
-        (concat "^\\(@[^@= ]+\\)[ \t]*\\(:?\\)=[ \t]*\\(<<[ \t]*\n\\(\\(.*\n\\)*?\\)" restclient-comment-separator "\\|\\([^<].*\\)$\\)"))
-  (setq restclient-svar-regexp
-        "^\\(@[^@= ]+\\)[ \t]*=[ \t]*\\(.+?\\)$")
-  (setq restclient-evar-regexp
-        "^\\(@[^@ ]+\\)[ \t]*:=[ \t]*\\(.+?\\)$")
-  (setq restclient-mvar-regexp
-        "^\\(@[^@ ]+\\)[ \t]*:?=[ \t]*\\(<<\\)[ \t]*$"))
-
-(use-package! texfrag
-  :commands (texfrag-mode)
-  :init
-  (setq texfrag-markdown-preview-image-links nil
-        texfrag-scale 0.25
-        texfrag-subdir ".texfrag"))
-
-(defun my-toggle-texfrag-preview-document()
-  (interactive)
-  (if (bound-and-true-p texfrag-mode)
-      (texfrag-mode -1)
-    (progn (texfrag-mode)
-           (texfrag-document))))
-(map! :map markdown-mode-map :localleader
-      :desc "latex preview math" "l" #'my-toggle-texfrag-preview-document)
-
 (defun my-writeroom-mode-on()
   (if (equal major-mode 'org-mode)
       (org-display-inline-images))
@@ -715,6 +826,16 @@
 (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
 (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 
-(setq +org-present-text-scale 3)
-(add-hook 'org-tree-slide-play-hook #'doom-disable-line-numbers-h)
-(add-hook 'org-tree-slide-stop-hook #'doom-enable-line-numbers-h)
+(use-package! base64-img-toggle
+  :commands (base64-img-toggle-region))
+
+(set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
+(map! :leader
+      :desc "View Base64 img" "v b" #'base64-img-toggle-region)
+
+(use-package! flymake-triangle-bitmap
+  :after flymake
+  :config
+  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
