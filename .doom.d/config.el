@@ -26,7 +26,7 @@
 
 (setq word-wrap-by-category t)
 
-(setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
+(setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.0))
 (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
@@ -38,41 +38,15 @@
 
 (setq display-line-numbers-type 'relative)
 
-(defun my-set-frame-font (&optional frame)
-  "Set font size based on display size and pixel size."
-  (let ((mm-size (alist-get 'mm-size (frame-monitor-attributes frame)))
-        (pixel-size (nthcdr 2 (frame-monitor-geometry))))
-
-      ;; 4k, 16:10, 16 inch
-      (when (and (equal pixel-size '(3840 2400)) (equal mm-size '(344 215)))
-        (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
-        (set-face-attribute
-         'help-key-binding nil :font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
-        (internal-set-lisp-face-attribute
-         'default :font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium)))
-
-      ;; 4k, 16:9, 27 inch
-      (when (and (equal pixel-size '(3840 2160)) (equal mm-size '(597 336)))
-        (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium))
-        (set-face-attribute
-         'help-key-binding nil :font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium))
-        (internal-set-lisp-face-attribute
-         'default :font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium)))))
-
-(defun my-frame-moved-monitors (frame)
-  "Hook func to set font size based on display size and pixel size."
-  (when (frame-size-changed-p)
-    (my-set-frame-font frame)))
-(push 'my-frame-moved-monitors window-size-change-functions)
-
 (setq doom-theme 'doom-tomorrow-day)
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
         doom-modeline-lsp nil
-        doom-modeline-icon nil
-        doom-modeline-buffer-state-icon nil
+        ;; doom-modeline-icon nil
+        ;; doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
+        doom-modeline-major-mode-icon t
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 20
@@ -147,7 +121,7 @@
        :desc "Fd in dirvish" "F" #'dirvish-fd-ask
        :desc "Jump using fd" "J" #'dirvish-fd-jump
        :desc "Jump recent dir" "j" #'consult-dir
-       :desc "Fd find file in dir" "f" #'+vertico/consult-fd
+       :desc "Fd find file in dir" "f" #'+vertico/consult-fd-or-find
        :desc "find Item in the buffer" "i" #'consult-imenu
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
@@ -157,16 +131,8 @@
 
 (map! :leader
       "i e" nil
-      "f c" nil
       "n d" nil
-      "f e" nil
-      "f E" nil
-      "f p" nil
-      "f P" nil
-      "f u" nil
-      "f U" nil
       "b u" nil
-      "f l" nil
       "s e" nil
       "s t" nil
       "h g" nil)
@@ -207,9 +173,7 @@
 (setq xref-search-program 'ripgrep)
 
 (after! recentf
-  (setq recentf-max-saved-items 1000
-        recentf-auto-cleanup 'mode)
-  (remove-hook 'kill-emacs-hook #'recentf-cleanup))
+  (setq recentf-max-saved-items 1000))
 
 (setq magit-clone-default-directory "~/Codes/Lab/")
 
@@ -245,24 +209,6 @@
 (advice-add 'ediff-quit :around #'disable-y-or-n-p)
 
 (add-hook! 'ediff-startup-hook #'ediff-next-difference)
-
-(use-package! pixel-scroll)
-
-(defun my-inline-image-pixel-scroll(&rest args)
-  (setq-local evil-move-beyond-eol t
-              pixel-scroll-precision-mode t))
-
-(defun my-disable-inline-image-pixel-scroll(&rest args)
-  (setq-local evil-move-beyond-eol nil
-              pixel-scroll-precision-mode nil))
-
-(after! markdown-mode
-(advice-add 'markdown-display-inline-images :after #'my-inline-image-pixel-scroll)
-(advice-add 'markdown-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
-
-(after! org
-(advice-add 'org-display-inline-images :after #'my-inline-image-pixel-scroll)
-(advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
 
 (after! eglot
   (setq eglot-events-buffer-size 0)
@@ -368,17 +314,6 @@
         :ng "q" #'quit-window)
   (custom-set-faces '(dired-async-message ((t (:inherit success))))))
 
-(defun my-next-line (&rest args)
-  (interactive)
-  (next-line))
-
-(after! dired
-  (add-hook! 'wdired-mode-hook #'evil-normal-state)
-  (map! :map dired-mode-map
-        :ng "j" #'my-next-line))
-
-;; (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
-
 (use-package! dirvish
   :init (after! dired (dirvish-override-dired-mode))
   :custom
@@ -418,7 +353,7 @@
         dirvish-open-with-programs
         `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
-          (,dirvish-image-exts . ("eog" "%f"))
+          (,dirvish-image-exts . ("loupe" "%f"))
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
@@ -455,18 +390,17 @@
 (add-hook! 'dirvish-setup-hook
   (use-package! dirvish-video-mediainfo-enhance))
 
-(use-package! dired-7z
+(use-package! dired-archieve
   :after dired
   :config
   (map! :map 'dired-mode-map
         :localleader
-        "z" #'dired-7z-compress
-        "Z" #'dired-7z-compress-with-password
-        "e" #'dired-7z-extract))
+        "z" #'dired-archieve-add
+        "e" #'dired-archieve-extract))
 
 (defun my-open-explorer()
   (interactive)
-  (call-process-shell-command "natilus ." nil 0))
+  (call-process-shell-command "nautilus ." nil 0))
 
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
@@ -634,18 +568,25 @@
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
+;; (defun my-vscp-init()
+;;   (when (s-suffix-p ".vpy" buffer-file-name)
+;;     (setq-local python-interpreter "/home/jiesamb/Vapoursynth/bin/python3")
+;;     (setenv "PYTHONPATH" "/home/jiesamb/Vapoursynth/scripts"))
+;;   )
+;; (add-hook 'python-mode-local-vars-hook #'my-vscp-init -10)
+
 (defun vspreview()
   "Vapoursynth preview this script."
   (interactive)
   (async-shell-command
-   (format "~/vscp/bin/python -m vspreview %s" buffer-file-name)
+   (format "~/Vapoursynth/bin/python3 -m vspreview %s" buffer-file-name)
    "*vspreview*"))
 
 (defun vsbench()
   "Vapoursynth bench this script."
   (interactive)
   (async-shell-command
-   (format "~/vscp/bin/vspipe -p %s ." buffer-file-name)
+   (format "~/Vapoursynth/bin/vspipe -p %s ." buffer-file-name)
    "*vsbench*"))
 
 (map! :map python-mode-map
@@ -662,6 +603,10 @@
 
 (after! lua-mode
   (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
+
+(after! yaml-mode
+  (map! :map yaml-mode-map
+        :i [backspace] #'backward-delete-char))
 
 (use-package! sis
   :config
@@ -723,9 +668,9 @@
 
 (defun my-emacs-use-proxy()
   (interactive)
-  (setenv "http_proxy" "http://127.0.0.1:20171")
-  (setenv "https_proxy" "http://127.0.0.1:20171")
-  (setenv "all_proxy" "socks5://127.0.0.1:20170")
+  (setenv "http_proxy" "http://127.0.0.1:7897")
+  (setenv "https_proxy" "http://127.0.0.1:7897")
+  (setenv "all_proxy" "socks5://127.0.0.1:7897")
   (message "Use Proxy"))
 
 (defun my-emacs-not-use-proxy()

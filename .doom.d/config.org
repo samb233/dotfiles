@@ -76,7 +76,7 @@
 设置字体与字体大小。
 使用after-setting-font-hook来设置中文字体
 #+begin_src emacs-lisp
-  (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
+  (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.0))
   (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
   (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
@@ -93,37 +93,6 @@
   (setq display-line-numbers-type 'relative)
 #+end_src
 
-** 多显示器设置
-切换不同显示器时变更字体大小
-#+begin_src emacs-lisp
-  (defun my-set-frame-font (&optional frame)
-    "Set font size based on display size and pixel size."
-    (let ((mm-size (alist-get 'mm-size (frame-monitor-attributes frame)))
-          (pixel-size (nthcdr 2 (frame-monitor-geometry))))
-
-        ;; 4k, 16:10, 16 inch
-        (when (and (equal pixel-size '(3840 2400)) (equal mm-size '(344 215)))
-          (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
-          (set-face-attribute
-           'help-key-binding nil :font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium))
-          (internal-set-lisp-face-attribute
-           'default :font (font-spec :family "BlexMono Nerd Font" :size 11.5 :weight 'medium)))
-
-        ;; 4k, 16:9, 27 inch
-        (when (and (equal pixel-size '(3840 2160)) (equal mm-size '(597 336)))
-          (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium))
-          (set-face-attribute
-           'help-key-binding nil :font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium))
-          (internal-set-lisp-face-attribute
-           'default :font (font-spec :family "BlexMono Nerd Font" :size 9.0 :weight 'medium)))))
-
-  (defun my-frame-moved-monitors (frame)
-    "Hook func to set font size based on display size and pixel size."
-    (when (frame-size-changed-p)
-      (my-set-frame-font frame)))
-  (push 'my-frame-moved-monitors window-size-change-functions)
-#+end_src
-
 ** 主题
 #+begin_src emacs-lisp
   (setq doom-theme 'doom-tomorrow-day)
@@ -135,9 +104,10 @@
   (after! doom-modeline
     (setq doom-modeline-modal nil
           doom-modeline-lsp nil
-          doom-modeline-icon nil
-          doom-modeline-buffer-state-icon nil
+          ;; doom-modeline-icon nil
+          ;; doom-modeline-buffer-state-icon nil
           doom-modeline-buffer-modification-icon nil
+          doom-modeline-major-mode-icon t
           doom-modeline-buffer-encoding t
           doom-modeline-vcs-max-length 20
           doom-modeline-height 20
@@ -237,7 +207,7 @@ emacs29新加入的像素滚动模式。
          :desc "Fd in dirvish" "F" #'dirvish-fd-ask
          :desc "Jump using fd" "J" #'dirvish-fd-jump
          :desc "Jump recent dir" "j" #'consult-dir
-         :desc "Fd find file in dir" "f" #'+vertico/consult-fd
+         :desc "Fd find file in dir" "f" #'+vertico/consult-fd-or-find
          :desc "find Item in the buffer" "i" #'consult-imenu
          :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
          :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
@@ -250,16 +220,8 @@ emacs29新加入的像素滚动模式。
 #+begin_src emacs-lisp
   (map! :leader
         "i e" nil
-        "f c" nil
         "n d" nil
-        "f e" nil
-        "f E" nil
-        "f p" nil
-        "f P" nil
-        "f u" nil
-        "f U" nil
         "b u" nil
-        "f l" nil
         "s e" nil
         "s t" nil
         "h g" nil)
@@ -324,12 +286,9 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
 ** recentf
 设置recentf最大储存项
 doom默认的200个也太少了，至少1000吧
-开启recentf-auto-cleanup为mode，另其在开recentf时进行清理
 #+begin_src emacs-lisp
   (after! recentf
-    (setq recentf-max-saved-items 1000
-          recentf-auto-cleanup 'mode)
-    (remove-hook 'kill-emacs-hook #'recentf-cleanup))
+    (setq recentf-max-saved-items 1000))
 #+end_src
 
 ** magit
@@ -385,28 +344,6 @@ doom默认的200个也太少了，至少1000吧
   (advice-add 'ediff-quit :around #'disable-y-or-n-p)
 
   (add-hook! 'ediff-startup-hook #'ediff-next-difference)
-#+end_src
-
-** pixel-scroll
-设置在打开org和markdown的inline-image时自动开启像素滚动模式。
-#+begin_src emacs-lisp
-  (use-package! pixel-scroll)
-
-  (defun my-inline-image-pixel-scroll(&rest args)
-    (setq-local evil-move-beyond-eol t
-                pixel-scroll-precision-mode t))
-
-  (defun my-disable-inline-image-pixel-scroll(&rest args)
-    (setq-local evil-move-beyond-eol nil
-                pixel-scroll-precision-mode nil))
-
-  (after! markdown-mode
-  (advice-add 'markdown-display-inline-images :after #'my-inline-image-pixel-scroll)
-  (advice-add 'markdown-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
-
-  (after! org
-  (advice-add 'org-display-inline-images :after #'my-inline-image-pixel-scroll)
-  (advice-add 'org-remove-inline-images :after #'my-disable-inline-image-pixel-scroll))
 #+end_src
 
 * 代码补全
@@ -557,25 +494,6 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
     (custom-set-faces '(dired-async-message ((t (:inherit success))))))
 #+end_src
 
-dired临时修复，修复两个问题:
-1. 跳行
-2. 进入wdired后无法立刻进行编辑
-#+begin_src emacs-lisp
-  (defun my-next-line (&rest args)
-    (interactive)
-    (next-line))
-
-  (after! dired
-    (add-hook! 'wdired-mode-hook #'evil-normal-state)
-    (map! :map dired-mode-map
-          :ng "j" #'my-next-line))
-#+end_src
-
-修复consult-fd
-#+begin_src emacs-lisp
-  ;; (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
-#+end_src
-
 ** dirvish
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
 #+begin_src emacs-lisp
@@ -618,7 +536,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           dirvish-open-with-programs
           `((,dirvish-audio-exts . ("mpv" "%f"))
             (,dirvish-video-exts . ("mpv" "%f"))
-            (,dirvish-image-exts . ("eog" "%f"))
+            (,dirvish-image-exts . ("loupe" "%f"))
             (("doc" "docx") . ("wps" "%f"))
             (("ppt" "pptx") . ("wpp" "%f"))
             (("xls" "xlsx") . ("et" "%f"))
@@ -663,24 +581,23 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 
 #+RESULTS:
 
-** 7z
-使用7z压缩和解压
+** file-roller
+使用file-roller压缩和解压
 #+begin_src emacs-lisp
-  (use-package! dired-7z
+  (use-package! dired-archieve
     :after dired
     :config
     (map! :map 'dired-mode-map
           :localleader
-          "z" #'dired-7z-compress
-          "Z" #'dired-7z-compress-with-password
-          "e" #'dired-7z-extract))
+          "z" #'dired-archieve-add
+          "e" #'dired-archieve-extract))
 #+end_src
 
 ** explorer
 #+begin_src emacs-lisp
   (defun my-open-explorer()
     (interactive)
-    (call-process-shell-command "natilus ." nil 0))
+    (call-process-shell-command "nautilus ." nil 0))
 
   (map! [f9] #'my-open-explorer
         :leader "o e" #'my-open-explorer)
@@ -933,6 +850,13 @@ apheleia更新后可以删除push ruff的代码
 设置用python-mode打开vpy文件
 #+begin_src emacs-lisp
   (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
+
+  ;; (defun my-vscp-init()
+  ;;   (when (s-suffix-p ".vpy" buffer-file-name)
+  ;;     (setq-local python-interpreter "/home/jiesamb/Vapoursynth/bin/python3")
+  ;;     (setenv "PYTHONPATH" "/home/jiesamb/Vapoursynth/scripts"))
+  ;;   )
+  ;; (add-hook 'python-mode-local-vars-hook #'my-vscp-init -10)
 #+end_src
 
 设置vspreview，vsbench等命令
@@ -941,14 +865,14 @@ apheleia更新后可以删除push ruff的代码
     "Vapoursynth preview this script."
     (interactive)
     (async-shell-command
-     (format "~/vscp/bin/python -m vspreview %s" buffer-file-name)
+     (format "~/Vapoursynth/bin/python3 -m vspreview %s" buffer-file-name)
      "*vspreview*"))
 
   (defun vsbench()
     "Vapoursynth bench this script."
     (interactive)
     (async-shell-command
-     (format "~/vscp/bin/vspipe -p %s ." buffer-file-name)
+     (format "~/Vapoursynth/bin/vspipe -p %s ." buffer-file-name)
      "*vsbench*"))
 
   (map! :map python-mode-map
@@ -975,6 +899,13 @@ apheleia更新后可以删除push ruff的代码
 #+begin_src emacs-lisp
   (after! lua-mode
     (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
+#+end_src
+
+** yaml
+#+begin_src emacs-lisp
+  (after! yaml-mode
+    (map! :map yaml-mode-map
+          :i [backspace] #'backward-delete-char))
 #+end_src
 
 * 工具包
@@ -1057,9 +988,9 @@ apheleia更新后可以删除push ruff的代码
 #+begin_src emacs-lisp
   (defun my-emacs-use-proxy()
     (interactive)
-    (setenv "http_proxy" "http://127.0.0.1:20171")
-    (setenv "https_proxy" "http://127.0.0.1:20171")
-    (setenv "all_proxy" "socks5://127.0.0.1:20170")
+    (setenv "http_proxy" "http://127.0.0.1:7897")
+    (setenv "https_proxy" "http://127.0.0.1:7897")
+    (setenv "all_proxy" "socks5://127.0.0.1:7897")
     (message "Use Proxy"))
 
   (defun my-emacs-not-use-proxy()
