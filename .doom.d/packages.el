@@ -58,7 +58,6 @@
 (package! jsonrpc :built-in 'prefer)
 (package! project :built-in 'prefer)
 (package! use-package :built-in 'prefer)
-(package! transient :built-in 'prefer)
 (package! vundo :built-in 'prefer)
 
 ;; unpin
@@ -75,7 +74,6 @@
 
 ;; 工具包
 (package! fanyi)
-(package! eshell-git-prompt)
 (package! vlf
   :recipe (:host github :repo "emacs-straight/vlf"
            :files ("*")))

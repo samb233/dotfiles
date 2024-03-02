@@ -19,6 +19,7 @@
 #+begin_src emacs-lisp
   (pushnew! default-frame-alist '(width . 80) '(height . 50))
   (add-to-list 'default-frame-alist '(fullscreen . maximized))
+  (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 #+end_src
 
 设置窗口透明度。
@@ -76,8 +77,8 @@
 设置字体与字体大小。
 使用after-setting-font-hook来设置中文字体
 #+begin_src emacs-lisp
-  (setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.0))
-  (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
+  (setq doom-font (font-spec :family "iosevka" :size 11.0))
+  ;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
   (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
   (defun my-cjk-font()

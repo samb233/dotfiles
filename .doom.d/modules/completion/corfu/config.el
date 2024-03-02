@@ -1,17 +1,42 @@
 ;;; completion/corfu/config.el -*- lexical-binding: t; -*-
 
 (defvar +corfu-buffer-scanning-size-limit (* 1 1024 1024) ; 1 MB
-  "Size limit for a buffer to be scanned by `cape-line' or `cape-dabbrev'.
+  "Size limit for a buffer to be scanned by `cape-dabbrev'.")
 
-As an exception, `cape-line' will also scan buffers with the same
-major mode regardless of size.")
+(defvar +corfu-want-C-x-bindings t
+  "Whether `C-x' is a completion prefix in Evil insert state.")
+
+(defvar +corfu-want-minibuffer-completion t
+  "Whether to enable Corfu in the minibuffer.
+Setting this to `aggressive' will enable Corfu in more commands which
+use the minibuffer such as `query-replace'.")
 
 ;;
 ;;; Packages
 (use-package! corfu
-  :defer t
+  :hook (doom-first-input . global-corfu-mode)
   :init
-  (global-corfu-mode)
+  (add-hook! 'minibuffer-setup-hook
+    (defun +corfu-enable-in-minibuffer ()
+      "Enable Corfu in the minibuffer."
+      (when (pcase +corfu-want-minibuffer-completion
+              ('aggressive
+               (not (or (bound-and-true-p mct--active)
+                        (bound-and-true-p vertico--input)
+                        (eq (current-local-map) read-passwd-map)
+                        (and (featurep 'helm-core) (helm--alive-p))
+                        (and (featurep 'ido) (ido-active))
+                        (where-is-internal 'minibuffer-complete
+                                           (list (current-local-map)))
+                        (memq #'ivy--queue-exhibit post-command-hook))))
+              ('nil nil)
+              (_ (where-is-internal #'completion-at-point
+                                    (list (current-local-map)))))
+        (setq-local corfu-echo-delay nil)
+        (corfu-mode +1))))
+  (when (modulep! +orderless)
+    (after! orderless
+      (setq orderless-component-separator #'orderless-escapable-split-on-space)))
   :config
   (setq corfu-auto t
         corfu-auto-delay 0.1
@@ -36,29 +61,34 @@ major mode regardless of size.")
         ;; However, it should otherwise behave like normal, whatever normal was.
         tab-always-indent (if (modulep! +tng) 'complete tab-always-indent))
   (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
+  (add-to-list 'corfu-auto-commands #'lispy-colon)
 
-  (add-hook! corfu-mode
-    (defun +corfu-mode-unbinds ()
-      ;; In `corfu-mode', unbind C-SPC from `global-map', so Emacs keeps searching.
-      (make-local-variable 'global-map)
-      (unbind-key "C-SPC" 'global-map)))
+  (add-to-list 'corfu-continue-commands #'+corfu-move-to-minibuffer)
 
-  (add-hook! 'minibuffer-setup-hook
-    (defun +corfu-enable-in-minibuffer ()
-      "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-      (when (where-is-internal #'completion-at-point (list (current-local-map)))
-        (setq-local corfu-echo-delay nil)
-        (corfu-mode +1))))
 
-  (after! evil
-    (add-hook 'evil-insert-state-exit-hook #'corfu-quit))
+  (add-hook 'evil-insert-state-exit-hook #'corfu-quit)
 
   (when (modulep! +icons)
     (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
-  (when (modulep! +orderless)
-    (after! orderless
-      (setq orderless-component-separator #'orderless-escapable-split-on-space))))
+  ;; If you want to update the visual hints after completing minibuffer commands
+  ;; with Corfu and exiting, you have to do it manually.
+  (defadvice! +corfu--insert-before-exit-minibuffer-a ()
+    :before #'exit-minibuffer
+    (when (or (and (frame-live-p corfu--frame)
+                   (frame-visible-p corfu--frame))
+              (and (featurep 'corfu-terminal)
+                   (popon-live-p corfu-terminal--popon)))
+      (when (member isearch-lazy-highlight-timer timer-idle-list)
+        (apply (timer--function isearch-lazy-highlight-timer)
+               (timer--args isearch-lazy-highlight-timer)))
+      (when (member (bound-and-true-p anzu--update-timer) timer-idle-list)
+        (apply (timer--function anzu--update-timer)
+               (timer--args anzu--update-timer)))
+      (when (member (bound-and-true-p evil--ex-search-update-timer)
+                    timer-idle-list)
+        (apply (timer--function evil--ex-search-update-timer)
+               (timer--args evil--ex-search-update-timer))))))
 
 (use-package! cape
   :defer t
@@ -74,6 +104,10 @@ major mode regardless of size.")
     ;; Set up `cape-dabbrev' options.
     (defun +dabbrev-friend-buffer-p (other-buffer)
       (< (buffer-size other-buffer) +corfu-buffer-scanning-size-limit))
+    (add-hook! (prog-mode text-mode conf-mode comint-mode minibuffer-setup
+                          eshell-mode)
+      (defun +corfu-add-cape-dabbrev-h ()
+        (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t)))
     (after! dabbrev
       (setq cape-dabbrev-check-other-buffers t
             dabbrev-friend-buffer-function #'+dabbrev-friend-buffer-p
@@ -81,22 +115,14 @@ major mode regardless of size.")
             '("^ "
               "\\(TAGS\\|tags\\|ETAGS\\|etags\\|GTAGS\\|GRTAGS\\|GPATH\\)\\(<[0-9]+>\\)?")
             dabbrev-upcase-means-case-search t)
-      (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)
-
-      (add-hook! (prog-mode text-mode conf-mode comint-mode minibuffer-setup
-                            eshell-mode)
-        (defun +corfu-add-cape-dabbrev-h ()
-          (add-hook 'completion-at-point-functions #'cape-dabbrev 20 t)))))
+      (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)))
   ;; Complete emojis :).
   (when (and (modulep! +emoji) (> emacs-major-version 28))
     (add-hook! (prog-mode conf-mode)
       (defun +corfu-add-cape-emoji-h ()
         (add-hook 'completion-at-point-functions
-                  (cape-capf-inside-faces
-                   (cape-capf-prefix-length #'cape-emoji 1)
-                   ;; Only call inside comments and docstrings.
-                   'tree-sitter-hl-face:doc 'font-lock-doc-face
-                   'font-lock-comment-face 'tree-sitter-hl-face:comment)
+                  (cape-capf-predicate (cape-capf-prefix-length #'cape-emoji 1)
+                                       #'+corfu-in-doc-or-comment-p)
                   10 t)))
     (add-hook! text-mode
       (defun +corfu-add-cape-emoji-text-h ()
@@ -107,10 +133,7 @@ major mode regardless of size.")
     (add-hook! (prog-mode conf-mode)
       (defun +corfu-add-cape-dict-h ()
         (add-hook 'completion-at-point-functions
-                  (cape-capf-inside-faces
-                   ;; Only call inside comments and docstrings.
-                   #'cape-dict 'tree-sitter-hl-face:doc 'font-lock-doc-face
-                   'font-lock-comment-face 'tree-sitter-hl-face:comment)
+                  (cape-capf-predicate #'+corfu-in-doc-or-comment-p #'cape-dict)
                   40 t)))
     (add-hook! text-mode
       (defun +corfu-add-cape-dict-text-h ()

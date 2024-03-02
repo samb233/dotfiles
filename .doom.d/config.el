@@ -5,6 +5,7 @@
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -26,8 +27,8 @@
 
 (setq word-wrap-by-category t)
 
-(setq doom-font (font-spec :family "BlexMono Nerd Font" :size 11.0))
-(setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
+(setq doom-font (font-spec :family "iosevka" :size 11.0))
+;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
 (defun my-cjk-font()
