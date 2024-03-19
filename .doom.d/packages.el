@@ -52,14 +52,6 @@
 ;; 一些网上复制粘贴的包
 (add-load-path! "elisp")
 
-;; Emacs自带的包就不要再去下载了
-(package! org :built-in 'prefer)
-(package! eglot :built-in 'prefer)
-(package! jsonrpc :built-in 'prefer)
-(package! project :built-in 'prefer)
-(package! use-package :built-in 'prefer)
-(package! vundo :built-in 'prefer)
-
 ;; unpin
 (unpin! vundo undo-fu-session)
 
@@ -74,9 +66,6 @@
 
 ;; 工具包
 (package! fanyi)
-(package! vlf
-  :recipe (:host github :repo "emacs-straight/vlf"
-           :files ("*")))
 
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
@@ -95,17 +84,9 @@
 (package! pipenv :disable t)
 (package! anaconda-mode :disable t)
 (package! esh-help :disable t)
-(package! yasnippet-capf :disable t)
 
 ;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
 (package! ob-go :disable t)
 (package! go-guru :disable t)
 (package! go-eldoc :disable t)
-
-;; 默认的go-tag在我的配置下会有一些问题
-;; 使用我自己的go-tag
-(unpin! go-tag)
-(package! go-tag
-  :recipe (:host github :repo "samb233/emacs-go-tag"
-           :files ("*")))

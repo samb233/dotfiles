@@ -3,13 +3,18 @@
 (defvar +corfu-buffer-scanning-size-limit (* 1 1024 1024) ; 1 MB
   "Size limit for a buffer to be scanned by `cape-dabbrev'.")
 
-(defvar +corfu-want-C-x-bindings t
-  "Whether `C-x' is a completion prefix in Evil insert state.")
-
 (defvar +corfu-want-minibuffer-completion t
   "Whether to enable Corfu in the minibuffer.
 Setting this to `aggressive' will enable Corfu in more commands which
 use the minibuffer such as `query-replace'.")
+
+(defvar +corfu-want-ret-to-confirm t
+  "Configure how the user expects RET to behave.
+Possible values are:
+- t (default): Insert candidate if one is selected, pass-through otherwise;
+- `minibuffer': Insert candidate if one is selected, pass-through otherwise,
+              and immediatelly exit if in the minibuffer;
+- nil: Pass-through without inserting.")
 
 ;;
 ;;; Packages
@@ -50,22 +55,18 @@ use the minibuffer such as `query-replace'.")
                              t)
         corfu-cycle t
         corfu-separator (when (modulep! +orderless) ?\s)
-        corfu-preselect (if (modulep! +tng) 'prompt 'valid)
+        corfu-preselect 'prompt
         corfu-count 16
         corfu-max-width 120
         corfu-preview-current 'insert
         corfu-on-exact-match nil
         corfu-quit-at-boundary (if (modulep! +orderless) 'separator t)
         corfu-quit-no-match (if (modulep! +orderless) 'separator t)
-        ;; In the case of +tng, TAB should be smart regarding completion;
-        ;; However, it should otherwise behave like normal, whatever normal was.
-        tab-always-indent (if (modulep! +tng) 'complete tab-always-indent))
+        tab-always-indent 'complete)
   (add-to-list 'completion-category-overrides `(lsp-capf (styles ,@completion-styles)))
   (add-to-list 'corfu-auto-commands #'lispy-colon)
-
   (add-to-list 'corfu-continue-commands #'+corfu-move-to-minibuffer)
-
-
+  (add-to-list 'corfu-continue-commands #'+corfu-smart-sep-toggle-escape)
   (add-hook 'evil-insert-state-exit-hook #'corfu-quit)
 
   (when (modulep! +icons)
@@ -116,28 +117,6 @@ use the minibuffer such as `query-replace'.")
               "\\(TAGS\\|tags\\|ETAGS\\|etags\\|GTAGS\\|GRTAGS\\|GPATH\\)\\(<[0-9]+>\\)?")
             dabbrev-upcase-means-case-search t)
       (add-to-list 'dabbrev-ignored-buffer-modes 'pdf-view-mode)))
-  ;; Complete emojis :).
-  (when (and (modulep! +emoji) (> emacs-major-version 28))
-    (add-hook! (prog-mode conf-mode)
-      (defun +corfu-add-cape-emoji-h ()
-        (add-hook 'completion-at-point-functions
-                  (cape-capf-predicate (cape-capf-prefix-length #'cape-emoji 1)
-                                       #'+corfu-in-doc-or-comment-p)
-                  10 t)))
-    (add-hook! text-mode
-      (defun +corfu-add-cape-emoji-text-h ()
-        (add-hook 'completion-at-point-functions
-                  (cape-capf-prefix-length #'cape-emoji 1) 10 t))))
-  ;; Enable dictionary-based autocompletion.
-  (when (modulep! +dict)
-    (add-hook! (prog-mode conf-mode)
-      (defun +corfu-add-cape-dict-h ()
-        (add-hook 'completion-at-point-functions
-                  (cape-capf-predicate #'+corfu-in-doc-or-comment-p #'cape-dict)
-                  40 t)))
-    (add-hook! text-mode
-      (defun +corfu-add-cape-dict-text-h ()
-        (add-hook 'completion-at-point-functions #'cape-dict 40 t))))
 
   ;; Make these capfs composable.
   (advice-add #'comint-completion-at-point :around #'cape-wrap-nonexclusive)
@@ -170,7 +149,6 @@ use the minibuffer such as `query-replace'.")
   :hook ((corfu-mode . corfu-history-mode))
   :config
   (after! savehist (add-to-list 'savehist-additional-variables 'corfu-history)))
-
 
 (use-package! corfu-popupinfo
   :hook ((corfu-mode . corfu-popupinfo-mode))

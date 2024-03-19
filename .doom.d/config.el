@@ -4,8 +4,8 @@
 (prefer-coding-system 'utf-8-unix)
 
 (pushnew! default-frame-alist '(width . 80) '(height . 50))
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
+(toggle-frame-maximized)
 
 ;; (add-to-list 'default-frame-alist '(alpha-background . 95))
 ;; (add-to-list 'default-frame-alist (cons 'alpha 90))
@@ -77,6 +77,7 @@
       :v  "K"         #'drag-stuff-up
       :nv "R"         #'query-replace
       :ni "C-s"       #'consult-line
+      :ni "C-S-s"     #'isearch-forward
       :ni "C-z"       #'undo-only
       :ni "C-S-z"     #'undo-redo
       :nv "g r"       #'+lookup/references
@@ -158,9 +159,9 @@
 (use-package! projectile
   :commands (project-projectile))
 
-;; (defun projectile-root-default-directory (dir)
-;;   "Retrieve the root directory of the project at DIR using `default-directory'."
-;;   default-directory)
+(defun projectile-root-default-directory (dir)
+  "Retrieve the root directory of the project at DIR using `default-directory'."
+  default-directory)
 
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
@@ -168,6 +169,7 @@
                                             projectile-root-marked
                                             projectile-root-top-down
                                             projectile-root-bottom-up
+                                            projectile-root-default-directory
                                             projectile-root-top-down-recurring)))
 
 (setq project-find-functions '(project-projectile project-try-vc))
@@ -269,6 +271,13 @@
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
 
+(use-package! flymake-triangle-bitmap
+  :after flymake
+  :config
+  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
+
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
@@ -277,10 +286,10 @@
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-;; (defun my-corfu-frame-visible-h ()
-;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
+(defun my-corfu-frame-visible-h ()
+  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
 
-;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
+(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
@@ -580,14 +589,14 @@
   "Vapoursynth preview this script."
   (interactive)
   (async-shell-command
-   (format "~/Vapoursynth/bin/python3 -m vspreview %s" buffer-file-name)
+   (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" buffer-file-name)
    "*vspreview*"))
 
 (defun vsbench()
   "Vapoursynth bench this script."
   (interactive)
   (async-shell-command
-   (format "~/Vapoursynth/bin/vspipe -p %s ." buffer-file-name)
+   (format "~/Env/vapoursynth/bin/vspipe -p %s ." buffer-file-name)
    "*vsbench*"))
 
 (map! :map python-mode-map
@@ -605,9 +614,8 @@
 (after! lua-mode
   (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
 
-(after! yaml-mode
-  (map! :map yaml-mode-map
-        :i [backspace] #'backward-delete-char))
+(add-hook 'yaml-mode-hook #'turn-off-smartparens-mode nil t)
+(add-hook 'yaml-mode-hook #'electric-pair-local-mode nil t)
 
 (use-package! sis
   :config
@@ -669,9 +677,9 @@
 
 (defun my-emacs-use-proxy()
   (interactive)
-  (setenv "http_proxy" "http://127.0.0.1:7897")
-  (setenv "https_proxy" "http://127.0.0.1:7897")
-  (setenv "all_proxy" "socks5://127.0.0.1:7897")
+  (setenv "http_proxy" "http://127.0.0.1:17899")
+  (setenv "https_proxy" "http://127.0.0.1:17899")
+  (setenv "all_proxy" "socks5://127.0.0.1:17899")
   (message "Use Proxy"))
 
 (defun my-emacs-not-use-proxy()
@@ -684,57 +692,6 @@
 (map! :leader
       :desc "use proxy" "v p" #'my-emacs-use-proxy
       :desc "use proxy" "v P" #'my-emacs-not-use-proxy)
-
-(use-package! vlf
-  :commands (vlf vlf-mode)
-  :config
-  (map! :map 'vlf-prefix-map
-        :n "C-j" #'vlf-next-batch
-        :n "C-k" #'vlf-prev-batch
-        :n "gj" #'vlf-next-batch
-        :n "gk" #'vlf-prev-batch
-        :n "]]" #'vlf-next-batch
-        :n "[[" #'vlf-prev-batch
-        :n "+" #'vlf-change-batch-size
-        :n "-" #'evil-collection-vlf-decrease-batch-size
-        :n "=" #'vlf-next-batch-from-point
-        :n "gr" #'vlf-revert
-        :n "s" #'vlf-re-search-forward
-        :n "S" #'vlf-re-search-backward
-        :n "gg" #'vlf-beginning-of-file
-        :n "G" #'vlf-end-of-file
-        :n "J" #'vlf-jump-to-chunk
-        :n "E" #'vlf-ediff-buffers
-        :n "g%" #'vlf-query-replace
-        :n "go" #'vlf-occur
-        :n "L" #'vlf-goto-line
-        :n "F" #'vlf-toggle-follow))
-
-(add-hook! 'vlf-mode-hook #'evil-normalize-keymaps)
-
-(defadvice! +files--ask-about-large-file-vlf (size op-type filename offer-raw)
-  "Like `files--ask-user-about-large-file', but with support for `vlf'."
-  :override #'files--ask-user-about-large-file
-  (let ((prompt (format "File %s is large (%s), really %s?"
-                        (file-name-nondirectory filename)
-                        (funcall byte-count-to-string-function size) op-type)))
-    (if (not offer-raw)
-        (if (y-or-n-p prompt) nil 'abort)
-      (let ((choice
-             (car
-              (read-multiple-choice
-               prompt '((?y "yes")
-                        (?n "no")
-                        (?l "literally")
-                        (?v "vlf"))
-               (files--ask-user-about-large-file-help-text
-                op-type (funcall byte-count-to-string-function size))))))
-        (cond ((eq choice ?y) nil)
-              ((eq choice ?l) 'raw)
-              ((eq choice ?v)
-               (vlf filename)
-               (error ""))
-              (t 'abort))))))
 
 (use-package! fanyi
   :commands (fanyi-dwim
@@ -778,10 +735,3 @@
 (set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
 (map! :leader
       :desc "View Base64 img" "v b" #'base64-img-toggle-region)
-
-(use-package! flymake-triangle-bitmap
-  :after flymake
-  :config
-  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
-        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
-        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
