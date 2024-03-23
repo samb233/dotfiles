@@ -250,8 +250,6 @@
         :i "C-k" #'corfu-previous
         :i "C-i" #'corfu-insert-separator
         :i "C-s" #'corfu-insert-separator
-        :i "C-h" #'corfu-info-documentation
-        :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
@@ -285,11 +283,6 @@
         eldoc-idle-delay 0.2)
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
-
-(defun my-corfu-frame-visible-h ()
-  (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-
-(add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
