@@ -1,9 +1,6 @@
-(setq user-full-name "Jie Samb"
-      user-mail-address "samb233@hotmail.com")
-
 (prefer-coding-system 'utf-8-unix)
 
-(pushnew! default-frame-alist '(width . 80) '(height . 50))
+(pushnew! default-frame-alist '(width . 80) '(height . 35))
 (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
 (toggle-frame-maximized)
 
@@ -361,7 +358,6 @@
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
           (("pdf") . ("evince" "%f"))
-          (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
           (("epub") . ("koodo-reader" "%f"))))
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
@@ -477,7 +473,9 @@
          "* %?"
          :target (file+head "%<%Y>/%<%Y-%m>/%<%Y-%m-%d>.org"
                             "#+title: %<%Y-%m-%d>\n"))))
-(map! :leader
+(map! :n "[ J" #'org-roam-dailies-goto-yesterday
+      :n "] J" #'org-roam-dailies-goto-tomorrow
+      :leader
       :desc "my Journal today" "J" #'org-roam-dailies-goto-today
       :desc "org-roam find node" "Z" #'org-roam-node-find)
 
