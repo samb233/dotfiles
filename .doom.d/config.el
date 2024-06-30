@@ -44,6 +44,7 @@
 (after! doom-modeline
   (setq doom-modeline-modal nil
         doom-modeline-lsp nil
+        doom-modeline-check-icon nil
         ;; doom-modeline-icon nil
         ;; doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
@@ -343,7 +344,7 @@
           ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
           ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
   (setq dirvish-use-mode-line nil
-        ;; dirvish-default-layout '(0 0 0.5)
+        dirvish-default-layout '(0 0 0.5)
         dirvish-header-line-height '36
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-subtree-file-viewer #'dired-find-file
@@ -420,7 +421,7 @@
 (add-hook! 'doom-first-buffer-hook
   (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
 
-(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
+(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil) (solaire-mode -1))
 
 (use-package! doom-vterm-toggle
   :commands (doom-vterm-toggle-directory
@@ -577,6 +578,8 @@
 ;;     (setenv "PYTHONPATH" "/home/jiesamb/Vapoursynth/scripts"))
 ;;   )
 ;; (add-hook 'python-mode-local-vars-hook #'my-vscp-init -10)
+
+;; (setenv "QT_QPA_PLATFORM" "wayland")
 
 (defun vspreview()
   "Vapoursynth preview this script."
