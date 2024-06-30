@@ -2,12 +2,6 @@
 #+author: Samb
 
 * 基本设置
-** 你的名字
-#+begin_src emacs-lisp
-  (setq user-full-name "Jie Samb"
-        user-mail-address "samb233@hotmail.com")
-#+end_src
-
 ** 文件编码
 #+begin_src emacs-lisp
   (prefer-coding-system 'utf-8-unix)
@@ -17,7 +11,7 @@
 设置窗口的大小。
 我喜欢用较小的窗口记笔记，所以设置的80列50行。写代码是最大化窗口即可。
 #+begin_src emacs-lisp
-  (pushnew! default-frame-alist '(width . 80) '(height . 50))
+  (pushnew! default-frame-alist '(width . 80) '(height . 35))
   (add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
   (toggle-frame-maximized)
 #+end_src
@@ -544,7 +538,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("ppt" "pptx") . ("wpp" "%f"))
             (("xls" "xlsx") . ("et" "%f"))
             (("pdf") . ("evince" "%f"))
-            (("odt" "ods" "rtf" "odp") . ("libreoffice" "%f"))
             (("epub") . ("koodo-reader" "%f"))))
     (map! :map dirvish-mode-map
           :n "h" #'dired-up-directory
@@ -714,7 +707,9 @@ doom为org-mode设计了一些用不上的快捷键。
            "* %?"
            :target (file+head "%<%Y>/%<%Y-%m>/%<%Y-%m-%d>.org"
                               "#+title: %<%Y-%m-%d>\n"))))
-  (map! :leader
+  (map! :n "[ J" #'org-roam-dailies-goto-yesterday
+        :n "] J" #'org-roam-dailies-goto-tomorrow
+        :leader
         :desc "my Journal today" "J" #'org-roam-dailies-goto-today
         :desc "org-roam find node" "Z" #'org-roam-node-find)
 #+end_src
