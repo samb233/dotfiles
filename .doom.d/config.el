@@ -258,6 +258,9 @@
 
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
+(setq thing-at-point-file-name-chars
+      (concat thing-at-point-file-name-chars " "))
+
 (use-package! flymake
   :commands (flymake-mode)
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
@@ -411,7 +414,8 @@
   (setq vterm-timer-delay    0.02
         vterm-max-scrollback 20000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-  (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
+  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
+  )
 
 (setq +popup-margin-width nil)
 (add-hook! 'doom-first-buffer-hook
@@ -583,14 +587,14 @@
   "Vapoursynth preview this script."
   (interactive)
   (async-shell-command
-   (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" buffer-file-name)
+   (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
    "*vspreview*"))
 
 (defun vsbench()
   "Vapoursynth bench this script."
   (interactive)
   (async-shell-command
-   (format "~/Env/vapoursynth/bin/vspipe -p %s ." buffer-file-name)
+   (format "~/Env/vapoursynth/bin/vspipe -p %s ." (shell-quote-argument buffer-file-name))
    "*vsbench*"))
 
 (map! :map python-mode-map

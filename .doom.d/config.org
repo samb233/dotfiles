@@ -409,6 +409,12 @@ modeline设置，不在modeline上显示eglot任何信息
   (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 #+end_src
 
+设置补全文件名时，允许文件名中存在空格
+#+begin_src emacs-lisp
+  (setq thing-at-point-file-name-chars
+        (concat thing-at-point-file-name-chars " "))
+#+end_src
+
 ** flymake
 flymake和eglot一起用时就不用设置什么了
 #+begin_src emacs-lisp
@@ -606,7 +612,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (setq vterm-timer-delay    0.02
           vterm-max-scrollback 20000)
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-    (set-face-attribute 'vterm-color-black nil :background "#a7a7a7"))
+    (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
+    )
 #+end_src
 
 vterm与doom的适配
@@ -865,14 +872,14 @@ apheleia更新后可以删除push ruff的代码
     "Vapoursynth preview this script."
     (interactive)
     (async-shell-command
-     (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" buffer-file-name)
+     (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
      "*vspreview*"))
 
   (defun vsbench()
     "Vapoursynth bench this script."
     (interactive)
     (async-shell-command
-     (format "~/Env/vapoursynth/bin/vspipe -p %s ." buffer-file-name)
+     (format "~/Env/vapoursynth/bin/vspipe -p %s ." (shell-quote-argument buffer-file-name))
      "*vsbench*"))
 
   (map! :map python-mode-map
