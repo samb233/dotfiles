@@ -9,7 +9,7 @@
       (setenv "LANG" "zh_CN.UTF-8")
       (setq shell-file-name "bash"
             explicit-shell-file-name "bash")
-      (setq default-process-coding-system '(utf-8 . utf-8))
+      ;; (setq default-process-coding-system '(utf-8 . utf-8))
 
       ;; not needed if use utf-8-beta
       ;; (setq default-process-coding-system '(utf-8 . cp936))
@@ -17,8 +17,8 @@
       (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
 
-(setenv "PATH" (concat "d:/Env/msys64/usr/bin;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\msys64\\usr\\bin")
+(setenv "PATH" (concat "d:/Env/msys2/usr/bin;" (getenv "PATH")))
+(add-to-list 'exec-path "d:\\Env\\msys2\\usr\\bin")
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
@@ -49,41 +49,16 @@
 
 (setq display-line-numbers-type 'relative)
 
-(defun my-set-frame-font (&optional frame)
-  "Set font size based on display size and pixel size."
-  (let ((mm-size (alist-get 'mm-size (frame-monitor-attributes frame)))
-        (pixel-size (nthcdr 2 (frame-monitor-geometry))))
-
-      ;; 4k, 16:10, 16 inch
-      (when (and (equal pixel-size '(3840 2400)) (equal mm-size '(344 215)))
-        (setq doom-font (font-spec :family "Consolas" :size 11.5))
-        (set-face-attribute
-         'help-key-binding nil :font (font-spec :family "Consolas" :size 11.5))
-        (internal-set-lisp-face-attribute
-         'default :font (font-spec :family "Consolas" :size 11.5)))
-
-      ;; 4k, 16:9, 27 inch
-      (when (and (equal pixel-size '(3840 2160)) (equal mm-size '(597 336)))
-        (setq doom-font (font-spec :family "Consolas" :size 9.0))
-        (set-face-attribute
-         'help-key-binding nil :font (font-spec :family "Consolas" :size 9.0))
-        (internal-set-lisp-face-attribute
-         'default :font (font-spec :family "Consolas" :size 9.0)))))
-
-(defun my-frame-moved-monitors (frame)
-  "Hook func to set font size based on display size and pixel size."
-  (when (frame-size-changed-p)
-    (my-set-frame-font frame)))
-(push 'my-frame-moved-monitors window-size-change-functions)
-
 (setq doom-theme 'doom-tomorrow-day)
 
 (after! doom-modeline
   (setq doom-modeline-modal nil
         doom-modeline-lsp nil
-        doom-modeline-icon nil
-        doom-modeline-buffer-state-icon nil
+        doom-modeline-check-icon nil
+        ;; doom-modeline-icon nil
+        ;; doom-modeline-buffer-state-icon nil
         doom-modeline-buffer-modification-icon nil
+        doom-modeline-major-mode-icon t
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
         doom-modeline-height 32
@@ -130,7 +105,8 @@
       :desc "dired jump" ">" #'dired-jump
       :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
-      :desc "bookmark list" "b w" #'list-bookmarks)
+      :desc "bookmark list" "b w" #'list-bookmarks
+      :desc "start eglot" "c l" #'eglot)
 
 (map! :after evil-snipe
       (:map evil-snipe-local-mode-map
@@ -158,7 +134,7 @@
        :desc "Fd in dirvish" "F" #'dirvish-fd-ask
        :desc "Jump using fd" "J" #'dirvish-fd-jump
        :desc "Jump recent dir" "j" #'consult-dir
-       :desc "Fd find file in dir" "f" #'+vertico/consult-fd
+       :desc "Fd find file in dir" "f" #'+vertico/consult-fd-or-find
        :desc "find Item in the buffer" "i" #'consult-imenu
        :desc "open with other coding system" "c" #'revert-buffer-with-coding-system
        :desc "change buffer coding system" "C" #'set-buffer-file-coding-system
@@ -168,16 +144,8 @@
 
 (map! :leader
       "i e" nil
-      "f c" nil
       "n d" nil
-      "f e" nil
-      "f E" nil
-      "f p" nil
-      "f P" nil
-      "f u" nil
-      "f U" nil
       "b u" nil
-      "f l" nil
       "s e" nil
       "s t" nil
       "h g" nil)
@@ -202,9 +170,9 @@
 (use-package! projectile
   :commands (project-projectile))
 
-;; (defun projectile-root-default-directory (dir)
-;;   "Retrieve the root directory of the project at DIR using `default-directory'."
-;;   default-directory)
+(defun projectile-root-default-directory (dir)
+  "Retrieve the root directory of the project at DIR using `default-directory'."
+  default-directory)
 
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
@@ -212,6 +180,7 @@
                                             projectile-root-marked
                                             projectile-root-top-down
                                             projectile-root-bottom-up
+                                            projectile-root-default-directory
                                             projectile-root-top-down-recurring)))
 
 (setq project-find-functions '(project-projectile project-try-vc))
@@ -311,6 +280,9 @@
   (setq corfu-popupinfo-delay nil))
 
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
+
+(setq thing-at-point-file-name-chars
+      (concat thing-at-point-file-name-chars " "))
 
 (use-package! flymake
   :commands (flymake-mode)
@@ -619,6 +591,8 @@
   (when eglot--managed-mode
     (eglot-format-buffer)))
 
+(defun go-eldoc-setup())
+
 (defun my-go-lsp-init ()
   (add-hook 'before-save-hook #'my-eglot-format-buffer -10 t)
   (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
@@ -753,9 +727,9 @@
 
 (defun my-emacs-use-proxy()
   (interactive)
-  (setenv "http_proxy" "http://127.0.0.1:10809")
-  (setenv "https_proxy" "http://127.0.0.1:10809")
-  (setenv "all_proxy" "socks5://127.0.0.1:10808")
+  (setenv "http_proxy" "http://127.0.0.1:17897")
+  (setenv "https_proxy" "http://127.0.0.1:17897")
+  (setenv "all_proxy" "socks5://127.0.0.1:17897")
   (message "Use Proxy"))
 
 (defun my-emacs-not-use-proxy()
@@ -768,57 +742,6 @@
 (map! :leader
       :desc "use proxy" "v p" #'my-emacs-use-proxy
       :desc "use proxy" "v P" #'my-emacs-not-use-proxy)
-
-(use-package! vlf
-  :commands (vlf vlf-mode)
-  :config
-  (map! :map 'vlf-prefix-map
-        :n "C-j" #'vlf-next-batch
-        :n "C-k" #'vlf-prev-batch
-        :n "gj" #'vlf-next-batch
-        :n "gk" #'vlf-prev-batch
-        :n "]]" #'vlf-next-batch
-        :n "[[" #'vlf-prev-batch
-        :n "+" #'vlf-change-batch-size
-        :n "-" #'evil-collection-vlf-decrease-batch-size
-        :n "=" #'vlf-next-batch-from-point
-        :n "gr" #'vlf-revert
-        :n "s" #'vlf-re-search-forward
-        :n "S" #'vlf-re-search-backward
-        :n "gg" #'vlf-beginning-of-file
-        :n "G" #'vlf-end-of-file
-        :n "J" #'vlf-jump-to-chunk
-        :n "E" #'vlf-ediff-buffers
-        :n "g%" #'vlf-query-replace
-        :n "go" #'vlf-occur
-        :n "L" #'vlf-goto-line
-        :n "F" #'vlf-toggle-follow))
-
-(add-hook! 'vlf-mode-hook #'evil-normalize-keymaps)
-
-(defadvice! +files--ask-about-large-file-vlf (size op-type filename offer-raw)
-  "Like `files--ask-user-about-large-file', but with support for `vlf'."
-  :override #'files--ask-user-about-large-file
-  (let ((prompt (format "File %s is large (%s), really %s?"
-                        (file-name-nondirectory filename)
-                        (funcall byte-count-to-string-function size) op-type)))
-    (if (not offer-raw)
-        (if (y-or-n-p prompt) nil 'abort)
-      (let ((choice
-             (car
-              (read-multiple-choice
-               prompt '((?y "yes")
-                        (?n "no")
-                        (?l "literally")
-                        (?v "vlf"))
-               (files--ask-user-about-large-file-help-text
-                op-type (funcall byte-count-to-string-function size))))))
-        (cond ((eq choice ?y) nil)
-              ((eq choice ?l) 'raw)
-              ((eq choice ?v)
-               (vlf filename)
-               (error ""))
-              (t 'abort))))))
 
 (use-package! fanyi
   :commands (fanyi-dwim

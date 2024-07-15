@@ -22,7 +22,7 @@ Require: `mtn' (executable)"
   "Use `eza' to generate directory preview."
   :require ("eza")
   (when (file-directory-p file)
-    `(shell . ("eza" "-al" "--color=always" "--icons"
+    `(shell . ("eza" "-al" "--color=always" "--icons=always"
                "--no-permissions" "--time-style" "long-iso" "--no-filesize"
                "--group-directories-first" ,file))))
 (add-to-list 'dirvish-preview-dispatchers 'eza)

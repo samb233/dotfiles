@@ -52,15 +52,6 @@
 ;; 一些网上复制粘贴的包
 (add-load-path! "elisp")
 
-;; Emacs自带的包就不要再去下载了
-(package! org :built-in 'prefer)
-(package! eglot :built-in 'prefer)
-(package! jsonrpc :built-in 'prefer)
-(package! project :built-in 'prefer)
-(package! use-package :built-in 'prefer)
-(package! transient :built-in 'prefer)
-(package! vundo :built-in 'prefer)
-
 ;; unpin
 (unpin! vundo undo-fu-session)
 
@@ -76,10 +67,6 @@
 ;; 工具包
 (package! fanyi)
 (package! eshell-git-prompt)
-(package! vlf
-  :recipe (:host github :repo "emacs-straight/vlf"
-           :files ("*")))
-
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
            :files ("*")))
