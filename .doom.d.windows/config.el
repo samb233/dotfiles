@@ -91,6 +91,7 @@
       :ni "C-z"       #'undo-only
       :ni "C-S-z"     #'undo-redo
       :nv "g r"       #'+lookup/references
+      :ng "<super>"   #'ignore
       :n  "q"         #'doom/escape
       :n  "U"         #'evil-redo
       :n  "s"         #'avy-goto-char-2
@@ -154,6 +155,13 @@
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
+
+(use-package! drag-stuff
+  :commands (drag-stuff-up
+             drag-stuff-down)
+  :init
+  (map! :v "K"  #'drag-stuff-up
+        :v "J"  #'drag-stuff-down))
 
 (setq undo-no-redo t)
 (setq evil-want-fine-undo t)
@@ -272,7 +280,6 @@
         :i "C-h" #'corfu-info-documentation
         :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
-  (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
   (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
@@ -282,16 +289,27 @@
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
 (setq thing-at-point-file-name-chars
-      (concat thing-at-point-file-name-chars " "))
+      (concat thing-at-point-file-name-chars " ・()（）Z-a！+"))
 
 (use-package! flymake
   :commands (flymake-mode)
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
-  (setq flymake-no-changes-timeout 0.2)
+  (setq flymake-no-changes-timeout nil)
   (setq flymake-fringe-indicator-position 'right-fringe)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
+
+(cl-defmethod eglot-handle-notification :after
+  (_server (_method (eql textDocument/publishDiagnostics)) &key uri
+           &allow-other-keys)
+  (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
+    (with-current-buffer buffer
+      (if (and (eq nil flymake-no-changes-timeout)
+               (not (buffer-modified-p)))
+          (flymake-start t)))))
+
+(setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
@@ -358,6 +376,7 @@
      ("c" "D:/Codes/"          "Codes")
      ("w" "D:/Works/"          "Works")
      ("d" "D:/"                "D")
+     ("e" "E:/"                "E")
      ("P" "D:/Pictures/"       "Pictures")
      ("v" "D:/VCBs/"           "Videos")
      ("n" "D:/Notes/"          "Notes")
@@ -394,7 +413,7 @@
           (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
           (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
           (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-          (("epub") . ("C:/Users/jiesamb/AppData/Local/Programs/Koodo Reader/Koodo Reader.exe" "%f"))))
+          (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f"))))
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
         :n "l" #'dired-find-file
@@ -416,8 +435,6 @@
         :n "<mouse-3>" #'dired-find-file
         :n "<mouse-8>" #'dired-up-directory
         :n "<mouse-9>" #'dired-find-file
-        :n "<double-mouse-1>" #'dired-find-file
-        :n "<double-mouse-3>" #'dired-up-directory
         "M-t" #'dirvish-layout-toggle
         "M-j" #'dirvish-fd-jump
         "M-m" #'dirvish-mark-menu))
@@ -788,7 +805,7 @@
 
 (use-package! fringe-scale
   :init
-  (set-fringe-mode 16)
+  (set-fringe-mode '(8 . 16))
   :config
   (fringe-scale-setup))
 

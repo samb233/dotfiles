@@ -159,6 +159,7 @@ emacs29新加入的像素滚动模式。
         :ni "C-z"       #'undo-only
         :ni "C-S-z"     #'undo-redo
         :nv "g r"       #'+lookup/references
+        :ng "<super>"   #'ignore
         :n  "q"         #'doom/escape
         :n  "U"         #'evil-redo
         :n  "s"         #'avy-goto-char-2
@@ -241,6 +242,17 @@ emacs29新加入的像素滚动模式。
   (evil-ex-define-cmd "Q" 'kill-this-buffer)
   (evil-ex-define-cmd "qa" 'evil-quit)
   (evil-ex-define-cmd "W" 'save-buffer)
+#+end_src
+
+** drag-stuff
+doom的维护者删除了这个包，但却没提供一个好用的方案作为替代。
+#+begin_src emacs-lisp
+  (use-package! drag-stuff
+    :commands (drag-stuff-up
+               drag-stuff-down)
+    :init
+    (map! :v "K"  #'drag-stuff-up
+          :v "J"  #'drag-stuff-down))
 #+end_src
 
 * 基础插件
@@ -423,7 +435,6 @@ modeline设置，不在modeline上显示eglot任何信息
           :i "C-h" #'corfu-info-documentation
           :i "C-l" #'corfu-complete
           :i "C-g" #'corfu-quit)
-    (map! :i "C-S-p" #'cape-file)
     (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
     (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
@@ -439,7 +450,7 @@ modeline设置，不在modeline上显示eglot任何信息
 补全文件名时，允许文件名中存在空格
 #+begin_src emacs-lisp
   (setq thing-at-point-file-name-chars
-        (concat thing-at-point-file-name-chars " "))
+        (concat thing-at-point-file-name-chars " ・()（）Z-a！+"))
 #+end_src
 
 ** flymake
@@ -449,10 +460,28 @@ flymake和eglot一起用时就不用设置什么了
     :commands (flymake-mode)
     :hook ((prog-mode text-mode conf-mode) . flymake-mode)
     :config
-    (setq flymake-no-changes-timeout 0.2)
+    (setq flymake-no-changes-timeout nil)
     (setq flymake-fringe-indicator-position 'right-fringe)
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
+#+end_src
+
+设置eglot，使其适配flymake保存后检查错误
+见[[https://github.com/joaotavora/eglot/issues/1296#issuecomment-1727978307][issue]]
+#+begin_src emacs-lisp
+  (cl-defmethod eglot-handle-notification :after
+    (_server (_method (eql textDocument/publishDiagnostics)) &key uri
+             &allow-other-keys)
+    (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
+      (with-current-buffer buffer
+        (if (and (eq nil flymake-no-changes-timeout)
+                 (not (buffer-modified-p)))
+            (flymake-start t)))))
+#+end_src
+
+在org-src时自动检测错误
+#+begin_src emacs-lisp
+  (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 #+end_src
 
 ** eldoc
@@ -553,6 +582,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
        ("c" "D:/Codes/"          "Codes")
        ("w" "D:/Works/"          "Works")
        ("d" "D:/"                "D")
+       ("e" "E:/"                "E")
        ("P" "D:/Pictures/"       "Pictures")
        ("v" "D:/VCBs/"           "Videos")
        ("n" "D:/Notes/"          "Notes")
@@ -589,7 +619,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
             (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
             (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-            (("epub") . ("C:/Users/jiesamb/AppData/Local/Programs/Koodo Reader/Koodo Reader.exe" "%f"))))
+            (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f"))))
     (map! :map dirvish-mode-map
           :n "h" #'dired-up-directory
           :n "l" #'dired-find-file
@@ -611,8 +641,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           :n "<mouse-3>" #'dired-find-file
           :n "<mouse-8>" #'dired-up-directory
           :n "<mouse-9>" #'dired-find-file
-          :n "<double-mouse-1>" #'dired-find-file
-          :n "<double-mouse-3>" #'dired-up-directory
           "M-t" #'dirvish-layout-toggle
           "M-j" #'dirvish-fd-jump
           "M-m" #'dirvish-mark-menu))
@@ -1136,7 +1164,7 @@ apheleia更新后可以删除push ruff的代码
 #+begin_src emacs-lisp
   (use-package! fringe-scale
     :init
-    (set-fringe-mode 16)
+    (set-fringe-mode '(8 . 16))
     :config
     (fringe-scale-setup))
 #+end_src
