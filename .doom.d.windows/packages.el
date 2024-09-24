@@ -86,6 +86,9 @@
 (package! anaconda-mode :disable t)
 (package! esh-help :disable t)
 
+;; Windows 下加载 gpg 非常慢
+(package! epa :disable t)
+
 ;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
 (package! ob-go :disable t)
