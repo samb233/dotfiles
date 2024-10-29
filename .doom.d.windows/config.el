@@ -25,7 +25,9 @@
                    (concat "Editor Macross >> "
                            (abbreviate-file-name (buffer-file-name))
                            (if (buffer-modified-p) " *"))
-                 "Editor Macross"))))
+                 (if (equal major-mode #'dired-mode)
+                     default-directory
+                   "Editor Macross")))))
 
 (setq auth-source-save-behavior nil)
 
@@ -330,49 +332,16 @@
 
 (setq completion-ignore-case t)
 
-(use-package! dired
-  :commands dired-jump
-  :hook
-  (dired-mode . dired-omit-mode)
-  (dired-mode . dired-async-mode)
-  :init
-  (setq dired-dwim-target t
-        dired-hide-details-hide-symlink-targets nil
-        dired-recursive-copies  'always
-        dired-recursive-deletes 'always
-        dired-create-destination-dirs 'ask
-        delete-by-moving-to-trash t
-        dired-clean-confirm-killing-deleted-buffers nil)
-  :config
-  (setq dired-async-skip-fast t)
-  (setq dired-omit-files
-        (concat "\\`[.][.]?\\'"
-                "\\|^\\.DS_Store\\'"
-                "\\|^\\.project\\(?:ile\\)?\\'"
-                "\\|^\\.\\(?:svn\\|git\\)\\'"
-                "\\|^\\.ccls-cache\\'"
-                "\\|\\(?:\\.js\\)?\\.meta\\'"
-                "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
-  (map! :map dired-mode-map
-        :ng "q" #'quit-window)
-  (custom-set-faces '(dired-async-message ((t (:inherit success))))))
+(after! dired
+  (setq dired-listing-switches
+        "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"))
 
-(defun my-next-line (&rest args)
-  (interactive)
-  (next-line))
+;; (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
 
 (after! dired
-  (add-hook! 'wdired-mode-hook #'evil-normal-state)
-  (map! :map dired-mode-map
-        :ng "j" #'my-next-line))
-
-(setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
+  (add-hook! 'wdired-mode-hook #'evil-normal-state))
 
 (use-package! dirvish
-  :init
-  (after! dired (dirvish-override-dired-mode))
-  (advice-add #'dired-find-file :override #'dirvish-find-entry-a)
-  (advice-add #'dired-noselect :around #'dirvish-dired-noselect-a)
   :custom
   (dirvish-quick-access-entries
    '(("h" "~/"                 "Home")
@@ -387,20 +356,15 @@
   :config
   ;;(dirvish-side-follow-mode 1)
   (add-to-list 'dirvish-video-exts "m2ts")
+
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-use-mode-line nil
         dirvish-default-layout '(0 0 0.5)
-        dirvish-header-line-height '36
         dirvish-path-separators (list "  ~" "   " "/")
-        dirvish-subtree-file-viewer #'dired-find-file
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))
-        dirvish-attributes
-        '(file-time nerd-icons file-size subtree-state)
-        dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
         dirvish-open-with-programs
         `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
           (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
@@ -409,45 +373,7 @@
           (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
           (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
           (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-          (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f"))))
-
-  ;; HACK: Dirvish sets up the fringes for vc-state late in the startup
-  ;;   process, causing this jarring pop-in effect. This advice sets them up
-  ;;   sooner to avoid this.
-  ;; REVIEW: Upstream this later.
-  (defadvice! +dired--init-fringes-a (_dir _buffer setup)
-    :before #'dirvish-data-for-dir
-    (when (and setup (memq 'vc-state dirvish-attributes))
-      (set-window-fringes nil 5 1)))
-  ;; The vc-gutter module uses `diff-hl-dired-mode' + `diff-hl-margin-mode'
-  ;; for diffs in dirvish buffers. `vc-state' uses overlays, so they won't be
-  ;; visible in the terminal.
-  (when (or (daemonp) (display-graphic-p))
-    (push 'vc-state dirvish-attributes))
-
-  (map! :map dirvish-mode-map
-        :n "h" #'dired-up-directory
-        :n "l" #'dired-find-file
-        :n "e" #'dired-create-empty-file
-        :n "." #'dired-omit-mode
-        :n "q" #'dirvish-quit
-        :n "s" #'dirvish-quicksort
-        :n "a" #'dirvish-quick-access
-        :n "F" #'dirvish-fd-ask
-        :n "S" #'dirvish-fd-switches-menu
-        :n "y" #'dirvish-yank-menu
-        :n "f" #'dirvish-file-info-menu
-        :n "H" #'dirvish-history-jump
-        :n "TAB" #'dirvish-subtree-toggle
-        :n [backtab] #'dirvish-subtree-up
-        :n "<mouse-1>" nil
-        :n "<mouse-2>" nil
-        :n "<mouse-3>" #'dired-find-file
-        :n "<mouse-8>" #'dired-up-directory
-        :n "<mouse-9>" #'dired-find-file
-        "M-t" #'dirvish-layout-toggle
-        "M-j" #'dirvish-fd-jump
-        "M-m" #'dirvish-mark-menu))
+          (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f")))))
 
 (setenv "PATH" (concat "d:/Env/media/poppler/bin/;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\media\\poppler\\bin")

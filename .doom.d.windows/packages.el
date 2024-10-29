@@ -58,10 +58,6 @@
 ;; 输入法管理
 (package! sis)
 
-;; 文件管理
-(package! dirvish
-  :recipe (:host github :repo "hlissner/dirvish"))
-
 ;; Org-Mode
 (package! org-appear)
 
