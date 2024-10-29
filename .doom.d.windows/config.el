@@ -333,13 +333,17 @@
 (setq completion-ignore-case t)
 
 (after! dired
+  (setq dired-recursive-deletes 'always
+        delete-by-moving-to-trash t)
+  (setq ls-lisp-dirs-first t
+        ls-lisp-verbosity nil
+        ls-lisp-format-time-list '("%Y-%m-%d %H:%M" "%Y-%m-%d %H:%M")
+        ls-lisp-use-localized-time-format t)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"))
 
-;; (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
-
 (after! dired
-  (add-hook! 'wdired-mode-hook #'evil-normal-state))
+  (add-hook 'wdired-mode-hook #'evil-normal-state -10))
 
 (use-package! dirvish
   :custom
@@ -356,7 +360,6 @@
   :config
   ;;(dirvish-side-follow-mode 1)
   (add-to-list 'dirvish-video-exts "m2ts")
-
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
