@@ -244,8 +244,8 @@ emacs29新加入的像素滚动模式。
   (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
 
-** drag-stuff
-doom的维护者删除了这个包，但却没提供一个好用的方案作为替代。
+** move-text
+上下移动行。
 #+begin_src emacs-lisp
   (use-package! drag-stuff
     :commands (drag-stuff-up
@@ -450,7 +450,7 @@ modeline设置，不在modeline上显示eglot任何信息
 补全文件名时，允许文件名中存在空格
 #+begin_src emacs-lisp
   (setq thing-at-point-file-name-chars
-        (concat thing-at-point-file-name-chars " ・()（）Z-a！+"))
+        (concat thing-at-point-file-name-chars " ・()（）Z-a！+&"))
 #+end_src
 
 ** flymake
@@ -575,7 +575,10 @@ dired临时修复，修复两个问题:
 Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外，处处让我感到满足。
 #+begin_src emacs-lisp
   (use-package! dirvish
-    :init (after! dired (dirvish-override-dired-mode))
+    :init
+    (after! dired (dirvish-override-dired-mode))
+    (advice-add #'dired-find-file :override #'dirvish-find-entry-a)
+    (advice-add #'dired-noselect :around #'dirvish-dired-noselect-a)
     :custom
     (dirvish-quick-access-entries
      '(("h" "~/"                 "Home")
@@ -588,27 +591,20 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
        ("n" "D:/Notes/"          "Notes")
        ("b" "D:/Books/"          "Books")))
     :config
-    (dirvish-side-follow-mode 1)
+    ;;(dirvish-side-follow-mode 1)
     (add-to-list 'dirvish-video-exts "m2ts")
     (setq dirvish-side-width 40
           dirvish-side-auto-close t
           dirvish-side-display-alist `((side . right) (slot . -1)))
-    (setq dirvish-emerge-groups
-          '(("24h" (predicate . recent-files-today))
-            ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
-            ("视频" (extensions "mp4" "mkv" "webm"))
-            ("图片" (extensions "jpg" "png" "svg" "gif"))
-            ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
-            ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
     (setq dirvish-use-mode-line nil
-          ;; dirvish-default-layout '(0 0 0.5)
+          dirvish-default-layout '(0 0 0.5)
           dirvish-header-line-height '36
           dirvish-path-separators (list "  ~" "   " "/")
           dirvish-subtree-file-viewer #'dired-find-file
           dirvish-header-line-format
           '(:left (path) :right (yank sort index " "))
           dirvish-attributes
-          '(file-time nerd-icons file-size collapse)
+          '(file-time nerd-icons file-size subtree-state)
           dired-listing-switches
           "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
           dirvish-open-with-programs
@@ -620,12 +616,26 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
             (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
             (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f"))))
+
+    ;; HACK: Dirvish sets up the fringes for vc-state late in the startup
+    ;;   process, causing this jarring pop-in effect. This advice sets them up
+    ;;   sooner to avoid this.
+    ;; REVIEW: Upstream this later.
+    (defadvice! +dired--init-fringes-a (_dir _buffer setup)
+      :before #'dirvish-data-for-dir
+      (when (and setup (memq 'vc-state dirvish-attributes))
+        (set-window-fringes nil 5 1)))
+    ;; The vc-gutter module uses `diff-hl-dired-mode' + `diff-hl-margin-mode'
+    ;; for diffs in dirvish buffers. `vc-state' uses overlays, so they won't be
+    ;; visible in the terminal.
+    (when (or (daemonp) (display-graphic-p))
+      (push 'vc-state dirvish-attributes))
+
     (map! :map dirvish-mode-map
           :n "h" #'dired-up-directory
           :n "l" #'dired-find-file
           :n "e" #'dired-create-empty-file
           :n "." #'dired-omit-mode
-          :n "o" #'dirvish-emerge-mode
           :n "q" #'dirvish-quit
           :n "s" #'dirvish-quicksort
           :n "a" #'dirvish-quick-access
@@ -710,6 +720,34 @@ https://github.com/rostok/file2clip
         :leader "o e" #'my-open-explorer)
 #+end_src
 
+** dired-region
+打开当前光标下的路径
+#+begin_src emacs-lisp
+  (defun dired-open-filename-at-point ()
+    "Open `dired' to the filename at point."
+    (interactive)
+    (let* ((filepath (thing-at-point 'filename t))
+           (dir (file-name-directory filepath)))
+      (dired dir)))
+
+  (map! :leader "v o" #'dired-open-filename-at-point)
+#+end_src
+
+打开选中文本中的路径
+#+begin_src emacs-lisp
+  (defun dired-region (beg end)
+    "Open `dired' according to the selected path within BEG and END."
+    (interactive
+     (if (use-region-p)
+         (list (region-beginning) (region-end))
+       (error "No selection (no active region)")))
+    (let* ((filepath (buffer-substring beg end))
+           (dir (file-name-directory filepath)))
+      (dired dir)))
+
+  (map! :leader "v O" #'dired-region)
+#+end_src
+
 * 终端
 ** Windows Terminal
 Eshell不够好用，需要用到终端的时候就用外部程序解决。
@@ -731,24 +769,6 @@ Eshell不够好用，需要用到终端的时候就用外部程序解决。
         :leader
         "o t" #'my-open-windows-terminal-project
         "o T" #'my-open-windows-terminal-directory)
-#+end_src
-
-** eshell
-作为终端不够好用，但验证一些emacs内部的逻辑很好用。
-#+begin_src emacs-lisp
-  (add-hook! 'eshell-prompt-load-hook
-    (defun my/eshell-use-git-prompt-theme()
-      (eshell-git-prompt-use-theme 'git-radar)))
-  (add-hook! 'eshell-mode-hook
-    (defun my-corfu-add-cape-history-h()
-      (add-hook 'completion-at-point-functions #'cape-history 0 t)))
-  ;; (add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
-
-  (setq comint-input-ignoredups t)
-  (use-package! doom-eshell-toggle)
-  (map! :leader
-        "o s" #'doom-eshell-toggle-project
-        "o S" #'project-eshell)
 #+end_src
 
 * Org-Mode
@@ -986,16 +1006,27 @@ apheleia更新后可以删除push ruff的代码
      (format "D:/Env/vapoursynth/VSPipe.exe -p %s ." (shell-quote-argument buffer-file-name))
      "*vsbench*"))
 
+  (defun mediainfo-region(beg end)
+    "Show mediainfo for selected filename."
+    (interactive
+     (if (use-region-p)
+         (list (region-beginning) (region-end))
+       (error "No selection (no active region)")))
+    (let ((filename (buffer-substring beg end)))
+      (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
+
   (map! :map python-mode-map
-          :localleader
-          "p" #'vspreview
-          "b" #'vsbench)
+        :localleader
+        "p" #'vspreview
+        "b" #'vsbench
+        "m" #'mediainfo-region)
 #+end_src
 
 设置窗口popup
 #+begin_src emacs-lisp
   (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
   (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
+  (set-popup-rule! "^\\*mediainfo*" :size 0.4 :quit t :select nil)
 #+end_src
 
 ** rust
@@ -1042,6 +1073,12 @@ apheleia更新后可以删除push ruff的代码
           :leader
           :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
           :desc "close current tab" [backtab] #'tab-bar-close-tab))
+#+end_src
+
+设置evil命令，:r使当前buffer移出当前tab
+#+begin_src emacs-lisp
+  (after! tabspaces
+      (evil-ex-define-cmd "r" 'tabspaces-remove-current-buffer))
 #+end_src
 
 设置addvice，让新建tab时只剩一个scratch buffer
@@ -1125,27 +1162,6 @@ apheleia更新后可以删除push ruff的代码
   (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
   (map! :leader
         :desc "Translate word" "v t" #'fanyi-dwim2)
-#+end_src
-
-** writeroom
-打开writeroom-mode时，做一系列操作，如打开pixel-scroll、关闭行号等
-#+begin_src emacs-lisp
-  (defun my-writeroom-mode-on()
-    (if (equal major-mode 'org-mode)
-        (org-display-inline-images))
-    (if (member major-mode '(markdown-mode gfm-mode))
-        (markdown-display-inline-images))
-    (doom-disable-line-numbers-h))
-
-  (defun my-writeroom-mode-off()
-    (if (equal major-mode 'org-mode)
-        (org-remove-inline-images))
-    (if (member major-mode '(markdown-mode gfm-mode))
-        (markdown-remove-inline-images))
-    (doom-enable-line-numbers-h))
-
-  (add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
-  (add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 #+end_src
 
 ** base64-img-toggle

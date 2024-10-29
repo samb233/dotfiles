@@ -59,7 +59,8 @@
 (package! sis)
 
 ;; 文件管理
-(package! dirvish)
+(package! dirvish
+  :recipe (:host github :repo "hlissner/dirvish"))
 
 ;; Org-Mode
 (package! org-appear)
@@ -67,7 +68,6 @@
 ;; 工具包
 (package! fanyi)
 (package! drag-stuff)
-(package! eshell-git-prompt)
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
            :files ("*")))
@@ -85,6 +85,7 @@
 (package! pipenv :disable t)
 (package! anaconda-mode :disable t)
 (package! esh-help :disable t)
+(package! flymake-popon :disable t)
 
 ;; Windows 下加载 gpg 非常慢
 (package! epa :disable t)

@@ -289,7 +289,7 @@
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
 (setq thing-at-point-file-name-chars
-      (concat thing-at-point-file-name-chars " ・()（）Z-a！+"))
+      (concat thing-at-point-file-name-chars " ・()（）Z-a！+&"))
 
 (use-package! flymake
   :commands (flymake-mode)
@@ -369,7 +369,10 @@
 (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
 
 (use-package! dirvish
-  :init (after! dired (dirvish-override-dired-mode))
+  :init
+  (after! dired (dirvish-override-dired-mode))
+  (advice-add #'dired-find-file :override #'dirvish-find-entry-a)
+  (advice-add #'dired-noselect :around #'dirvish-dired-noselect-a)
   :custom
   (dirvish-quick-access-entries
    '(("h" "~/"                 "Home")
@@ -382,27 +385,20 @@
      ("n" "D:/Notes/"          "Notes")
      ("b" "D:/Books/"          "Books")))
   :config
-  (dirvish-side-follow-mode 1)
+  ;;(dirvish-side-follow-mode 1)
   (add-to-list 'dirvish-video-exts "m2ts")
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
-  (setq dirvish-emerge-groups
-        '(("24h" (predicate . recent-files-today))
-          ("文档" (extensions "pdf" "epub" "doc" "docx" "xls" "xlsx" "ppt" "pptx"))
-          ("视频" (extensions "mp4" "mkv" "webm"))
-          ("图片" (extensions "jpg" "png" "svg" "gif"))
-          ("音频" (extensions "mp3" "flac" "wav" "ape" "m4a" "ogg"))
-          ("压缩包" (extensions "gz" "rar" "zip" "7z" "tar" "z"))))
   (setq dirvish-use-mode-line nil
-        ;; dirvish-default-layout '(0 0 0.5)
+        dirvish-default-layout '(0 0 0.5)
         dirvish-header-line-height '36
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-subtree-file-viewer #'dired-find-file
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))
         dirvish-attributes
-        '(file-time nerd-icons file-size collapse)
+        '(file-time nerd-icons file-size subtree-state)
         dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"
         dirvish-open-with-programs
@@ -414,12 +410,26 @@
           (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
           (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
           (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f"))))
+
+  ;; HACK: Dirvish sets up the fringes for vc-state late in the startup
+  ;;   process, causing this jarring pop-in effect. This advice sets them up
+  ;;   sooner to avoid this.
+  ;; REVIEW: Upstream this later.
+  (defadvice! +dired--init-fringes-a (_dir _buffer setup)
+    :before #'dirvish-data-for-dir
+    (when (and setup (memq 'vc-state dirvish-attributes))
+      (set-window-fringes nil 5 1)))
+  ;; The vc-gutter module uses `diff-hl-dired-mode' + `diff-hl-margin-mode'
+  ;; for diffs in dirvish buffers. `vc-state' uses overlays, so they won't be
+  ;; visible in the terminal.
+  (when (or (daemonp) (display-graphic-p))
+    (push 'vc-state dirvish-attributes))
+
   (map! :map dirvish-mode-map
         :n "h" #'dired-up-directory
         :n "l" #'dired-find-file
         :n "e" #'dired-create-empty-file
         :n "." #'dired-omit-mode
-        :n "o" #'dirvish-emerge-mode
         :n "q" #'dirvish-quit
         :n "s" #'dirvish-quicksort
         :n "a" #'dirvish-quick-access
@@ -478,6 +488,27 @@
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
 
+(defun dired-open-filename-at-point ()
+  "Open `dired' to the filename at point."
+  (interactive)
+  (let* ((filepath (thing-at-point 'filename t))
+         (dir (file-name-directory filepath)))
+    (dired dir)))
+
+(map! :leader "v o" #'dired-open-filename-at-point)
+
+(defun dired-region (beg end)
+  "Open `dired' according to the selected path within BEG and END."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (error "No selection (no active region)")))
+  (let* ((filepath (buffer-substring beg end))
+         (dir (file-name-directory filepath)))
+    (dired dir)))
+
+(map! :leader "v O" #'dired-region)
+
 (defun my-open-windows-terminal-project()
   (interactive)
   (call-process-shell-command
@@ -495,20 +526,6 @@
       :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
-
-(add-hook! 'eshell-prompt-load-hook
-  (defun my/eshell-use-git-prompt-theme()
-    (eshell-git-prompt-use-theme 'git-radar)))
-(add-hook! 'eshell-mode-hook
-  (defun my-corfu-add-cape-history-h()
-    (add-hook 'completion-at-point-functions #'cape-history 0 t)))
-;; (add-hook! 'eshell-mode-hook (setq-local coding-system-for-read 'utf-8))
-
-(setq comint-input-ignoredups t)
-(use-package! doom-eshell-toggle)
-(map! :leader
-      "o s" #'doom-eshell-toggle-project
-      "o S" #'project-eshell)
 
 (setq org-directory "D:/Notes")
 (custom-set-faces
@@ -670,13 +687,24 @@
    (format "D:/Env/vapoursynth/VSPipe.exe -p %s ." (shell-quote-argument buffer-file-name))
    "*vsbench*"))
 
+(defun mediainfo-region(beg end)
+  "Show mediainfo for selected filename."
+  (interactive
+   (if (use-region-p)
+       (list (region-beginning) (region-end))
+     (error "No selection (no active region)")))
+  (let ((filename (buffer-substring beg end)))
+    (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
+
 (map! :map python-mode-map
-        :localleader
-        "p" #'vspreview
-        "b" #'vsbench)
+      :localleader
+      "p" #'vspreview
+      "b" #'vsbench
+      "m" #'mediainfo-region)
 
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
+(set-popup-rule! "^\\*mediainfo*" :size 0.4 :quit t :select nil)
 
 (after! apheleia
   (setf (alist-get 'rustfmt apheleia-formatters)
@@ -710,6 +738,9 @@
         :leader
         :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
         :desc "close current tab" [backtab] #'tab-bar-close-tab))
+
+(after! tabspaces
+    (evil-ex-define-cmd "r" 'tabspaces-remove-current-buffer))
 
 (defun tabspaces-reset-advice()
   (switch-to-buffer "*scratch*"))
@@ -778,23 +809,6 @@
 (add-hook 'fanyi-mode-hook #'doom-disable-line-numbers-h)
 (map! :leader
       :desc "Translate word" "v t" #'fanyi-dwim2)
-
-(defun my-writeroom-mode-on()
-  (if (equal major-mode 'org-mode)
-      (org-display-inline-images))
-  (if (member major-mode '(markdown-mode gfm-mode))
-      (markdown-display-inline-images))
-  (doom-disable-line-numbers-h))
-
-(defun my-writeroom-mode-off()
-  (if (equal major-mode 'org-mode)
-      (org-remove-inline-images))
-  (if (member major-mode '(markdown-mode gfm-mode))
-      (markdown-remove-inline-images))
-  (doom-enable-line-numbers-h))
-
-(add-hook 'writeroom-mode-on-hook #'my-writeroom-mode-on)
-(add-hook 'writeroom-mode-off-hook #'my-writeroom-mode-off)
 
 (use-package! base64-img-toggle
   :commands (base64-img-toggle-region))
