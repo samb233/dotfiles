@@ -43,7 +43,7 @@
                              (abbreviate-file-name (buffer-file-name))
                              (if (buffer-modified-p) " *"))
                    (if (equal major-mode #'dired-mode)
-                       default-directory
+                       (concat "Editor Macross >> " default-directory)
                      "Editor Macross")))))
 #+end_src
 
@@ -565,6 +565,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           dirvish-side-auto-close t
           dirvish-side-display-alist `((side . right) (slot . -1)))
     (setq dirvish-use-mode-line nil
+          dirvish-hide-cursor '(dirvish dirvish-side dired)
           dirvish-default-layout '(0 0 0.5)
           dirvish-path-separators (list "  ~" "   " "/")
           dirvish-header-line-format
@@ -695,6 +696,15 @@ Eshell不够好用，需要用到终端的时候就用外部程序解决。
         "o T" #'my-open-windows-terminal-directory)
 #+end_src
 
+** Shell Command
+设置习惯的 shell command 快捷键
+#+begin_src emacs-lisp
+  (map! :leader "S" #'shell-command
+        :leader "A" #'async-shell-command)
+
+  (set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
+#+end_src
+
 * Org-Mode
 ** 基本外观
 配置一下Org-Mode的主题颜色、字体大小等。
@@ -722,7 +732,7 @@ Eshell不够好用，需要用到终端的时候就用外部程序解决。
 #+end_src
 
 ** org-evil
-doom为org-mode设计了一些用不上的快捷键。
+evil-org设计了一些用不上的快捷键。
 尤其是insert模式时，C-l、C-h的键位都被改了，我不能接受。
 #+begin_src emacs-lisp
   (after! evil-org
@@ -797,7 +807,7 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 也尝试使用一下agenda管理日程。
 首先就是将窗口改成popup。
 #+begin_src emacs-lisp
-  (map! :leader "A" (lambda () (interactive) (org-agenda nil "n")))
+  (map! :leader "o A" (lambda () (interactive) (org-agenda nil "n")))
 
   (after! org-agenda
     (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))

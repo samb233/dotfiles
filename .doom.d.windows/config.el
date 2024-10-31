@@ -26,7 +26,7 @@
                            (abbreviate-file-name (buffer-file-name))
                            (if (buffer-modified-p) " *"))
                  (if (equal major-mode #'dired-mode)
-                     default-directory
+                     (concat "Editor Macross >> " default-directory)
                    "Editor Macross")))))
 
 (setq auth-source-save-behavior nil)
@@ -364,6 +364,7 @@
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-use-mode-line nil
+        dirvish-hide-cursor '(dirvish dirvish-side dired)
         dirvish-default-layout '(0 0 0.5)
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-header-line-format
@@ -456,6 +457,11 @@
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
 
+(map! :leader "S" #'shell-command
+      :leader "A" #'async-shell-command)
+
+(set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
+
 (setq org-directory "D:/Notes")
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
@@ -522,7 +528,7 @@
                               "#+title: ${title}\n#+filetags: :create: \n\n")
           :unnarrowed t)))
 
-(map! :leader "A" (lambda () (interactive) (org-agenda nil "n")))
+(map! :leader "o A" (lambda () (interactive) (org-agenda nil "n")))
 
 (after! org-agenda
   (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))
