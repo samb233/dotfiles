@@ -1,32 +1,19 @@
-(setq user-full-name "Jie Samb"
-      user-mail-address "samb233@hotmail.com")
-
 (prefer-coding-system 'utf-8-unix)
 
-(if (eq system-type 'windows-nt)
-    (progn
-      (setq tramp-mode nil)
-      (setenv "LANG" "zh_CN.UTF-8")
-      (setq shell-file-name "bash"
-            explicit-shell-file-name "bash")
-      ;; (setq default-process-coding-system '(utf-8 . utf-8))
+(pushnew! default-frame-alist '(width . 80) '(height . 50))
+(add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
+(toggle-frame-maximized)
 
-      ;; not needed if use utf-8-beta
-      ;; (setq default-process-coding-system '(utf-8 . cp936))
-      ;; (setq file-name-coding-system 'cp936)
-      (set-selection-coding-system 'utf-16le-dos))
-  (set-selection-coding-system 'utf-8))
-
-(setenv "PATH" (concat "d:/Env/msys2/usr/bin;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\msys2\\usr\\bin")
+;; (add-to-list 'default-frame-alist '(alpha-background . 95))
+;; (add-to-list 'default-frame-alist (cons 'alpha 90))
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
-                   (concat "Editor Macross >> "
+                   (concat "Editor Macross > "
                            (abbreviate-file-name (buffer-file-name))
                            (if (buffer-modified-p) " *"))
                  (if (equal major-mode #'dired-mode)
-                     default-directory
+                     (concat "Editor Macross > " default-directory)
                    "Editor Macross")))))
 
 (setq auth-source-save-behavior nil)
@@ -39,7 +26,7 @@
 
 (setq word-wrap-by-category t)
 
-(setq doom-font (font-spec :family "Consolas" :size 11.5))
+(setq doom-font (font-spec :family "iosevka nerd font mono" :size 11.0))
 ;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
@@ -63,8 +50,8 @@
         doom-modeline-major-mode-icon t
         doom-modeline-buffer-encoding t
         doom-modeline-vcs-max-length 20
-        doom-modeline-height 32
-        doom-modeline-bar-width 6
+        doom-modeline-height 20
+        doom-modeline-bar-width 3
         doom-modeline-window-width-limit 120))
 
 (after! solaire-mode
@@ -79,7 +66,7 @@
         ((meta))
         ((control) . text-scale)))
 
-(pixel-scroll-precision-mode t)
+;; (pixel-scroll-precision-mode t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -93,7 +80,6 @@
       :ni "C-z"       #'undo-only
       :ni "C-S-z"     #'undo-redo
       :nv "g r"       #'+lookup/references
-      :ng "<super>"   #'ignore
       :n  "q"         #'doom/escape
       :n  "U"         #'evil-redo
       :n  "s"         #'avy-goto-char-2
@@ -108,8 +94,7 @@
       :desc "dired jump" ">" #'dired-jump
       :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
-      :desc "bookmark list" "b w" #'list-bookmarks
-      :desc "start eglot" "c l" #'eglot)
+      :desc "bookmark list" "b w" #'list-bookmarks)
 
 (map! :after evil-snipe
       (:map evil-snipe-local-mode-map
@@ -201,7 +186,7 @@
         recentf-auto-cleanup 'mode)
   (remove-hook 'kill-emacs-hook #'recentf-cleanup))
 
-(setq magit-clone-default-directory "D:/Codes/Lab/")
+(setq magit-clone-default-directory "~/Codes/Lab/")
 
 (add-hook! 'better-jumper-post-jump-hook #'recenter)
 
@@ -260,12 +245,6 @@
   :after eglot
   :config (eglot-booster-mode))
 
-(add-hook! 'eglot-booster-mode-hook
-  (defun my-eglot-booster-fix-h()
-    (add-to-list 'eglot-server-programs
-                 '((yaml-mode yaml-ts-mode)
-                   . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
-
 (after! corfu
   (setq corfu-preselect 'prompt
         corfu-auto-delay 0.02
@@ -282,6 +261,7 @@
         :i "C-h" #'corfu-info-documentation
         :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
+  (map! :i "C-S-p" #'cape-file)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
   (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
@@ -297,7 +277,7 @@
   :commands (flymake-mode)
   :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
-  (setq flymake-no-changes-timeout nil)
+  (setq flymake-no-changes-timeout 0.2)
   (setq flymake-fringe-indicator-position 'right-fringe)
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
@@ -313,6 +293,13 @@
 
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 
+(use-package! flymake-triangle-bitmap
+  :after flymake
+  :config
+  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
+
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
@@ -321,11 +308,6 @@
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
-;; (defun my-corfu-frame-visible-h ()
-;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-
-;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
-
 (use-package dabbrev
   :config
   (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
@@ -333,127 +315,90 @@
 (setq completion-ignore-case t)
 
 (after! dired
-  (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"))
-
-;; (setq consult-find-args "find . -not ( -wholename \\*/.\\* -prune )")
-
-(after! dired
-  (add-hook! 'wdired-mode-hook #'evil-normal-state))
+    (setq dired-recursive-deletes 'always
+          delete-by-moving-to-trash t)
+    (setq dired-switches-in-mode-line 0
+          dired-listing-switches
+          "-l --almost-all --human-readable --group-directories-first --no-group --time-style \"+%Y-%m-%d %H:%M:%S\"")
+)
 
 (use-package! dirvish
   :custom
   (dirvish-quick-access-entries
-   '(("h" "~/"                 "Home")
-     ("c" "D:/Codes/"          "Codes")
-     ("w" "D:/Works/"          "Works")
-     ("d" "D:/"                "D")
-     ("e" "E:/"                "E")
-     ("P" "D:/Pictures/"       "Pictures")
-     ("v" "D:/VCBs/"           "Videos")
-     ("n" "D:/Notes/"          "Notes")
-     ("b" "D:/Books/"          "Books")))
+   '(("h" "~/"                "Home")
+     ("c" "~/Codes/"          "Codes")
+     ("w" "~/Works/"          "Works")
+     ("d" "~/Downloads"       "Downloads")
+     ("P" "~/Pictures/"       "Pictures")
+     ("v" "~/VCBs/"           "Videos")
+     ("n" "~/Notes/"          "Notes")
+     ("b" "~/Books/"          "Books")))
   :config
-  ;;(dirvish-side-follow-mode 1)
   (add-to-list 'dirvish-video-exts "m2ts")
-
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-use-mode-line nil
         dirvish-default-layout '(0 0 0.5)
+        dirvish-hide-cursor '(dirvish dirvish-side dired)
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))
         dirvish-open-with-programs
-        `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-          (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-          (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
-          (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
-          (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
-          (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
-          (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-          (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f")))))
-
-(setenv "PATH" (concat "d:/Env/media/poppler/bin/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\media\\poppler\\bin")
-(setenv "PATH" (concat "d:/Env/media/imagemagick/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\media\\imagemagick")
-(setenv "PATH" (concat "d:/Env/media/mtn/;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\media\\mtn")
-
-(after! dirvish
-  (use-package! dirvish-windows))
+        `((,dirvish-audio-exts . ("mpv" "%f"))
+          (,dirvish-video-exts . ("mpv" "%f"))
+          (,dirvish-image-exts . ("loupe" "%f"))
+          (("doc" "docx") . ("wps" "%f"))
+          (("ppt" "pptx") . ("wpp" "%f"))
+          (("xls" "xlsx") . ("et" "%f"))
+          (("pdf") . ("evince" "%f"))
+          (("epub") . ("koodo-reader" "%f")))))
 
 (add-hook! 'dirvish-setup-hook
   (use-package! dirvish-video-mediainfo-enhance))
 
-(use-package! dired-7z
+(use-package! dired-archieve
   :after dired
   :config
   (map! :map 'dired-mode-map
         :localleader
-        "z" #'dired-7z-compress
-        "Z" #'dired-7z-compress-with-password
-        "e" #'dired-7z-extract))
-
-(use-package! dired-windows-clipboard
-  :after dired
-  :config
-  (map! :map 'dired-mode-map
-        :localleader
-        "c" #'dired-copy-file-to-windows-clipboard
-        "v" #'dired-file-to-clipboard
-        "p" #'dired-paste-file-from-windows-clipboard
-        "i" #'dired-open-file-properties-windows))
+        "z" #'dired-archieve-add
+        "e" #'dired-archieve-extract))
 
 (defun my-open-explorer()
   (interactive)
-  (call-process-shell-command "explorer ." nil 0))
+  (call-process-shell-command "nautilus ." nil 0))
 
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
 
-(defun dired-open-filename-at-point ()
-  "Open `dired' to the filename at point."
-  (interactive)
-  (let* ((filepath (thing-at-point 'filename t))
-         (dir (file-name-directory filepath)))
-    (dired dir)))
+(setq vterm-always-compile-module t)
+(setq vterm-buffer-name-string "*vterm: %s*")
+(after! vterm
+  (setq vterm-timer-delay    0.02
+        vterm-max-scrollback 20000)
+  (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
+  )
 
-(map! :leader "v o" #'dired-open-filename-at-point)
+(setq +popup-margin-width nil)
+(add-hook! 'doom-first-buffer-hook
+  (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
 
-(defun dired-region (beg end)
-  "Open `dired' according to the selected path within BEG and END."
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end))
-     (error "No selection (no active region)")))
-  (let* ((filepath (buffer-substring beg end))
-         (dir (file-name-directory filepath)))
-    (dired dir)))
+(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil) (solaire-mode -1))
 
-(map! :leader "v O" #'dired-region)
+(use-package! doom-vterm-toggle
+  :commands (doom-vterm-toggle-directory
+             doom-vterm-toggle-project))
 
-(defun my-open-windows-terminal-project()
-  (interactive)
-  (call-process-shell-command
-   (format "wt -d %s" (shell-quote-argument
-                       (or (doom-project-root) default-directory))) nil 0))
-
-(defun my-open-windows-terminal-directory()
-  (interactive)
-  (call-process-shell-command
-   (format "wt -d %s" (shell-quote-argument
-                       default-directory)) nil 0))
-
-(map! [f4] #'my-open-windows-terminal-project
-      [S-f4] #'my-open-windows-terminal-directory
+(map! :map vterm-mode-map [f4] nil)
+(map! [f4] #'doom-vterm-toggle-project
+      [C-f4] #'doom-vterm-toggle-directory
+      [S-f4] #'+vterm/here
       :leader
-      "o t" #'my-open-windows-terminal-project
-      "o T" #'my-open-windows-terminal-directory)
+      "o t" #'doom-vterm-toggle-project)
 
-(setq org-directory "D:/Notes")
+(setq org-directory "~/Notes")
 (custom-set-faces
  '(org-level-1 ((t (:height 1.3 :foreground "#4271ae" :weight ultra-bold))))
  '(org-level-2 ((t (:height 1.2 :foreground "#8959a8" :weight extra-bold))))
@@ -486,18 +431,20 @@
 
 (add-hook 'org-mode-hook #'org-appear-mode)
 
-(setq org-roam-directory "D:/Notes/Roam")
+(setq org-roam-directory "~/Notes/Roam")
 
 (after! org-roam
   (setq org-roam-completion-everywhere nil))
 
-(setq org-roam-dailies-directory "D:/Notes/Daily")
+(setq org-roam-dailies-directory "~/Notes/Daily")
 (setq org-roam-dailies-capture-templates
       '(("d" "default" entry
          "* %?"
          :target (file+head "%<%Y>/%<%Y-%m>/%<%Y-%m-%d>.org"
                             "#+title: %<%Y-%m-%d>\n"))))
-(map! :leader
+(map! :n "[ J" #'org-roam-dailies-goto-yesterday
+      :n "] J" #'org-roam-dailies-goto-tomorrow
+      :leader
       :desc "my Journal today" "J" #'org-roam-dailies-goto-today
       :desc "org-roam find node" "Z" #'org-roam-node-find)
 
@@ -539,24 +486,16 @@
 (after! markdown-mode
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
-  (setq markdown-max-image-size '(1280 . 960))
+  (setq markdown-max-image-size '(640 . 480))
   (map! :map markdown-mode-map :n "z i" #'markdown-toggle-inline-images)
   (set-popup-rule! "^\\*edit-indirect" :size 0.42 :quit nil :select t :autosave t :modeline t :ttl nil))
 
-(setq eglot--managed-mode nil)
 (defun my-eglot-organize-imports ()
-  (when eglot--managed-mode
-    (ignore-errors(call-interactively 'eglot-code-action-organize-imports))))
-(defun my-eglot-format-buffer()
-  (when eglot--managed-mode
-    (eglot-format-buffer)))
-
-(defun go-eldoc-setup())
-
-(defun my-go-lsp-init ()
-  (add-hook 'before-save-hook #'my-eglot-format-buffer -10 t)
+  (ignore-errors(call-interactively 'eglot-code-action-organize-imports)))
+(defun my-go-mode-init ()
+  (add-hook 'before-save-hook #'eglot-format-buffer -10 t)
   (add-hook 'before-save-hook #'my-eglot-organize-imports nil t))
-(add-hook 'go-mode-hook #'my-go-lsp-init)
+(add-hook 'go-mode-hook #'my-go-mode-init)
 
 (after! go-mode
   (map! :map go-mode-map
@@ -599,48 +538,50 @@
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 
+;; (defun my-vscp-init()
+;;   (when (s-suffix-p ".vpy" buffer-file-name)
+;;     (setq-local python-interpreter "/home/jiesamb/Vapoursynth/bin/python3")
+;;     (setenv "PYTHONPATH" "/home/jiesamb/Vapoursynth/scripts"))
+;;   )
+;; (add-hook 'python-mode-local-vars-hook #'my-vscp-init -10)
+
+;; (setenv "QT_QPA_PLATFORM" "wayland")
+
 (defun vspreview()
   "Vapoursynth preview this script."
   (interactive)
   (async-shell-command
-   (format "D:/Env/vapoursynth/python.exe -m vspreview %s" (shell-quote-argument buffer-file-name))
+   (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
    "*vspreview*"))
 
 (defun vsbench()
   "Vapoursynth bench this script."
   (interactive)
   (async-shell-command
-   (format "D:/Env/vapoursynth/VSPipe.exe -p %s ." (shell-quote-argument buffer-file-name))
+   (format "~/Env/vapoursynth/bin/vspipe -p %s ." (shell-quote-argument buffer-file-name))
    "*vsbench*"))
 
-(defun mediainfo-region(beg end)
-  "Show mediainfo for selected filename."
-  (interactive
-   (if (use-region-p)
-       (list (region-beginning) (region-end))
-     (error "No selection (no active region)")))
-  (let ((filename (buffer-substring beg end)))
-    (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
-
 (map! :map python-mode-map
-      :localleader
-      "p" #'vspreview
-      "b" #'vsbench
-      "m" #'mediainfo-region)
+        :localleader
+        "p" #'vspreview
+        "b" #'vsbench)
 
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
-(set-popup-rule! "^\\*mediainfo*" :size 0.4 :quit t :select nil)
 
 (after! apheleia
   (setf (alist-get 'rustfmt apheleia-formatters)
       '("rustfmt" "--quiet" "--emit" "stdout" "--edition" "2021")))
 
+(after! lua-mode
+  (setq +lua-lsp-dir "/usr/lib/lua-language-server/"))
+
+(add-hook 'yaml-mode-hook #'turn-off-smartparens-mode nil t)
+(add-hook 'yaml-mode-hook #'electric-pair-local-mode nil t)
+
 (use-package! sis
   :config
-  (setq sis-respect-prefix-and-buffer nil)
-  (sis-ism-lazyman-config nil t 'w32)
-  (add-hook! 'after-init-hook #'sis-set-english)
+  (sis-ism-lazyman-config "1" "2" 'fcitx5)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
@@ -664,9 +605,6 @@
         :leader
         :desc "switch or create tab" "TAB" #'tab-bar-switch-to-tab
         :desc "close current tab" [backtab] #'tab-bar-close-tab))
-
-(after! tabspaces
-    (evil-ex-define-cmd "r" 'tabspaces-remove-current-buffer))
 
 (defun tabspaces-reset-advice()
   (switch-to-buffer "*scratch*"))
@@ -701,9 +639,9 @@
 
 (defun my-emacs-use-proxy()
   (interactive)
-  (setenv "http_proxy" "http://127.0.0.1:17897")
-  (setenv "https_proxy" "http://127.0.0.1:17897")
-  (setenv "all_proxy" "socks5://127.0.0.1:17897")
+  (setenv "http_proxy" "http://127.0.0.1:17899")
+  (setenv "https_proxy" "http://127.0.0.1:17899")
+  (setenv "all_proxy" "socks5://127.0.0.1:17899")
   (message "Use Proxy"))
 
 (defun my-emacs-not-use-proxy()
@@ -742,43 +680,3 @@
 (set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
 (map! :leader
       :desc "View Base64 img" "v b" #'base64-img-toggle-region)
-
-(use-package! fringe-scale
-  :init
-  (set-fringe-mode '(8 . 16))
-  :config
-  (fringe-scale-setup))
-
-(setq builtin-bitmaps
-      ' ((question-mark [#x3c #x7e #xc3 #xc3 #x0c #x18 #x18 #x00 #x18 #x18])
-     (exclamation-mark [#x18 #x18 #x18 #x18 #x18 #x18 #x18 #x00 #x18 #x18])
-     (left-arraw [#x18 #x30 #x60 #xfc #xfc #x60 #x30 #x18])
-     (right-arrow [#x18 #x0c #x06 #x3f #x3f #x06 #x0c #x18])
-     (up-arrow [#x18 #x3c #x7e #xff #x18 #x18 #x18 #x18])
-     (down-arrow [#x18 #x18 #x18 #x18 #xff #x7e #x3c #x18])
-     (left-curly-arrow [#x3c #x7c #xc0 #xe4 #xfc #x7c #x3c #x7c])
-     (right-curly-arrow [#x3c #x3e #x03 #x27 #x3f #x3e #x3c #x3e])
-     (left-triangle [#x03 #x0f #x1f #x3f #x3f #x1f #x0f #x03])
-     (right-triangle [#xc0 #xf0 #xf8 #xfc #xfc #xf8 #xf0 #xc0])
-     (top-left-angle [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #x00])
-     (top-right-angle [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x00])
-     (bottom-left-angle [#x00 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
-     (bottom-right-angle [#x00 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
-     (left-bracket [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
-     (right-bracket [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
-     (filled-rectangle [#xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe])
-     (hollow-rectangle [#xfe #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #xfe])
-     (hollow-square [#x7e #x42 #x42 #x42 #x42 #x7e])
-     (filled-square [#x7e #x7e #x7e #x7e #x7e #x7e])
-     (vertical-bar [#xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0])
-     (horizontal-bar [#xfe #xfe])))
-
-(dolist (bitmap builtin-bitmaps)
-  (define-fringe-bitmap (car bitmap) (cadr bitmap)))
-
-(use-package! flymake-triangle-bitmap
-  :after flymake
-  :config
-  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
-        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
-        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))

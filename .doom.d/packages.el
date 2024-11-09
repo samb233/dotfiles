@@ -58,15 +58,12 @@
 ;; 输入法管理
 (package! sis)
 
-;; 文件管理
-(package! dirvish)
-
 ;; Org-Mode
 (package! org-appear)
 
 ;; 工具包
 (package! fanyi)
-
+(package! drag-stuff)
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
            :files ("*")))
@@ -84,6 +81,7 @@
 (package! pipenv :disable t)
 (package! anaconda-mode :disable t)
 (package! esh-help :disable t)
+(package! flymake-popon :disable t)
 
 ;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
