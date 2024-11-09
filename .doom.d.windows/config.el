@@ -157,6 +157,7 @@
 (evil-ex-define-cmd "Q" 'kill-this-buffer)
 (evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
+(evil-ex-define-cmd "wq" 'save-buffer)
 
 (use-package! drag-stuff
   :commands (drag-stuff-up
@@ -247,7 +248,7 @@
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
@@ -313,6 +314,16 @@
 
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 
+(use-package sideline-flymake
+  :diminish sideline-mode
+  :custom-face
+  (sideline-flymake-error ((t (:height 0.85 :italic t))))
+  (sideline-flymake-warning ((t (:height 0.85 :italic t))))
+  (sideline-flymake-success ((t (:height 0.85 :italic t))))
+  :hook (flymake-mode . sideline-mode)
+  :init (setq sideline-flymake-display-mode 'point
+              sideline-backends-right '(sideline-flymake)))
+
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
@@ -339,6 +350,14 @@
         ls-lisp-verbosity nil
         ls-lisp-format-time-list '("%Y-%m-%d %H:%M" "%Y-%m-%d %H:%M")
         ls-lisp-use-localized-time-format t)
+  (setq dired-omit-files
+        (concat "\\`[.][.]?\\'"
+                "\\|^\\.DS_Store\\'"
+                "\\|^\\.project\\(?:ile\\)?\\'"
+                "\\|^\\.\\(?:svn\\|git\\)\\'"
+                "\\|^\\.ccls-cache\\'"
+                "\\|\\(?:\\.js\\)?\\.meta\\'"
+                "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first --no-group --time-style=iso"))
 
@@ -391,6 +410,12 @@
 
 (add-hook! 'dirvish-setup-hook
   (use-package! dirvish-video-mediainfo-enhance))
+
+(after! diff-hl-dired
+  (set-face-attribute 'diff-hl-dired-unknown nil :background "#8e908c")
+  (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
+  (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
+  (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
 
 (use-package! dired-7z
   :after dired
@@ -528,10 +553,7 @@
                               "#+title: ${title}\n#+filetags: :create: \n\n")
           :unnarrowed t)))
 
-(map! :leader "o A" (lambda () (interactive) (org-agenda nil "n")))
-
-(after! org-agenda
-  (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))
+(map! :leader "L" (lambda () (interactive) (find-file (concat org-directory "/todo.org"))))
 
 (custom-set-faces
  '(markdown-code-face ((t (:background "#f5f5f5"))))
@@ -707,6 +729,54 @@
 
 (map! :leader
       :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
+
+(use-package indent-bars
+  :custom
+  (indent-bars-no-descend-string t)
+  (indent-bars-treesit-ignore-blank-lines-types '("module"))
+  (indent-bars-prefer-character t)
+  (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+				                       if_statement with_statement while_statement)))
+  :hook ((prog-mode yaml-mode) . indent-bars-mode))
+
+(use-package symbol-overlay
+  :diminish
+  :custom-face
+  (symbol-overlay-default-face ((t (:inherit region :background unspecified :foreground unspecified))))
+  (symbol-overlay-face-1 ((t (:inherit nerd-icons-blue :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-2 ((t (:inherit nerd-icons-pink :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-3 ((t (:inherit nerd-icons-yellow :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-4 ((t (:inherit nerd-icons-purple :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-5 ((t (:inherit nerd-icons-red :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-6 ((t (:inherit nerd-icons-orange :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-7 ((t (:inherit nerd-icons-green :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-8 ((t (:inherit nerd-icons-cyan :background unspecified :foreground unspecified :inverse-video t))))
+  :bind (("M-i" . symbol-overlay-put)
+         ("M-n" . symbol-overlay-jump-next)
+         ("M-p" . symbol-overlay-jump-prev)
+         ("M-N" . symbol-overlay-switch-forward)
+         ("M-P" . symbol-overlay-switch-backward)
+         ("M-C" . symbol-overlay-remove-all)
+         ([M-f3] . symbol-overlay-remove-all))
+  :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
+         (iedit-mode            . turn-off-symbol-overlay)
+         (iedit-mode-end        . turn-on-symbol-overlay))
+  :init (setq symbol-overlay-idle-time 0.1)
+  :config
+  (with-no-warnings
+    ;; Disable symbol highlighting while selecting
+    (defun turn-off-symbol-overlay (&rest _)
+      "Turn off symbol highlighting."
+      (interactive)
+      (symbol-overlay-mode -1))
+    (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+    (defun turn-on-symbol-overlay (&rest _)
+      "Turn on symbol highlighting."
+      (interactive)
+      (when (derived-mode-p 'prog-mode 'yaml-mode)
+        (symbol-overlay-mode 1)))
+    (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)))
 
 (defun my-emacs-use-proxy()
   (interactive)
