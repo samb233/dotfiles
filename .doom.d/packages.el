@@ -67,6 +67,10 @@
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
            :files ("*")))
+(package! indent-bars)
+(package! symbol-overlay)
+(package! sideline)
+(package! sideline-flymake)
 
 ;; Dockerfile-mode
 (package! dockerfile-mode)

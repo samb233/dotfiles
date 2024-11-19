@@ -472,6 +472,19 @@ flymake和eglot一起用时就不用设置什么了
           flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
 #+end_src
 
+使用flymake-sideline
+#+begin_src emacs-lisp
+  (use-package sideline-flymake
+    :diminish sideline-mode
+    :custom-face
+    (sideline-flymake-error ((t (:height 0.85 :italic t))))
+    (sideline-flymake-warning ((t (:height 0.85 :italic t))))
+    (sideline-flymake-success ((t (:height 0.85 :italic t))))
+    :hook (flymake-mode . sideline-mode)
+    :init (setq sideline-flymake-display-mode 'point
+                sideline-backends-right '(sideline-flymake)))
+#+end_src
+
 ** eldoc
 设置eldoc buffer为popup
 也可以配置flymake约eldoc同时显示，见[[https://github.com/joaotavora/eglot/issues/1171][issue]]，但我不喜欢这种形式
@@ -509,6 +522,14 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
       (setq dired-switches-in-mode-line 0
             dired-listing-switches
             "-l --almost-all --human-readable --group-directories-first --no-group --time-style \"+%Y-%m-%d %H:%M:%S\"")
+      (setq dired-omit-files
+          (concat "\\`[.][.]?\\'"
+                  "\\|^\\.DS_Store\\'"
+                  "\\|^\\.project\\(?:ile\\)?\\'"
+                  "\\|^\\.\\(?:svn\\|git\\)\\'"
+                  "\\|^\\.ccls-cache\\'"
+                  "\\|\\(?:\\.js\\)?\\.meta\\'"
+                  "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
   )
 #+end_src
 
@@ -578,6 +599,17 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
         :leader "o e" #'my-open-explorer)
 #+end_src
 
+** diff-hl-dired 背景色
+设置 diff-hl-dired 的背景色，使能够一眼看出文件的状态
+#+begin_src emacs-lisp
+  (after! diff-hl-dired
+    (set-face-attribute 'diff-hl-dired-unknown nil :background "#8e908c")
+    (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
+    (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
+    (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+#+end_src
+
+
 * 终端
 使用性能更好的vterm
 #+begin_src emacs-lisp
@@ -616,6 +648,16 @@ vterm与doom的适配
         :leader
         "o t" #'doom-vterm-toggle-project)
 #+end_src
+
+** Shell Command
+设置习惯的 shell command 快捷键
+#+begin_src emacs-lisp
+  (map! :leader "S" #'shell-command
+        :leader "A" #'async-shell-command)
+
+  (set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
+#+end_src
+
 
 * Org-Mode
 ** 基本外观
@@ -717,15 +759,12 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
             :unnarrowed t)))
 #+end_src
 
-** org-agenda
-也尝试使用一下agenda管理日程。
-首先就是将窗口改成popup。
+** todo list
+比起使用 agenda，我更喜欢直接打开我的任务列表
 #+begin_src emacs-lisp
-  (map! :leader "A" (lambda () (interactive) (org-agenda nil "n")))
-
-  (after! org-agenda
-    (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))
+  (map! :leader "L" (lambda () (interactive) (find-file (concat org-directory "/todo.org"))))
 #+end_src
+
 
 * 语言mode
 ** markdown-mode
@@ -961,6 +1000,60 @@ apheleia更新后可以删除push ruff的代码
 
   (map! :leader
         :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
+#+end_src
+
+** indent-bars
+#+begin_src emacs-lisp
+  (use-package indent-bars
+    :custom
+    (indent-bars-no-descend-string t)
+    (indent-bars-treesit-ignore-blank-lines-types '("module"))
+    (indent-bars-prefer-character t)
+    (indent-bars-treesit-scope '((python function_definition class_definition for_statement
+  				                       if_statement with_statement while_statement)))
+    :hook ((prog-mode yaml-mode) . indent-bars-mode))
+#+end_src
+
+** symbol-overlay
+#+begin_src emacs-lisp
+  (use-package symbol-overlay
+    :diminish
+    :custom-face
+    (symbol-overlay-default-face ((t (:inherit region :background unspecified :foreground unspecified))))
+    (symbol-overlay-face-1 ((t (:inherit nerd-icons-blue :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-2 ((t (:inherit nerd-icons-pink :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-3 ((t (:inherit nerd-icons-yellow :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-4 ((t (:inherit nerd-icons-purple :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-5 ((t (:inherit nerd-icons-red :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-6 ((t (:inherit nerd-icons-orange :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-7 ((t (:inherit nerd-icons-green :background unspecified :foreground unspecified :inverse-video t))))
+    (symbol-overlay-face-8 ((t (:inherit nerd-icons-cyan :background unspecified :foreground unspecified :inverse-video t))))
+    :bind (("M-i" . symbol-overlay-put)
+           ("M-n" . symbol-overlay-jump-next)
+           ("M-p" . symbol-overlay-jump-prev)
+           ("M-N" . symbol-overlay-switch-forward)
+           ("M-P" . symbol-overlay-switch-backward)
+           ("M-C" . symbol-overlay-remove-all)
+           ([M-f3] . symbol-overlay-remove-all))
+    :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
+           (iedit-mode            . turn-off-symbol-overlay)
+           (iedit-mode-end        . turn-on-symbol-overlay))
+    :init (setq symbol-overlay-idle-time 0.1)
+    :config
+    (with-no-warnings
+      ;; Disable symbol highlighting while selecting
+      (defun turn-off-symbol-overlay (&rest _)
+        "Turn off symbol highlighting."
+        (interactive)
+        (symbol-overlay-mode -1))
+      (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+      (defun turn-on-symbol-overlay (&rest _)
+        "Turn on symbol highlighting."
+        (interactive)
+        (when (derived-mode-p 'prog-mode 'yaml-mode)
+          (symbol-overlay-mode 1)))
+      (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)))
 #+end_src
 
 ** 代理配置
