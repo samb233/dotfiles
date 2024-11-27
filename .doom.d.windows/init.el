@@ -14,8 +14,14 @@
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
+(setq frame-title-format "Editor Macross")
 (setq evil-disable-insert-state-bindings t)
 (pushnew! default-frame-alist '(width . 170) '(height . 50))
+
+;; Do not tangle on "doom sync" when system was Windows
+;; Which cause "doom sync" fail
+(when noninteractive
+  (setenv "__NOTANGLE" "1"))
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
@@ -45,7 +51,7 @@
        modeline            ; snazzy, Atom-inspired modeline, plus API
        ;;nav-flash         ; blink cursor line after big motions
        ;;neotree           ; a project drawer, like NERDTree for vim
-       ophints             ; highlight the region an operation acts on
+       ;;ophints           ; highlight the region an operation acts on
        (popup +defaults)   ; tame sudden yet inevitable temporary windows
        ;;tabs              ; a tab bar for Emacs
        ;;treemacs          ; a project drawer, like neotree but cooler
