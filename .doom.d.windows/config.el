@@ -372,6 +372,7 @@
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-use-mode-line nil
+        dirvish-hide-details '(dirvish-side)
         dirvish-hide-cursor '(dirvish dirvish-side dired)
         dirvish-default-layout '(0 0 0.5)
         dirvish-path-separators (list "  ~" "   " "/")
@@ -405,6 +406,30 @@
   (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+
+(defun dirvish-unfocus ()
+  (interactive)
+  (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
+
+(defun dirvish-focus ()
+  (interactive)
+  (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
+
+(defun dirvish-focus-change (&rest w)
+  (let* ((sw (frame-selected-window))
+         (sb (window-buffer sw))
+         (ow (old-selected-window))
+         (ob (window-buffer ow)))
+    (progn
+      (with-current-buffer sb
+        (when (eq major-mode #'dired-mode)
+          (dirvish-focus)))
+      (with-current-buffer ob
+        (when (eq major-mode #'dired-mode)
+          (dirvish-unfocus))))))
+
+(add-hook! 'dired-mode-hook
+  (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
 
 (use-package! dired-7z
   :after dired
