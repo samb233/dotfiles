@@ -478,6 +478,35 @@
 
 (map! :leader "v O" #'dired-region)
 
+(setq eshell-banner-message "")
+(use-package! doom-eshell-toggle)
+(map! [f4] #'doom-eshell-toggle-project
+      [S-f4] #'project-eshell
+      :leader
+      "o s" #'doom-eshell-toggle-project
+      "o S" #'project-eshell)
+
+(defvar +eshell-aliases
+  '(("q"  "exit")           ; built-in
+    ("f"  "find-file $1")
+    ("ff" "find-file-other-window $1")
+    ("d"  "dired $1")
+    ("bd" "eshell-up $1")
+    ("rg" "rg --color=always $*")
+    ("l"  "ls -lh $*")
+    ("ll" "ls -lah $*")
+    ("git" "git --no-pager $*")
+    ("gg" "magit-status")
+    ("cdp" "cd-to-project")
+    ("clear" "clear-scrollback")) ; more sensible than default
+  "An alist of default eshell aliases, meant to emulate useful shell utilities")
+
+(after! em-alias
+  (setq +eshell--default-aliases eshell-command-aliases-list
+        eshell-command-aliases-list
+        (append eshell-command-aliases-list
+                +eshell-aliases)))
+
 (defun my-open-windows-terminal-project()
   (interactive)
   (call-process-shell-command
