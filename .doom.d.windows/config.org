@@ -240,8 +240,8 @@ emacs29新加入的像素滚动模式。
 ** evil-cmd
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:qa，并且屏蔽wq，防止误触。
 #+begin_src emacs-lisp
-  (evil-ex-define-cmd "q" 'kill-this-buffer)
-  (evil-ex-define-cmd "Q" 'kill-this-buffer)
+  (evil-ex-define-cmd "q" 'kill-current-buffer)
+  (evil-ex-define-cmd "Q" 'kill-current-buffer)
   (evil-ex-define-cmd "qa" 'evil-quit)
   (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
@@ -388,7 +388,8 @@ doom默认的200个也太少了，至少1000吧
           :desc "LSP reconnect" "c L" #'eglot-shutdown
           :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-    ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
     (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 #+end_src
 
@@ -636,12 +637,11 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
 
   (defun dirvish-focus-change (&rest w)
-    (let* ((sw (frame-selected-window))
-           (sb (window-buffer sw))
+    (let* ((cb (current-buffer))
            (ow (old-selected-window))
            (ob (window-buffer ow)))
       (progn
-        (with-current-buffer sb
+        (with-current-buffer cb
           (when (eq major-mode #'dired-mode)
             (dirvish-focus)))
         (with-current-buffer ob
@@ -649,7 +649,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
             (dirvish-unfocus))))))
 
   (add-hook! 'dired-mode-hook
-    (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
+    (add-hook 'window-selection-change-functions #'dirvish-focus-change nil t))
 #+end_src
 
 ** 7z
@@ -992,11 +992,21 @@ apheleia更新后可以删除push ruff的代码
     (let ((filename (buffer-substring beg end)))
       (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
 
+  (defun mediainfo-dired()
+    "Show mediainfo for file current line."
+    (interactive)
+    (let ((filename (dired-get-filename)))
+      (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
+
   (map! :map python-mode-map
         :localleader
         "p" #'vspreview
         "b" #'vsbench
         "m" #'mediainfo-region)
+
+  (map! :map dired-mode-map
+        :localleader
+        "m" #'mediainfo-dired)
 #+end_src
 
 设置窗口popup

@@ -153,8 +153,8 @@
       "s t" nil
       "h g" nil)
 
-(evil-ex-define-cmd "q" 'kill-this-buffer)
-(evil-ex-define-cmd "Q" 'kill-this-buffer)
+(evil-ex-define-cmd "q" 'kill-current-buffer)
+(evil-ex-define-cmd "Q" 'kill-current-buffer)
 (evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
 
@@ -247,7 +247,8 @@
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
   (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
@@ -416,12 +417,11 @@
   (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
 
 (defun dirvish-focus-change (&rest w)
-  (let* ((sw (frame-selected-window))
-         (sb (window-buffer sw))
+  (let* ((cb (current-buffer))
          (ow (old-selected-window))
          (ob (window-buffer ow)))
     (progn
-      (with-current-buffer sb
+      (with-current-buffer cb
         (when (eq major-mode #'dired-mode)
           (dirvish-focus)))
       (with-current-buffer ob
@@ -429,7 +429,7 @@
           (dirvish-unfocus))))))
 
 (add-hook! 'dired-mode-hook
-  (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
+  (add-hook 'window-selection-change-functions #'dirvish-focus-change nil t))
 
 (use-package! dired-7z
   :after dired
@@ -667,11 +667,21 @@
   (let ((filename (buffer-substring beg end)))
     (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
 
+(defun mediainfo-dired()
+  "Show mediainfo for file current line."
+  (interactive)
+  (let ((filename (dired-get-filename)))
+    (async-shell-command (format "mediainfo %s" (shell-quote-argument filename)) "*mediainfo*")))
+
 (map! :map python-mode-map
       :localleader
       "p" #'vspreview
       "b" #'vsbench
       "m" #'mediainfo-region)
+
+(map! :map dired-mode-map
+      :localleader
+      "m" #'mediainfo-dired)
 
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
