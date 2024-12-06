@@ -53,19 +53,11 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
-(after! doom-modeline
-  (setq doom-modeline-modal nil
-        doom-modeline-lsp nil
-        doom-modeline-check-icon nil
-        ;; doom-modeline-icon nil
-        ;; doom-modeline-buffer-state-icon nil
-        doom-modeline-buffer-modification-icon nil
-        doom-modeline-major-mode-icon t
-        doom-modeline-buffer-encoding t
-        doom-modeline-vcs-max-length 20
-        doom-modeline-height 32
-        doom-modeline-bar-width 6
-        doom-modeline-window-width-limit 120))
+(use-package! doom-light-modeline-enhance)
+
+(setq +modeline-height 24
+      +modeline-bar-width 4)
+(set-face-attribute 'mode-line nil :background "#eef4f9")
 
 (after! solaire-mode
  (dolist (face '(mode-line mode-line-inactive))
@@ -109,7 +101,9 @@
       :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
       :desc "bookmark list" "b w" #'list-bookmarks
-      :desc "start eglot" "c l" #'eglot)
+      :desc "start eglot" "c l" #'eglot
+      :desc "compile" "C" #'compile
+      :desc "consult compile errors" "c X" #'consult-compile-error)
 
 (map! :after evil-snipe
       (:map evil-snipe-local-mode-map
@@ -296,7 +290,6 @@
 
 (use-package! flymake
   :commands (flymake-mode)
-  :hook ((prog-mode text-mode conf-mode) . flymake-mode)
   :config
   (setq flymake-no-changes-timeout nil)
   (setq flymake-fringe-indicator-position 'right-fringe)
@@ -313,6 +306,15 @@
           (flymake-start t)))))
 
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
+
+(defun consult-flymake-or-compile-error()
+  "Consult flymake error when eglot is on; otherwise consult compile error."
+  (interactive)
+  (if eglot--managed-mode
+      (consult-flymake)
+    (consult-compile-error)))
+
+(map! :leader "X" #'consult-flymake-or-compile-error)
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
