@@ -109,13 +109,13 @@
 自定义 doom 的 +light modeline
 #+begin_src emacs-lisp
   (use-package! doom-light-modeline-enhance)
-
   (setq +modeline-height 24
         +modeline-bar-width 4)
   (set-face-attribute 'mode-line nil :background "#eef4f9")
+  (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 
   (after! solaire-mode
-   (dolist (face '(mode-line mode-line-inactive))
+    (dolist (face '(mode-line mode-line-inactive))
       (setf (alist-get face solaire-mode-remap-alist) nil)))
 #+end_src
 
@@ -146,6 +146,7 @@ emacs29新加入的像素滚动模式。
 #+begin_src emacs-lisp
   (map! :ig "C-v"       #'yank
         :ig "M-v"       #'yank
+        :nv "C-/"       #'comment-line
         :v  "J"         #'drag-stuff-down
         :v  "K"         #'drag-stuff-up
         :nv "R"         #'query-replace
@@ -170,7 +171,6 @@ emacs29新加入的像素滚动模式。
         :desc "format buffer" "b f" #'+format/buffer
         :desc "bookmark list" "b w" #'list-bookmarks
         :desc "start eglot" "c l" #'eglot
-        :desc "compile" "C" #'compile
         :desc "consult compile errors" "c X" #'consult-compile-error)
 
   (map! :after evil-snipe
@@ -383,7 +383,7 @@ doom默认的200个也太少了，至少1000吧
           :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
     (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-    ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
+    (push :inlayHintProvider eglot-ignored-server-capabilities)
     (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 #+end_src
 
@@ -478,19 +478,6 @@ flymake和eglot一起用时就不用设置什么了
 在org-src时自动检测错误
 #+begin_src emacs-lisp
   (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
-#+end_src
-
-** compile
-在eglot开启时显示flymake错误，未开启是显示编译错误
-#+begin_src emacs-lisp
-  (defun consult-flymake-or-compile-error()
-    "Consult flymake error when eglot is on; otherwise consult compile error."
-    (interactive)
-    (if eglot--managed-mode
-        (consult-flymake)
-      (consult-compile-error)))
-
-  (map! :leader "X" #'consult-flymake-or-compile-error)
 #+end_src
 
 ** eldoc
@@ -621,7 +608,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (use-package! dirvish-video-mediainfo-enhance))
 #+end_src
 
-** diff-hl-dired 背景色
+** diff-hl 设置
 设置 diff-hl-dired 的背景色，使能够一眼看出文件的状态
 #+begin_src emacs-lisp
   (after! diff-hl-dired
@@ -629,6 +616,17 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
     (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
     (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+#+end_src
+
+在 Windows 中关闭 diff-hl 在退出 insert-mode 时的 hook
+此 hook 会导致操作快时 emacs 崩溃
+#+begin_src emacs-lisp
+  (if (eq system-type 'windows-nt)
+      (after! diff-hl
+        (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
+        ;; if stil crash, use this
+        ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+        ))
 #+end_src
 
 ** dirvish focus

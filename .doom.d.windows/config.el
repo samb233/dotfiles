@@ -54,13 +54,13 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (use-package! doom-light-modeline-enhance)
-
 (setq +modeline-height 24
       +modeline-bar-width 4)
 (set-face-attribute 'mode-line nil :background "#eef4f9")
+(remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 
 (after! solaire-mode
- (dolist (face '(mode-line mode-line-inactive))
+  (dolist (face '(mode-line mode-line-inactive))
     (setf (alist-get face solaire-mode-remap-alist) nil)))
 
 (setq mouse-wheel-progressive-speed nil
@@ -78,6 +78,7 @@
 
 (map! :ig "C-v"       #'yank
       :ig "M-v"       #'yank
+      :nv "C-/"       #'comment-line
       :v  "J"         #'drag-stuff-down
       :v  "K"         #'drag-stuff-up
       :nv "R"         #'query-replace
@@ -102,7 +103,6 @@
       :desc "format buffer" "b f" #'+format/buffer
       :desc "bookmark list" "b w" #'list-bookmarks
       :desc "start eglot" "c l" #'eglot
-      :desc "compile" "C" #'compile
       :desc "consult compile errors" "c X" #'consult-compile-error)
 
 (map! :after evil-snipe
@@ -242,7 +242,7 @@
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
-  ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
+  (push :inlayHintProvider eglot-ignored-server-capabilities)
   (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
@@ -306,15 +306,6 @@
           (flymake-start t)))))
 
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
-
-(defun consult-flymake-or-compile-error()
-  "Consult flymake error when eglot is on; otherwise consult compile error."
-  (interactive)
-  (if eglot--managed-mode
-      (consult-flymake)
-    (consult-compile-error)))
-
-(map! :leader "X" #'consult-flymake-or-compile-error)
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
@@ -409,6 +400,13 @@
   (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+
+(if (eq system-type 'windows-nt)
+    (after! diff-hl
+      (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
+      ;; if stil crash, use this
+      ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+      ))
 
 (defun dirvish-unfocus ()
   (interactive)
