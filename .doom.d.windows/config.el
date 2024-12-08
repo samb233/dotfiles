@@ -78,6 +78,7 @@
 
 (map! :ig "C-v"       #'yank
       :ig "M-v"       #'yank
+      :ig "M-p"       #'yas-insert-snippet
       :nv "C-/"       #'comment-line
       :v  "J"         #'drag-stuff-down
       :v  "K"         #'drag-stuff-up
@@ -278,6 +279,7 @@
         :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
   (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
+  (add-hook 'conf-mode-hook #'+corfu-add-cape-file-h)
   (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
 (after! corfu-popupinfo
@@ -404,9 +406,7 @@
 (if (eq system-type 'windows-nt)
     (after! diff-hl
       (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
-      ;; if stil crash, use this
-      ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
-      ))
+      (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)))
 
 (defun dirvish-unfocus ()
   (interactive)
@@ -782,6 +782,15 @@
 
 (map! :leader
       :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
+
+(use-package! colorful-mode
+  :commands (colorful-mode
+             global-colorful-mode)
+  :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+            (add-to-list 'global-colorful-modes mode)))
+
+(map! :leader
+      :desc "toggle colorful mode" "t s" #'colorful-mode)
 
 (defun my-emacs-use-proxy()
   (interactive)
