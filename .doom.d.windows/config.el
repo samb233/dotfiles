@@ -252,15 +252,11 @@
             (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
 (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 
+(setq +lsp-defer-shutdown nil)
+
 (use-package! eglot-booster
   :after eglot
   :config (eglot-booster-mode))
-
-(add-hook! 'eglot-booster-mode-hook
-  (defun my-eglot-booster-fix-h()
-    (add-to-list 'eglot-server-programs
-                 '((yaml-mode yaml-ts-mode)
-                   . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
 
 (after! corfu
   (setq corfu-preselect 'prompt
@@ -290,24 +286,22 @@
 (setq thing-at-point-file-name-chars
       (concat thing-at-point-file-name-chars " ・()（）Z-a！+&"))
 
-(use-package! flymake
-  :commands (flymake-mode)
-  :config
-  (setq flymake-no-changes-timeout nil)
-  (setq flymake-fringe-indicator-position 'right-fringe)
+(after! flymake
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
-  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
+  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
+  (setq flymake-no-changes-timeout nil)
 
-(cl-defmethod eglot-handle-notification :after
-  (_server (_method (eql textDocument/publishDiagnostics)) &key uri
-           &allow-other-keys)
-  (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
-    (with-current-buffer buffer
-      (if (and (eq nil flymake-no-changes-timeout)
-               (not (buffer-modified-p)))
-          (flymake-start t)))))
+  ;; make eglot compatible with flymake-no-changes-timeout=nil
+  (cl-defmethod eglot-handle-notification :after
+    (_server (_method (eql textDocument/publishDiagnostics)) &key uri
+             &allow-other-keys)
+    (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
+      (with-current-buffer buffer
+        (if (and (eq nil flymake-no-changes-timeout)
+                 (not (buffer-modified-p)))
+            (flymake-start t)))))
 
-(setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
+  (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
@@ -316,11 +310,6 @@
         eldoc-idle-delay 0.2)
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
-
-;; (defun my-corfu-frame-visible-h ()
-;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-
-;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 
 (use-package dabbrev
   :config
@@ -406,7 +395,8 @@
 (if (eq system-type 'windows-nt)
     (after! diff-hl
       (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
-      (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)))
+      ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+      (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)))
 
 (defun dirvish-unfocus ()
   (interactive)

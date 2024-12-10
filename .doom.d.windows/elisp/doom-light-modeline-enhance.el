@@ -2,20 +2,23 @@
 
 (def-modeline-var! +modeline-tab-name
                    '(:eval (when-let*
-                       ((name (cond
-                               ((and (fboundp 'tab-bar-mode)
-                                     (length> (frame-parameter nil 'tabs) 1))
-                                (let* ((current-tab (tab-bar--current-tab))
-                                       (tab-index (tab-bar--current-tab-index))
-                                       (explicit-name (alist-get 'explicit-name current-tab))
-                                       (tab-name (alist-get 'name current-tab)))
-                                  (if explicit-name tab-name (+ 1 tab-index)))))))
-                     (unless (string-empty-p name)
-                       (propertize (format " %s " name)
-                                   'face 'bold)))))
+                               ((name (cond
+                                       ((and (fboundp 'tab-bar-mode)
+                                             (length> (frame-parameter nil 'tabs) 1))
+                                        (let* ((current-tab (tab-bar--current-tab))
+                                               (tab-index (tab-bar--current-tab-index))
+                                               (explicit-name (alist-get 'explicit-name current-tab))
+                                               (tab-name (alist-get 'name current-tab)))
+                                          (if explicit-name tab-name (+ 1 tab-index)))))))
+                             (unless (string-empty-p name)
+                               (propertize (format " %s " name)
+                                           'face 'bold)))))
 
 (def-modeline-var! +modeline-flymake
-                   '(:eval (flymake--mode-line-counters)))
+                   '(:eval
+                     (when (and (boundp 'flymake-mode)
+                                flymake-mode)
+                       (flymake--mode-line-counters))))
 
 
 (def-modeline! :custom

@@ -397,22 +397,17 @@ modeline设置，不在modeline上显示eglot任何信息
   (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 #+end_src
 
+设置 doom 不延迟退出 eglot
+#+begin_src emacs-lisp
+  (setq +lsp-defer-shutdown nil)
+#+end_src
+
 ** 使用eglot-booster
 使eglot运行速度变快的魔法: https://github.com/blahgeek/emacs-lsp-booster
 #+begin_src emacs-lisp
   (use-package! eglot-booster
     :after eglot
     :config (eglot-booster-mode))
-#+end_src
-
-其中在使用yaml-language-server时存在一些问题。
-在加载booster后重新设置成绝对路径
-#+begin_src emacs-lisp
-  (add-hook! 'eglot-booster-mode-hook
-    (defun my-eglot-booster-fix-h()
-      (add-to-list 'eglot-server-programs
-                   '((yaml-mode yaml-ts-mode)
-                     . ("emacs-lsp-booster" "--json-false-value" ":json-false" "--" "d:/Env/node/yaml-language-server.cmd" "--stdio")))))
 #+end_src
 
 ** corfu
@@ -453,33 +448,25 @@ modeline设置，不在modeline上显示eglot任何信息
 #+end_src
 
 ** flymake
-flymake和eglot一起用时就不用设置什么了
+使flymake只在保存后检查错误
+设置eglot，使其适配flymake保存后检查错误。方法解释见[[https://github.com/joaotavora/eglot/issues/1296#issuecomment-1727978307][issue]]
 #+begin_src emacs-lisp
-  (use-package! flymake
-    :commands (flymake-mode)
-    :config
-    (setq flymake-no-changes-timeout nil)
-    (setq flymake-fringe-indicator-position 'right-fringe)
+  (after! flymake
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
-    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
-#+end_src
+    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
+    (setq flymake-no-changes-timeout nil)
 
-设置eglot，使其适配flymake保存后检查错误
-见[[https://github.com/joaotavora/eglot/issues/1296#issuecomment-1727978307][issue]]
-#+begin_src emacs-lisp
-  (cl-defmethod eglot-handle-notification :after
-    (_server (_method (eql textDocument/publishDiagnostics)) &key uri
-             &allow-other-keys)
-    (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
-      (with-current-buffer buffer
-        (if (and (eq nil flymake-no-changes-timeout)
-                 (not (buffer-modified-p)))
-            (flymake-start t)))))
-#+end_src
+    ;; make eglot compatible with flymake-no-changes-timeout=nil
+    (cl-defmethod eglot-handle-notification :after
+      (_server (_method (eql textDocument/publishDiagnostics)) &key uri
+               &allow-other-keys)
+      (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
+        (with-current-buffer buffer
+          (if (and (eq nil flymake-no-changes-timeout)
+                   (not (buffer-modified-p)))
+              (flymake-start t)))))
 
-在org-src时自动检测错误
-#+begin_src emacs-lisp
-  (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
+    (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
 #+end_src
 
 ** eldoc
@@ -493,15 +480,6 @@ flymake和eglot一起用时就不用设置什么了
           eldoc-idle-delay 0.2)
     (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
     (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
-#+end_src
-
-** yasnippet
-兼容yas和corfu的tab
-#+begin_src emacs-lisp
-  ;; (defun my-corfu-frame-visible-h ()
-  ;;   (and (frame-live-p corfu--frame) (frame-visible-p corfu--frame)))
-
-  ;; (add-hook 'yas-keymap-disable-hook #'my-corfu-frame-visible-h)
 #+end_src
 
 ** dabbrev
@@ -626,7 +604,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
   (if (eq system-type 'windows-nt)
       (after! diff-hl
         (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
-        (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)))
+        ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+        (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)))
 #+end_src
 
 ** dirvish focus
