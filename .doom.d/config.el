@@ -40,22 +40,14 @@
 
 (setq doom-theme 'doom-tomorrow-day)
 
-(after! doom-modeline
-  (setq doom-modeline-modal nil
-        doom-modeline-lsp nil
-        doom-modeline-check-icon nil
-        ;; doom-modeline-icon nil
-        ;; doom-modeline-buffer-state-icon nil
-        doom-modeline-buffer-modification-icon nil
-        doom-modeline-major-mode-icon t
-        doom-modeline-buffer-encoding t
-        doom-modeline-vcs-max-length 20
-        doom-modeline-height 20
-        doom-modeline-bar-width 3
-        doom-modeline-window-width-limit 120))
+(use-package! doom-light-modeline-enhance)
+(setq +modeline-height 20
+      +modeline-bar-width 4)
+(set-face-attribute 'mode-line nil :background "#eef4f9")
+(remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 
 (after! solaire-mode
- (dolist (face '(mode-line mode-line-inactive))
+  (dolist (face '(mode-line mode-line-inactive))
     (setf (alist-get face solaire-mode-remap-alist) nil)))
 
 (setq mouse-wheel-progressive-speed nil
@@ -73,6 +65,8 @@
 
 (map! :ig "C-v"       #'yank
       :ig "M-v"       #'yank
+      :ig "M-p"       #'yas-insert-snippet
+      :nv "C-/"       #'comment-line
       :v  "J"         #'drag-stuff-down
       :v  "K"         #'drag-stuff-up
       :nv "R"         #'query-replace
@@ -92,9 +86,11 @@
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
       :desc "find-file other window"      "w ." #'find-file-other-window
       :desc "dired jump" ">" #'dired-jump
+      :desc "vertico project in cwd" "?" #'+vertico/project-search-from-cwd
       :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
-      :desc "bookmark list" "b w" #'list-bookmarks)
+      :desc "bookmark list" "b w" #'list-bookmarks
+      :desc "consult compile errors" "c X" #'consult-compile-error)
 
 (map! :after evil-snipe
       (:map evil-snipe-local-mode-map
@@ -232,7 +228,8 @@
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  (push :inlayHintProvider eglot-ignored-server-capabilities)
   (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
@@ -240,6 +237,8 @@
   (setq mode-line-misc-info
             (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
 (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
+
+(setq +lsp-defer-shutdown nil)
 
 (use-package! eglot-booster
   :after eglot
@@ -273,23 +272,22 @@
 (setq thing-at-point-file-name-chars
       (concat thing-at-point-file-name-chars " ・()（）Z-a！+&"))
 
-(use-package! flymake
-  :commands (flymake-mode)
-  :hook ((prog-mode text-mode conf-mode) . flymake-mode)
-  :config
-  (setq flymake-no-changes-timeout 0.2)
-  (setq flymake-fringe-indicator-position 'right-fringe)
+(after! flymake
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
-  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
+  (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
+  (setq flymake-no-changes-timeout nil)
 
-(cl-defmethod eglot-handle-notification :after
-  (_server (_method (eql textDocument/publishDiagnostics)) &key uri
-           &allow-other-keys)
-  (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
-    (with-current-buffer buffer
-      (if (and (eq nil flymake-no-changes-timeout)
-               (not (buffer-modified-p)))
-          (flymake-start t)))))
+  ;; make eglot compatible with flymake-no-changes-timeout=nil
+  (cl-defmethod eglot-handle-notification :after
+    (_server (_method (eql textDocument/publishDiagnostics)) &key uri
+             &allow-other-keys)
+    (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
+      (with-current-buffer buffer
+        (if (and (eq nil flymake-no-changes-timeout)
+                 (not (buffer-modified-p)))
+            (flymake-start t)))))
+
+  (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
 
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 
@@ -310,7 +308,9 @@
 
 (use-package dabbrev
   :config
-  (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
+  (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]")
+  (setq dabbrev-case-distinction nil)
+  (setq dabbrev-case-replace nil))
 
 (setq completion-ignore-case t)
 
@@ -320,6 +320,14 @@
     (setq dired-switches-in-mode-line 0
           dired-listing-switches
           "-l --almost-all --human-readable --group-directories-first --no-group --time-style \"+%Y-%m-%d %H:%M:%S\"")
+    (setq dired-omit-files
+        (concat "\\`[.][.]?\\'"
+                "\\|^\\.DS_Store\\'"
+                "\\|^\\.project\\(?:ile\\)?\\'"
+                "\\|^\\.\\(?:svn\\|git\\)\\'"
+                "\\|^\\.ccls-cache\\'"
+                "\\|\\(?:\\.js\\)?\\.meta\\'"
+                "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
 )
 
 (use-package! dirvish
@@ -372,6 +380,37 @@
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
 
+(after! diff-hl-dired
+  (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
+  (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
+  (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
+  (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
+  (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+
+(defun dirvish-unfocus ()
+  (interactive)
+  (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
+
+(defun dirvish-focus ()
+  (interactive)
+  (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
+
+(defun dirvish-focus-change (&rest w)
+  (let* ((sw (frame-selected-window))
+         (sb (window-buffer sw))
+         (ow (old-selected-window))
+         (ob (window-buffer ow)))
+    (progn
+      (with-current-buffer sb
+        (when (eq major-mode #'dired-mode)
+          (dirvish-focus)))
+      (with-current-buffer ob
+        (when (eq major-mode #'dired-mode)
+          (dirvish-unfocus))))))
+
+(add-hook! 'dired-mode-hook
+  (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
+
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
 (after! vterm
@@ -397,6 +436,11 @@
       [S-f4] #'+vterm/here
       :leader
       "o t" #'doom-vterm-toggle-project)
+
+(map! :leader "S" #'shell-command
+      :leader "A" #'async-shell-command)
+
+(set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
 
 (setq org-directory "~/Notes")
 (custom-set-faces
@@ -466,10 +510,7 @@
                               "#+title: ${title}\n#+filetags: :create: \n\n")
           :unnarrowed t)))
 
-(map! :leader "A" (lambda () (interactive) (org-agenda nil "n")))
-
-(after! org-agenda
-  (set-popup-rule! "^\\*Org Agenda" :side 'right :size 0.25 :quit t :select t :modeline nil))
+(map! :leader "L" (lambda () (interactive) (find-file (concat org-directory "/todo.org"))))
 
 (custom-set-faces
  '(markdown-code-face ((t (:background "#f5f5f5"))))
@@ -636,6 +677,54 @@
 
 (map! :leader
       :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
+
+(use-package! colorful-mode
+  :commands (colorful-mode
+             global-colorful-mode)
+  :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+            (add-to-list 'global-colorful-modes mode)))
+
+(map! :leader
+      :desc "toggle colorful mode" "t s" #'colorful-mode)
+
+(use-package symbol-overlay
+  :diminish
+  :custom-face
+  (symbol-overlay-default-face ((t (:inherit region :background unspecified :foreground unspecified))))
+  (symbol-overlay-face-1 ((t (:inherit nerd-icons-blue :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-2 ((t (:inherit nerd-icons-pink :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-3 ((t (:inherit nerd-icons-yellow :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-4 ((t (:inherit nerd-icons-purple :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-5 ((t (:inherit nerd-icons-red :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-6 ((t (:inherit nerd-icons-orange :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-7 ((t (:inherit nerd-icons-green :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-8 ((t (:inherit nerd-icons-cyan :background unspecified :foreground unspecified :inverse-video t))))
+  :bind (("M-i" . symbol-overlay-put)
+         ("M-n" . symbol-overlay-jump-next)
+         ("M-p" . symbol-overlay-jump-prev)
+         ("M-N" . symbol-overlay-switch-forward)
+         ("M-P" . symbol-overlay-switch-backward)
+         ("M-C" . symbol-overlay-remove-all)
+         ([M-f3] . symbol-overlay-remove-all))
+  :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
+         (iedit-mode            . turn-off-symbol-overlay)
+         (iedit-mode-end        . turn-on-symbol-overlay))
+  :init (setq symbol-overlay-idle-time 0.1)
+  :config
+  (with-no-warnings
+    ;; Disable symbol highlighting while selecting
+    (defun turn-off-symbol-overlay (&rest _)
+      "Turn off symbol highlighting."
+      (interactive)
+      (symbol-overlay-mode -1))
+    (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+    (defun turn-on-symbol-overlay (&rest _)
+      "Turn on symbol highlighting."
+      (interactive)
+      (when (derived-mode-p 'prog-mode 'yaml-mode)
+        (symbol-overlay-mode 1)))
+    (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)))
 
 (defun my-emacs-use-proxy()
   (interactive)

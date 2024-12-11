@@ -96,24 +96,16 @@
 #+end_src
 
 ** modeline
-图标的对其往往是比较难做到的，避免强迫症，禁止显示所有图标。
+自定义 doom 的 +light modeline
 #+begin_src emacs-lisp
-  (after! doom-modeline
-    (setq doom-modeline-modal nil
-          doom-modeline-lsp nil
-          doom-modeline-check-icon nil
-          ;; doom-modeline-icon nil
-          ;; doom-modeline-buffer-state-icon nil
-          doom-modeline-buffer-modification-icon nil
-          doom-modeline-major-mode-icon t
-          doom-modeline-buffer-encoding t
-          doom-modeline-vcs-max-length 20
-          doom-modeline-height 20
-          doom-modeline-bar-width 3
-          doom-modeline-window-width-limit 120))
+  (use-package! doom-light-modeline-enhance)
+  (setq +modeline-height 20
+        +modeline-bar-width 4)
+  (set-face-attribute 'mode-line nil :background "#eef4f9")
+  (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 
   (after! solaire-mode
-   (dolist (face '(mode-line mode-line-inactive))
+    (dolist (face '(mode-line mode-line-inactive))
       (setf (alist-get face solaire-mode-remap-alist) nil)))
 #+end_src
 
@@ -144,6 +136,8 @@ emacs29新加入的像素滚动模式。
 #+begin_src emacs-lisp
   (map! :ig "C-v"       #'yank
         :ig "M-v"       #'yank
+        :ig "M-p"       #'yas-insert-snippet
+        :nv "C-/"       #'comment-line
         :v  "J"         #'drag-stuff-down
         :v  "K"         #'drag-stuff-up
         :nv "R"         #'query-replace
@@ -163,9 +157,11 @@ emacs29新加入的像素滚动模式。
         :desc "consult buffer other window" "w ," #'consult-buffer-other-window
         :desc "find-file other window"      "w ." #'find-file-other-window
         :desc "dired jump" ">" #'dired-jump
+        :desc "vertico project in cwd" "?" #'+vertico/project-search-from-cwd
         :desc "jump to references" "c r" #'+lookup/references
         :desc "format buffer" "b f" #'+format/buffer
-        :desc "bookmark list" "b w" #'list-bookmarks)
+        :desc "bookmark list" "b w" #'list-bookmarks
+        :desc "consult compile errors" "c X" #'consult-compile-error)
 
   (map! :after evil-snipe
         (:map evil-snipe-local-mode-map
@@ -373,7 +369,8 @@ doom默认的200个也太少了，至少1000吧
           :desc "LSP reconnect" "c L" #'eglot-shutdown
           :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-    (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    (push :inlayHintProvider eglot-ignored-server-capabilities)
     (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 #+end_src
 
@@ -384,6 +381,11 @@ modeline设置，不在modeline上显示eglot任何信息
     (setq mode-line-misc-info
               (delq (assq 'eglot--managed-mode mode-line-misc-info) mode-line-misc-info)))
   (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
+#+end_src
+
+设置 doom 不延迟退出 eglot
+#+begin_src emacs-lisp
+  (setq +lsp-defer-shutdown nil)
 #+end_src
 
 ** 使用eglot-booster
@@ -432,29 +434,25 @@ modeline设置，不在modeline上显示eglot任何信息
 #+end_src
 
 ** flymake
-flymake和eglot一起用时就不用设置什么了
+使flymake只在保存后检查错误
+设置eglot，使其适配flymake保存后检查错误。方法解释见[[https://github.com/joaotavora/eglot/issues/1296#issuecomment-1727978307][issue]]
 #+begin_src emacs-lisp
-  (use-package! flymake
-    :commands (flymake-mode)
-    :hook ((prog-mode text-mode conf-mode) . flymake-mode)
-    :config
-    (setq flymake-no-changes-timeout 0.2)
-    (setq flymake-fringe-indicator-position 'right-fringe)
+  (after! flymake
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
-    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil))
-#+end_src
+    (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
+    (setq flymake-no-changes-timeout nil)
 
-设置eglot，使其适配flymake保存后检查错误
-见[[https://github.com/joaotavora/eglot/issues/1296#issuecomment-1727978307][issue]]
-#+begin_src emacs-lisp
-  (cl-defmethod eglot-handle-notification :after
-    (_server (_method (eql textDocument/publishDiagnostics)) &key uri
-             &allow-other-keys)
-    (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
-      (with-current-buffer buffer
-        (if (and (eq nil flymake-no-changes-timeout)
-                 (not (buffer-modified-p)))
-            (flymake-start t)))))
+    ;; make eglot compatible with flymake-no-changes-timeout=nil
+    (cl-defmethod eglot-handle-notification :after
+      (_server (_method (eql textDocument/publishDiagnostics)) &key uri
+               &allow-other-keys)
+      (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
+        (with-current-buffer buffer
+          (if (and (eq nil flymake-no-changes-timeout)
+                   (not (buffer-modified-p)))
+              (flymake-start t)))))
+
+    (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
 #+end_src
 
 在org-src时自动检测错误
@@ -470,19 +468,6 @@ flymake和eglot一起用时就不用设置什么了
     (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
           flymake-error-bitmap   '(my-small-left-triangle compilation-error)
           flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
-#+end_src
-
-使用flymake-sideline
-#+begin_src emacs-lisp
-  (use-package sideline-flymake
-    :diminish sideline-mode
-    :custom-face
-    (sideline-flymake-error ((t (:height 0.85 :italic t))))
-    (sideline-flymake-warning ((t (:height 0.85 :italic t))))
-    (sideline-flymake-success ((t (:height 0.85 :italic t))))
-    :hook (flymake-mode . sideline-mode)
-    :init (setq sideline-flymake-display-mode 'point
-                sideline-backends-right '(sideline-flymake)))
 #+end_src
 
 ** eldoc
@@ -504,7 +489,9 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
 #+begin_src emacs-lisp
   (use-package dabbrev
     :config
-    (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
+    (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]")
+    (setq dabbrev-case-distinction nil)
+    (setq dabbrev-case-replace nil))
 #+end_src
 
 ** 忽略大小写
@@ -603,12 +590,40 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 设置 diff-hl-dired 的背景色，使能够一眼看出文件的状态
 #+begin_src emacs-lisp
   (after! diff-hl-dired
-    (set-face-attribute 'diff-hl-dired-unknown nil :background "#8e908c")
+    (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
+    (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
     (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
     (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
     (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
 #+end_src
 
+** dirvish focus
+当 dired window 没被选中时，取消 dirvish 的高亮
+#+begin_src emacs-lisp
+  (defun dirvish-unfocus ()
+    (interactive)
+    (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
+
+  (defun dirvish-focus ()
+    (interactive)
+    (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
+
+  (defun dirvish-focus-change (&rest w)
+    (let* ((sw (frame-selected-window))
+           (sb (window-buffer sw))
+           (ow (old-selected-window))
+           (ob (window-buffer ow)))
+      (progn
+        (with-current-buffer sb
+          (when (eq major-mode #'dired-mode)
+            (dirvish-focus)))
+        (with-current-buffer ob
+          (when (eq major-mode #'dired-mode)
+            (dirvish-unfocus))))))
+
+  (add-hook! 'dired-mode-hook
+    (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
+#+end_src
 
 * 终端
 使用性能更好的vterm
@@ -657,7 +672,6 @@ vterm与doom的适配
 
   (set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
 #+end_src
-
 
 * Org-Mode
 ** 基本外观
@@ -1002,16 +1016,16 @@ apheleia更新后可以删除push ruff的代码
         :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
 #+end_src
 
-** indent-bars
+** 色彩显示
 #+begin_src emacs-lisp
-  (use-package indent-bars
-    :custom
-    (indent-bars-no-descend-string t)
-    (indent-bars-treesit-ignore-blank-lines-types '("module"))
-    (indent-bars-prefer-character t)
-    (indent-bars-treesit-scope '((python function_definition class_definition for_statement
-  				                       if_statement with_statement while_statement)))
-    :hook ((prog-mode yaml-mode) . indent-bars-mode))
+  (use-package! colorful-mode
+    :commands (colorful-mode
+               global-colorful-mode)
+    :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+              (add-to-list 'global-colorful-modes mode)))
+
+  (map! :leader
+        :desc "toggle colorful mode" "t s" #'colorful-mode)
 #+end_src
 
 ** symbol-overlay
@@ -1055,7 +1069,6 @@ apheleia更新后可以删除push ruff的代码
           (symbol-overlay-mode 1)))
       (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)))
 #+end_src
-
 ** 代理配置
 #+begin_src emacs-lisp
   (defun my-emacs-use-proxy()
