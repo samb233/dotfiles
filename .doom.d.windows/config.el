@@ -274,7 +274,6 @@
         :i "C-h" #'corfu-info-documentation
         :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
-  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
   (add-hook 'conf-mode-hook #'+corfu-add-cape-file-h)
   (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
@@ -313,7 +312,9 @@
 
 (use-package dabbrev
   :config
-  (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
+  (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]")
+  (setq dabbrev-case-distinction nil)
+  (setq dabbrev-case-replace nil))
 
 (setq completion-ignore-case t)
 
@@ -387,16 +388,21 @@
   (use-package! dirvish-video-mediainfo-enhance))
 
 (after! diff-hl-dired
-  (set-face-attribute 'diff-hl-dired-unknown nil :background "#8e908c")
+  (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
+  (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
   (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+
+(defun remove-diff-hl-save-file-hook ()
+  (remove-hook 'after-save-hook #'diff-hl-update t))
 
 (if (eq system-type 'windows-nt)
     (after! diff-hl
       (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
       ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
-      (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)))
+      (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)
+      (add-hook 'diff-hl-mode-hook #'remove-diff-hl-save-file-hook)))
 
 (defun dirvish-unfocus ()
   (interactive)

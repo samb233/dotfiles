@@ -428,7 +428,6 @@ modeline设置，不在modeline上显示eglot任何信息
           :i "C-h" #'corfu-info-documentation
           :i "C-l" #'corfu-complete
           :i "C-g" #'corfu-quit)
-    (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
     (add-hook 'conf-mode-hook #'+corfu-add-cape-file-h)
     (set-face-attribute 'corfu-current nil :background "#cde1f8"))
 
@@ -488,7 +487,9 @@ dabbrev是emacs的一个补全后端，设置它只补全ascii英文，而不去
 #+begin_src emacs-lisp
   (use-package dabbrev
     :config
-    (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]"))
+    (setq dabbrev-abbrev-char-regexp "[-_A-Za-z0-9]")
+    (setq dabbrev-case-distinction nil)
+    (setq dabbrev-case-replace nil))
 #+end_src
 
 ** 忽略大小写
@@ -592,7 +593,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 设置 diff-hl-dired 的背景色，使能够一眼看出文件的状态
 #+begin_src emacs-lisp
   (after! diff-hl-dired
-    (set-face-attribute 'diff-hl-dired-unknown nil :background "#8e908c")
+    (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
+    (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
     (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
     (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
     (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
@@ -601,11 +603,15 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 在 Windows 中关闭 diff-hl 在退出 insert-mode 时的 hook
 此 hook 会导致操作快时 emacs 崩溃
 #+begin_src emacs-lisp
+  (defun remove-diff-hl-save-file-hook ()
+    (remove-hook 'after-save-hook #'diff-hl-update t))
+
   (if (eq system-type 'windows-nt)
       (after! diff-hl
         (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
         ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
-        (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)))
+        (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)
+        (add-hook 'diff-hl-mode-hook #'remove-diff-hl-save-file-hook)))
 #+end_src
 
 ** dirvish focus
