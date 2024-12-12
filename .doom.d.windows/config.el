@@ -99,6 +99,7 @@
       :leader
       :desc "consult buffer other window" "w ," #'consult-buffer-other-window
       :desc "find-file other window"      "w ." #'find-file-other-window
+      :desc "vertico project in cwd" "?" #'+vertico/project-search-from-cwd
       :desc "dired jump" ">" #'dired-jump
       :desc "jump to references" "c r" #'+lookup/references
       :desc "format buffer" "b f" #'+format/buffer
@@ -242,7 +243,7 @@
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
   (push :inlayHintProvider eglot-ignored-server-capabilities)
   (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
@@ -394,15 +395,9 @@
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
 
-(defun remove-diff-hl-save-file-hook ()
-  (remove-hook 'after-save-hook #'diff-hl-update t))
-
 (if (eq system-type 'windows-nt)
     (after! diff-hl
-      (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
-      ;; (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
-      (remove-hook 'doom-escape-hook #'+vc-gutter-update-h)
-      (add-hook 'diff-hl-mode-hook #'remove-diff-hl-save-file-hook)))
+      (setq diff-hl-update-async nil)))
 
 (defun dirvish-unfocus ()
   (interactive)
@@ -778,6 +773,45 @@
 
 (map! :leader
       :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
+
+(use-package symbol-overlay
+  :diminish
+  :custom-face
+  (symbol-overlay-default-face ((t (:inherit region :background unspecified :foreground unspecified))))
+  (symbol-overlay-face-1 ((t (:inherit nerd-icons-blue :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-2 ((t (:inherit nerd-icons-pink :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-3 ((t (:inherit nerd-icons-yellow :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-4 ((t (:inherit nerd-icons-purple :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-5 ((t (:inherit nerd-icons-red :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-6 ((t (:inherit nerd-icons-orange :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-7 ((t (:inherit nerd-icons-green :background unspecified :foreground unspecified :inverse-video t))))
+  (symbol-overlay-face-8 ((t (:inherit nerd-icons-cyan :background unspecified :foreground unspecified :inverse-video t))))
+  :bind (("M-i" . symbol-overlay-put)
+         ("M-n" . symbol-overlay-jump-next)
+         ("M-p" . symbol-overlay-jump-prev)
+         ("M-N" . symbol-overlay-switch-forward)
+         ("M-P" . symbol-overlay-switch-backward)
+         ("M-C" . symbol-overlay-remove-all)
+         ([M-f3] . symbol-overlay-remove-all))
+  :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
+         (iedit-mode            . turn-off-symbol-overlay)
+         (iedit-mode-end        . turn-on-symbol-overlay))
+  :init (setq symbol-overlay-idle-time 0.1)
+  :config
+  (with-no-warnings
+    ;; Disable symbol highlighting while selecting
+    (defun turn-off-symbol-overlay (&rest _)
+      "Turn off symbol highlighting."
+      (interactive)
+      (symbol-overlay-mode -1))
+    (advice-add #'set-mark :after #'turn-off-symbol-overlay)
+
+    (defun turn-on-symbol-overlay (&rest _)
+      "Turn on symbol highlighting."
+      (interactive)
+      (when (derived-mode-p 'prog-mode 'yaml-mode)
+        (symbol-overlay-mode 1)))
+    (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)))
 
 (use-package! colorful-mode
   :commands (colorful-mode

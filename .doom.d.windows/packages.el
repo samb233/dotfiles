@@ -67,6 +67,7 @@
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
            :files ("*")))
+(package! symbol-overlay)
 (package! colorful-mode)
 
 ;; Dockerfile-mode
