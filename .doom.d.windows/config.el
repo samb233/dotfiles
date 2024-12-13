@@ -306,8 +306,7 @@
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
-        eldoc-echo-area-prefer-doc-buffer t
-        eldoc-idle-delay 0.2)
+        eldoc-echo-area-prefer-doc-buffer t)
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
@@ -397,7 +396,11 @@
 
 (if (eq system-type 'windows-nt)
     (after! diff-hl
-      (setq diff-hl-update-async nil)))
+      (setq diff-hl-update-async nil)
+      (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
+      (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+      (advice-remove 'diff-hl-update #'+vc-gutter--debounce-threads-a)
+      (advice-remove 'diff-hl-update-once #'+vc-gutter--only-tick-on-success-a)))
 
 (defun dirvish-unfocus ()
   (interactive)
@@ -791,8 +794,7 @@
          ("M-p" . symbol-overlay-jump-prev)
          ("M-N" . symbol-overlay-switch-forward)
          ("M-P" . symbol-overlay-switch-backward)
-         ("M-C" . symbol-overlay-remove-all)
-         ([M-f3] . symbol-overlay-remove-all))
+         ("M-C" . symbol-overlay-remove-all))
   :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode            . turn-off-symbol-overlay)
          (iedit-mode-end        . turn-on-symbol-overlay))

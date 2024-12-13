@@ -476,8 +476,7 @@ modeline设置，不在modeline上显示eglot任何信息
   (after! eldoc
     (setq eldoc-echo-area-display-truncation-message nil
           eldoc-echo-area-use-multiline-p nil
-          eldoc-echo-area-prefer-doc-buffer t
-          eldoc-idle-delay 0.2)
+          eldoc-echo-area-prefer-doc-buffer t)
     (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
     (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 #+end_src
@@ -603,10 +602,15 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 
 取消设置diff-hl-update-async
 此选项会导致windows上crash
+在进行版本更新后再次测试是否crash
 #+begin_src emacs-lisp
   (if (eq system-type 'windows-nt)
       (after! diff-hl
-        (setq diff-hl-update-async nil)))
+        (setq diff-hl-update-async nil)
+        (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
+        (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+        (advice-remove 'diff-hl-update #'+vc-gutter--debounce-threads-a)
+        (advice-remove 'diff-hl-update-once #'+vc-gutter--only-tick-on-success-a)))
 #+end_src
 
 ** dirvish focus
@@ -1146,8 +1150,7 @@ apheleia更新后可以删除push ruff的代码
            ("M-p" . symbol-overlay-jump-prev)
            ("M-N" . symbol-overlay-switch-forward)
            ("M-P" . symbol-overlay-switch-backward)
-           ("M-C" . symbol-overlay-remove-all)
-           ([M-f3] . symbol-overlay-remove-all))
+           ("M-C" . symbol-overlay-remove-all))
     :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
            (iedit-mode            . turn-off-symbol-overlay)
            (iedit-mode-end        . turn-on-symbol-overlay))
