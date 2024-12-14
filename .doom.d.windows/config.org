@@ -332,13 +332,14 @@ doom默认的200个也太少了，至少1000吧
 ** evil-mc
 使用evil-mc推荐的键位，简化进入多行编辑的按键
 #+begin_src emacs-lisp
-  (evil-define-key 'visual 'global
-    "A" #'evil-mc-make-cursor-in-visual-selection-end
-    "I" #'evil-mc-make-cursor-in-visual-selection-beg
-    "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
+  (map! :n  "m" #'evil-mc-make-and-goto-next-match
+        :n  "M" #'evil-mc-make-and-goto-prev-match
+        :vg "A" #'evil-mc-make-cursor-in-visual-selection-end
+        :vg "I" #'evil-mc-make-cursor-in-visual-selection-beg
+        :vg "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
 
-  (evil-define-key 'normal 'evil-mc-key-map
-    "Q" #'evil-mc-undo-all-cursors)
+  (after! evil-mc
+    (add-hook 'evil-mc-after-cursors-deleted #'evil-ex-nohighlight))
 #+end_src
 
 ** lookup
@@ -415,7 +416,7 @@ modeline设置，不在modeline上显示eglot任何信息
   (defvar +eglot-server-num-limit 8)
 
   (after! eglot
-    (defun my-get-eglot-server()
+    (defun +eglot-get-server-num()
       (let ((servers (cl-loop for servers
                               being hash-values of eglot--servers-by-project
                               append servers))
@@ -425,7 +426,7 @@ modeline设置，不在modeline上显示eglot任何信息
         (mapcar name servers)))
 
     (defun +eglot-limit-server-num()
-      (let ((num (length (my-get-eglot-server))))
+      (let ((num (length (+eglot-get-server-num))))
         (when (> num +eglot-server-num-limit)
           (run-at-time 0.1 nil (lambda () (call-interactively #'eglot-shutdown))))))
 

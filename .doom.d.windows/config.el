@@ -206,13 +206,14 @@
 (advice-add #'evil-goto-line :after #'recenter-advice)
 (advice-add #'org-roam-node-find :after #'recenter-advice)
 
-(evil-define-key 'visual 'global
-  "A" #'evil-mc-make-cursor-in-visual-selection-end
-  "I" #'evil-mc-make-cursor-in-visual-selection-beg
-  "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
+(map! :n  "m" #'evil-mc-make-and-goto-next-match
+      :n  "M" #'evil-mc-make-and-goto-prev-match
+      :vg "A" #'evil-mc-make-cursor-in-visual-selection-end
+      :vg "I" #'evil-mc-make-cursor-in-visual-selection-beg
+      :vg "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
 
-(evil-define-key 'normal 'evil-mc-key-map
-  "Q" #'evil-mc-undo-all-cursors)
+(after! evil-mc
+  (add-hook 'evil-mc-after-cursors-deleted #'evil-ex-nohighlight))
 
 (use-package! doom-lookup-other-window
   :config
@@ -259,7 +260,7 @@
 (defvar +eglot-server-num-limit 8)
 
 (after! eglot
-  (defun my-get-eglot-server()
+  (defun +eglot-get-server-num()
     (let ((servers (cl-loop for servers
                             being hash-values of eglot--servers-by-project
                             append servers))
@@ -269,7 +270,7 @@
       (mapcar name servers)))
 
   (defun +eglot-limit-server-num()
-    (let ((num (length (my-get-eglot-server))))
+    (let ((num (length (+eglot-get-server-num))))
       (when (> num +eglot-server-num-limit)
         (run-at-time 0.1 nil (lambda () (call-interactively #'eglot-shutdown))))))
 
