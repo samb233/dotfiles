@@ -1,6 +1,6 @@
 ;;; elisp/dirvish-windows.el -*- lexical-binding: t; -*-
 
-;; call-process not start-process on Windows
+;; use call-process-shell-command instead of  start-process on Windows
 ;; as the max process num is limit to 32 on windows
 (defadvice! dirvish-find-entry-a-windows (&optional entry)
   :override #'dirvish-find-entry-a
@@ -25,7 +25,10 @@ buffer, it defaults to filename under the cursor when it is nil."
                                (member ext exts)
                                (append (list cmd) args)))))
         (if ex (call-process-shell-command
-                (mapconcat #'identity (cl-substitute file "%f" ex :test 'string=) " ")
+                (mapconcat #'identity
+                           (cl-substitute
+                            (shell-quote-argument file)
+                            "%f" ex :test 'string=) " ")
                 nil 0)
           (let* ((dv (dirvish-curr)) (fn (nth 4 (dv-type dv))))
             (if fn (funcall fn) (dirvish-kill dv)))
