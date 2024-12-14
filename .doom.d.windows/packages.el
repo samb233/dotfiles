@@ -82,7 +82,6 @@
 (package! tide :disable t)
 (package! pipenv :disable t)
 (package! anaconda-mode :disable t)
-(package! esh-help :disable t)
 (package! flymake-popon :disable t)
 
 ;; Windows 下加载 gpg 非常慢
