@@ -206,11 +206,11 @@
 (advice-add #'evil-goto-line :after #'recenter-advice)
 (advice-add #'org-roam-node-find :after #'recenter-advice)
 
-(map! :n  "m" #'evil-mc-make-and-goto-next-match
-      :n  "M" #'evil-mc-make-and-goto-prev-match
-      :vg "A" #'evil-mc-make-cursor-in-visual-selection-end
-      :vg "I" #'evil-mc-make-cursor-in-visual-selection-beg
-      :vg "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
+(map! :n "m" #'evil-mc-make-and-goto-next-match
+      :n "M" #'evil-mc-make-and-goto-prev-match
+      :v "A" #'evil-mc-make-cursor-in-visual-selection-end
+      :v "I" #'evil-mc-make-cursor-in-visual-selection-beg
+      :v "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
 
 (after! evil-mc
   (add-hook 'evil-mc-after-cursors-deleted #'evil-ex-nohighlight))

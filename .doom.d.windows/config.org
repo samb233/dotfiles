@@ -332,11 +332,11 @@ doom默认的200个也太少了，至少1000吧
 ** evil-mc
 使用evil-mc推荐的键位，简化进入多行编辑的按键
 #+begin_src emacs-lisp
-  (map! :n  "m" #'evil-mc-make-and-goto-next-match
-        :n  "M" #'evil-mc-make-and-goto-prev-match
-        :vg "A" #'evil-mc-make-cursor-in-visual-selection-end
-        :vg "I" #'evil-mc-make-cursor-in-visual-selection-beg
-        :vg "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
+  (map! :n "m" #'evil-mc-make-and-goto-next-match
+        :n "M" #'evil-mc-make-and-goto-prev-match
+        :v "A" #'evil-mc-make-cursor-in-visual-selection-end
+        :v "I" #'evil-mc-make-cursor-in-visual-selection-beg
+        :v "N" #'+multiple-cursors/evil-mc-toggle-cursor-here)
 
   (after! evil-mc
     (add-hook 'evil-mc-after-cursors-deleted #'evil-ex-nohighlight))
