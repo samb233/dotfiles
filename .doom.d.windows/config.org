@@ -281,9 +281,6 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
 修改projectile查找project-root的方式
 先从上到下，后从下到上。
 #+begin_src emacs-lisp
-  (use-package! projectile
-    :commands (project-projectile))
-
   (defun projectile-root-default-directory (dir)
     "Retrieve the root directory of the project at DIR using `default-directory'."
     default-directory)
@@ -409,6 +406,30 @@ modeline设置，不在modeline上显示eglot任何信息
   (use-package! eglot-booster
     :after eglot
     :config (eglot-booster-mode))
+#+end_src
+
+** 限制eglot的进程数量
+测试中
+当eglot的进程数量超过限制时，调用eglot-shutdown
+#+begin_src emacs-lisp
+  (defvar +eglot-server-num-limit 6)
+
+  (defun my-get-eglot-server()
+    (let ((servers (cl-loop for servers
+                            being hash-values of eglot--servers-by-project
+                            append servers))
+          (name (lambda (srv)
+                  (format "%s %s" (eglot-project-nickname srv)
+                          (eglot--major-modes srv)))))
+      (mapcar name servers)))
+
+  (defun +eglot-limit-server-num()
+    (interactive)
+    (let ((num (length (my-get-eglot-server))))
+      (when (> num +eglot-server-num-limit)
+        (run-at-time 0.1 nil (lambda () (call-interactively #'eglot-shutdown))))))
+
+  (add-hook 'eglot--managed-mode-hook #'+eglot-limit-server-num)
 #+end_src
 
 ** corfu

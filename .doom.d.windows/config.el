@@ -173,9 +173,6 @@
 
 (add-hook! 'doom-first-buffer-hook #'global-undo-fu-session-mode)
 
-(use-package! projectile
-  :commands (project-projectile))
-
 (defun projectile-root-default-directory (dir)
   "Retrieve the root directory of the project at DIR using `default-directory'."
   default-directory)
@@ -258,6 +255,25 @@
 (use-package! eglot-booster
   :after eglot
   :config (eglot-booster-mode))
+
+(defvar +eglot-server-num-limit 6)
+
+(defun my-get-eglot-server()
+  (let ((servers (cl-loop for servers
+                          being hash-values of eglot--servers-by-project
+                          append servers))
+        (name (lambda (srv)
+                (format "%s %s" (eglot-project-nickname srv)
+                        (eglot--major-modes srv)))))
+    (mapcar name servers)))
+
+(defun +eglot-limit-server-num()
+  (interactive)
+  (let ((num (length (my-get-eglot-server))))
+    (when (> num +eglot-server-num-limit)
+      (run-at-time 0.1 nil (lambda () (call-interactively #'eglot-shutdown))))))
+
+(add-hook 'eglot--managed-mode-hook #'+eglot-limit-server-num)
 
 (after! corfu
   (setq corfu-preselect 'prompt
