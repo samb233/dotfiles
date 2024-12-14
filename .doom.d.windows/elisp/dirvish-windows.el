@@ -1,5 +1,36 @@
 ;;; elisp/dirvish-windows.el -*- lexical-binding: t; -*-
 
+;; call-process not start-process on Windows
+;; as the max process num is limit to 32 on windows
+(defadvice! dirvish-find-entry-a-windows (&optional entry)
+  :override #'dirvish-find-entry-a
+  "Find ENTRY in current dirvish session.
+ENTRY can be a filename or a string with format of
+`dirvish-fd-bufname' used to query or create a `fd' result
+buffer, it defaults to filename under the cursor when it is nil."
+  (let* ((entry (or entry (dired-get-filename nil t)))
+         (buffer (cond ((string-prefix-p "🔍" entry) (dirvish-fd-find entry))
+                       ((file-directory-p entry) (dired-noselect entry))
+                       ((string-suffix-p "/" entry)
+                        (user-error
+                         (concat entry " is not a valid directory"))))))
+    (if buffer (switch-to-buffer buffer)
+      (let* ((ext (downcase (or (file-name-extension entry) "")))
+             (file (expand-file-name entry))
+             (process-connection-type nil)
+             (ex (cl-loop
+                  for (exts . (cmd . args)) in dirvish-open-with-programs
+                  thereis (and (not (dirvish-prop :remote))
+                               (executable-find cmd)
+                               (member ext exts)
+                               (append (list cmd) args)))))
+        (if ex (call-process-shell-command
+                (mapconcat #'identity (cl-substitute file "%f" ex :test 'string=) " ")
+                nil 0)
+          (let* ((dv (dirvish-curr)) (fn (nth 4 (dv-type dv))))
+            (if fn (funcall fn) (dirvish-kill dv)))
+          (find-file file))))))
+
 ;; Download mtn here
 ;; https://www.videohelp.com/software/movie-thumbnailer
 (dirvish-define-preview mtn (file ext preview-window)
