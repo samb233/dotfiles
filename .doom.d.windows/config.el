@@ -56,8 +56,9 @@
 (use-package! doom-light-modeline-enhance)
 (setq +modeline-height 24
       +modeline-bar-width 4)
-(set-face-attribute 'mode-line nil :background "#eef4f9")
 (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
+
+(add-hook! 'doom-init-ui-hook (set-face-attribute 'mode-line nil :background "#eef4f9"))
 
 (after! solaire-mode
   (dolist (face '(mode-line mode-line-inactive))
@@ -65,13 +66,21 @@
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
+
+(use-package! ultra-scroll
+  :init
+  (setq scroll-conservatively 101
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
+
 (setq mouse-wheel-scroll-amount
       '(3
         ((shift) . hscroll)
         ((meta))
         ((control) . text-scale)))
 
-(pixel-scroll-precision-mode t)
+;; (pixel-scroll-precision-mode t)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -412,11 +421,20 @@
 
 (if (eq system-type 'windows-nt)
     (after! diff-hl
+      ;; turn off diff-hl async to prevent crash
       (setq diff-hl-update-async nil)
-      (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
       (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
+      (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
+     
       (advice-remove 'diff-hl-update #'+vc-gutter--debounce-threads-a)
-      (advice-remove 'diff-hl-update-once #'+vc-gutter--only-tick-on-success-a)))
+      (advice-remove 'diff-hl-update-once #'+vc-gutter--only-tick-on-success-a)
+
+      (defun +diff-hl-update-exit-insert-state nil
+        (if diff-hl-mode
+            (add-hook 'evil-insert-state-exit-hook #'diff-hl-update)
+          (remove-hook 'evil-insert-state-exit-hook #'diff-hl-update)))
+
+      (add-hook 'diff-hl-mode-hook #'+diff-hl-update-exit-insert-state)))
 
 (defun dirvish-unfocus ()
   (interactive)
@@ -680,6 +698,9 @@
 (after! apheleia
   (setf (alist-get 'python-mode apheleia-mode-alist)
       '(ruff)))
+
+(setenv "PATH" (concat "d:/Env/miniconda3/condabin;" (getenv "PATH")))
+(add-to-list 'exec-path "D:\\Env\\miniconda3\\condabin")
 
 (add-to-list 'auto-mode-alist '("\\.vpy\\'" . python-mode))
 

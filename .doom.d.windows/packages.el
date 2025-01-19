@@ -64,6 +64,9 @@
 ;; 工具包
 (package! fanyi)
 (package! drag-stuff)
+(package! ultra-scroll
+  :recipe (:host github :repo "jdtsmith/ultra-scroll"
+           :files ("*")))
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
            :files ("*")))
