@@ -1,3 +1,4 @@
+
 ;;; init.el -*- lexical-binding: t; -*-
 
 ;; This file controls what Doom modules are enabled and what order they load
@@ -14,7 +15,9 @@
 ;;      Alternatively, press 'gd' (or 'C-c c d') on a module to browse its
 ;;      directory (for easy access to its source code).
 
+(setq frame-title-format "Editor Macross")
 (setq evil-disable-insert-state-bindings t)
+(pushnew! default-frame-alist '(width . 170) '(height . 50))
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh

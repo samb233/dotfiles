@@ -1,12 +1,5 @@
 (prefer-coding-system 'utf-8-unix)
 
-(pushnew! default-frame-alist '(width . 80) '(height . 50))
-(add-to-list 'default-frame-alist '(inhibit-double-buffering . t))
-(toggle-frame-maximized)
-
-;; (add-to-list 'default-frame-alist '(alpha-background . 95))
-;; (add-to-list 'default-frame-alist (cons 'alpha 90))
-
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (concat "Editor Macross > "
@@ -45,6 +38,7 @@
       +modeline-bar-width 4)
 (set-face-attribute 'mode-line nil :background "#eef4f9")
 (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
+(remove-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
 
 (after! solaire-mode
   (dolist (face '(mode-line mode-line-inactive))
@@ -291,18 +285,10 @@
 
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 
-(use-package! flymake-triangle-bitmap
-  :after flymake
-  :config
-  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
-        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
-        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
-
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
-        eldoc-echo-area-prefer-doc-buffer t
-        eldoc-idle-delay 0.2)
+        eldoc-echo-area-prefer-doc-buffer t)
   (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
@@ -375,7 +361,7 @@
 
 (defun my-open-explorer()
   (interactive)
-  (call-process-shell-command "nautilus ." nil 0))
+  (call-process-shell-command "dolphin ." nil 0))
 
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
@@ -420,11 +406,11 @@
   (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
   )
 
-(setq +popup-margin-width nil)
-(add-hook! 'doom-first-buffer-hook
-  (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
+;; (setq +popup-margin-width nil)
+;; (add-hook! 'doom-first-buffer-hook
+;;   (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
 
-(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil) (solaire-mode -1))
+(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
 
 (use-package! doom-vterm-toggle
   :commands (doom-vterm-toggle-directory
@@ -709,22 +695,7 @@
   :hook (((prog-mode yaml-mode) . symbol-overlay-mode)
          (iedit-mode            . turn-off-symbol-overlay)
          (iedit-mode-end        . turn-on-symbol-overlay))
-  :init (setq symbol-overlay-idle-time 0.1)
-  :config
-  (with-no-warnings
-    ;; Disable symbol highlighting while selecting
-    (defun turn-off-symbol-overlay (&rest _)
-      "Turn off symbol highlighting."
-      (interactive)
-      (symbol-overlay-mode -1))
-    (advice-add #'set-mark :after #'turn-off-symbol-overlay)
-
-    (defun turn-on-symbol-overlay (&rest _)
-      "Turn on symbol highlighting."
-      (interactive)
-      (when (derived-mode-p 'prog-mode 'yaml-mode)
-        (symbol-overlay-mode 1)))
-    (advice-add #'deactivate-mark :after #'turn-on-symbol-overlay)))
+  :init (setq symbol-overlay-idle-time 0.1))
 
 (defun my-emacs-use-proxy()
   (interactive)
@@ -769,3 +740,43 @@
 (set-popup-rule! "^\\*base64-img-toggle" :size 0.15 :modeline nil :quit t)
 (map! :leader
       :desc "View Base64 img" "v b" #'base64-img-toggle-region)
+
+(use-package! fringe-scale
+  :init
+  (set-fringe-mode '(8 . 16))
+  :config
+  (fringe-scale-setup))
+
+(setq builtin-bitmaps
+      ' ((question-mark [#x3c #x7e #xc3 #xc3 #x0c #x18 #x18 #x00 #x18 #x18])
+     (exclamation-mark [#x18 #x18 #x18 #x18 #x18 #x18 #x18 #x00 #x18 #x18])
+     (left-arraw [#x18 #x30 #x60 #xfc #xfc #x60 #x30 #x18])
+     (right-arrow [#x18 #x0c #x06 #x3f #x3f #x06 #x0c #x18])
+     (up-arrow [#x18 #x3c #x7e #xff #x18 #x18 #x18 #x18])
+     (down-arrow [#x18 #x18 #x18 #x18 #xff #x7e #x3c #x18])
+     (left-curly-arrow [#x3c #x7c #xc0 #xe4 #xfc #x7c #x3c #x7c])
+     (right-curly-arrow [#x3c #x3e #x03 #x27 #x3f #x3e #x3c #x3e])
+     (left-triangle [#x03 #x0f #x1f #x3f #x3f #x1f #x0f #x03])
+     (right-triangle [#xc0 #xf0 #xf8 #xfc #xfc #xf8 #xf0 #xc0])
+     (top-left-angle [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #x00])
+     (top-right-angle [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x00])
+     (bottom-left-angle [#x00 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
+     (bottom-right-angle [#x00 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
+     (left-bracket [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
+     (right-bracket [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
+     (filled-rectangle [#xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe])
+     (hollow-rectangle [#xfe #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #xfe])
+     (hollow-square [#x7e #x42 #x42 #x42 #x42 #x7e])
+     (filled-square [#x7e #x7e #x7e #x7e #x7e #x7e])
+     (vertical-bar [#xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0])
+     (horizontal-bar [#xfe #xfe])))
+
+(dolist (bitmap builtin-bitmaps)
+  (define-fringe-bitmap (car bitmap) (cadr bitmap)))
+
+(use-package! flymake-triangle-bitmap
+  :after flymake
+  :config
+  (setq flymake-note-bitmap    '(my-small-left-triangle compilation-info)
+        flymake-error-bitmap   '(my-small-left-triangle compilation-error)
+        flymake-warning-bitmap '(my-small-left-triangle compilation-warning)))
