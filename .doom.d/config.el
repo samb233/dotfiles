@@ -15,16 +15,19 @@
 
 (setq uniquify-buffer-name-style 'forward)
 
-(setq native-comp-jit-compilation nil)
+;; (setq native-comp-jit-compilation nil)
 
 (setq word-wrap-by-category t)
 
+;; (setq x-gtk-use-native-input nil)
+
 (setq doom-font (font-spec :family "iosevka nerd font mono" :size 11.0))
+(setq doom-emoji-font (font-spec :family "Noto Color Emoji"))
 ;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
 (defun my-cjk-font()
-  (dolist (charset '(kana han cjk-misc symbol bopomofo))
+  (dolist (charset '(kana han cjk-misc bopomofo))
     (set-fontset-font t charset (font-spec :family "霞鹜文楷等宽"))))
 
 (add-hook 'after-setting-font-hook #'my-cjk-font)
@@ -36,9 +39,10 @@
 (use-package! doom-light-modeline-enhance)
 (setq +modeline-height 20
       +modeline-bar-width 4)
-(set-face-attribute 'mode-line nil :background "#eef4f9")
 (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 (remove-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
+
+(add-hook! 'doom-init-ui-hook (set-face-attribute 'mode-line nil :background "#eef4f9"))
 
 (after! solaire-mode
   (dolist (face '(mode-line mode-line-inactive))
@@ -46,11 +50,13 @@
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
-(setq mouse-wheel-scroll-amount
-      '(3
-        ((shift) . hscroll)
-        ((meta))
-        ((control) . text-scale)))
+
+(use-package! ultra-scroll
+  :init
+  (setq scroll-conservatively 101
+        scroll-margin 0)
+  :config
+  (ultra-scroll-mode 1))
 
 ;; (pixel-scroll-precision-mode t)
 
@@ -187,6 +193,7 @@
 (advice-add #'find-file :after #'recenter-advice)
 (advice-add #'evil-goto-line :after #'recenter-advice)
 (advice-add #'org-roam-node-find :after #'recenter-advice)
+(advice-add #'+lookup--jump-to :after #'recenter-advice)
 
 (evil-define-key 'visual 'global
   "A" #'evil-mc-make-cursor-in-visual-selection-end
@@ -537,7 +544,13 @@
 
 (use-package protobuf-mode
   :commands (protobuf-mode)
-  :mode("\\.proto\\'" . protobuf-mode))
+  :mode("\\.proto\\'" . protobuf-mode)
+  :config
+  (add-hook 'protobuf-mode-hook
+            (lambda ()
+              (setq-local compile-command
+                          (format "protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative %s"
+                                  (file-name-nondirectory buffer-file-name))))))
 
 (use-package dockerfile-mode
   :commands (dockerfile-mode)
@@ -606,9 +619,31 @@
 (add-hook 'yaml-mode-hook #'turn-off-smartparens-mode nil t)
 (add-hook 'yaml-mode-hook #'electric-pair-local-mode nil t)
 
+(use-package! rime
+  :init
+  (setq rime-user-data-dir "~/.local/share/fcitx5/rime/")
+  :custom
+  (default-input-method "rime")
+  :config
+  (setq rime-show-candidate 'posframe
+        rime-posframe-style 'simple
+        rime-show-preedit 'inline)
+  (setq rime-posframe-properties (list :font "霞鹜文楷等宽"
+                                       :border-width 3
+                                       :border-color "#cde1f8"
+                                       :left-fringe 10))
+  (map! :i "C-SPC" #'toggle-input-method)
+  (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified)
+  (set-face-attribute 'rime-default-face nil :background "#fdfdfd")
+  (add-hook! 'input-method-activate-hook
+    (defun rime-inside-minibuffer-change-background ()
+      (when (minibufferp)
+        (face-remap-add-relative 'rime-default-face '(:background "#f1f1f1"))))))
+
 (use-package! sis
   :config
-  (sis-ism-lazyman-config "1" "2" 'fcitx5)
+  ;; (sis-ism-lazyman-config "1" "2" 'fcitx5)
+  (sis-ism-lazyman-config nil "rime" 'native)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
