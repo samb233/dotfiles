@@ -236,8 +236,7 @@
         :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
-  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
-  (set-face-attribute 'corfu-current nil :background "#cde1f8"))
+  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit))
 
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay nil))
@@ -270,7 +269,6 @@
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
         eldoc-echo-area-prefer-doc-buffer t)
-  (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
 (use-package dabbrev
@@ -354,30 +352,6 @@
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
 
-(defun dirvish-unfocus ()
-  (interactive)
-  (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
-
-(defun dirvish-focus ()
-  (interactive)
-  (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
-
-(defun dirvish-focus-change (&rest w)
-  (let* ((sw (frame-selected-window))
-         (sb (window-buffer sw))
-         (ow (old-selected-window))
-         (ob (window-buffer ow)))
-    (progn
-      (with-current-buffer sb
-        (when (eq major-mode #'dired-mode)
-          (dirvish-focus)))
-      (with-current-buffer ob
-        (when (eq major-mode #'dired-mode)
-          (dirvish-unfocus))))))
-
-(add-hook! 'dired-mode-hook
-  (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
-
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
 (after! vterm
@@ -406,15 +380,6 @@
 (set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
 
 (setq org-directory "~/Notes")
-(custom-set-faces
- '(org-level-1 ((t (:height 1.0 :foreground "#4271ae" :weight ultra-bold))))
- '(org-level-2 ((t (:height 1.0 :foreground "#8959a8" :weight extra-bold))))
- '(org-level-3 ((t (:height 1.0 :foreground "#718c00" :weight bold))))
- '(org-level-4 ((t (:height 1.0 :foreground "#eab700" :weight semi-bold))))
- '(org-level-5 ((t (:height 1.0 :foreground "#c82829" :weight normal))))
- '(org-level-6 ((t (:height 1.0 :foreground "#70c0ba" :weight normal))))
- '(org-level-7 ((t (:height 1.0 :foreground "#b77ee0" :weight normal))))
- '(org-level-8 ((t (:height 1.0 :foreground "#9ec400" :weight normal)))))
 
 (after! org
   (setq org-src-preserve-indentation nil
@@ -474,17 +439,6 @@
           :unnarrowed t)))
 
 (map! :leader "L" (lambda () (interactive) (find-file (concat org-directory "/todo.org"))))
-
-(custom-set-faces
- '(markdown-code-face ((t (:background "#f5f5f5"))))
- '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.3 :foreground "#4271ae" :weight ultra-bold))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.2 :foreground "#8959a8" :weight extra-bold))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.1 :foreground "#718c00" :weight bold))))
- '(markdown-header-face-4 ((t (:inherit markdown-header-face :height 1.0 :foreground "#eab700" :weight semi-bold))))
- '(markdown-header-face-5 ((t (:inherit markdown-header-face :height 1.0 :foreground "#c82829" :weight normal))))
- '(markdown-header-face-6 ((t (:inherit markdown-header-face :height 1.0 :foreground "#70c0ba" :weight normal))))
- '(markdown-header-face-7 ((t (:inherit markdown-header-face :height 1.0 :foreground "#b77ee0" :weight normal)))))
 
 (add-hook! 'markdown-mode-hook (setq-local markdown-fontify-code-blocks-natively t))
 (after! markdown-mode
