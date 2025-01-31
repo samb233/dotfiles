@@ -580,15 +580,13 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
         :leader "o e" #'my-open-explorer)
 #+end_src
 
-** diff-hl-dired 背景色
-设置 diff-hl-dired 的背景色，使能够一眼看出文件的状态
+** diff-hl
+设置 diff-hl 背景色
 #+begin_src emacs-lisp
-  (after! diff-hl-dired
-    (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
-    (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
-    (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
-    (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
-    (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+  (after! diff-hl
+    (set-face-attribute 'diff-hl-change nil :weight 'bold :background "#ffffcb")
+    (set-face-attribute 'diff-hl-delete nil :weight 'bold :background "#ffe4e1")
+    (set-face-attribute 'diff-hl-insert nil :weight 'bold :background "#ecffe9"))
 #+end_src
 
 * 终端

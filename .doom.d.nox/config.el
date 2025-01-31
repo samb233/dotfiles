@@ -380,12 +380,10 @@
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
 
-(after! diff-hl-dired
-  (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
-  (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
-  (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
-  (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
-  (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
+(after! diff-hl
+  (set-face-attribute 'diff-hl-change nil :weight 'bold :background "#ffffcb")
+  (set-face-attribute 'diff-hl-delete nil :weight 'bold :background "#ffe4e1")
+  (set-face-attribute 'diff-hl-insert nil :weight 'bold :background "#ecffe9"))
 
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
