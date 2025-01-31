@@ -539,11 +539,23 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+end_src
 
 ** dirvish mediainfo预览优化
-我常常需要mediainfo显示视频的多条音轨信息。
-糊一个方法做预览优化
+在终端环境中，使用 mediainfo 预览媒体。
+期待能在 kitty 上的 emacs 预览图片的一天。
 #+begin_src emacs-lisp
-  (add-hook! 'dirvish-setup-hook
-    (use-package! dirvish-video-mediainfo-enhance))
+  ;; (add-hook! 'dirvish-setup-hook
+  ;;   (use-package! dirvish-video-mediainfo-enhance))
+
+  (after! dirvish
+    (dirvish-define-preview mediainfo (file ext preview-window)
+      "Use `mediainfo' to generate media preview."
+      :require ("mediainfo")
+      (when (or (member ext dirvish-video-exts)
+                (member ext dirvish-audio-exts)
+                (member ext dirvish-image-exts)
+                (member ext dirvish-media-exts))
+        `(shell . ("mediainfo" ,file))))
+
+    (add-to-list 'dirvish-preview-dispatchers 'mediainfo))
 #+end_src
 
 ** file-roller

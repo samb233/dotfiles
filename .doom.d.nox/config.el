@@ -350,8 +350,20 @@
           (("pdf") . ("evince" "%f"))
           (("epub") . ("koodo-reader" "%f")))))
 
-(add-hook! 'dirvish-setup-hook
-  (use-package! dirvish-video-mediainfo-enhance))
+;; (add-hook! 'dirvish-setup-hook
+;;   (use-package! dirvish-video-mediainfo-enhance))
+
+(after! dirvish
+  (dirvish-define-preview mediainfo (file ext preview-window)
+    "Use `mediainfo' to generate media preview."
+    :require ("mediainfo")
+    (when (or (member ext dirvish-video-exts)
+              (member ext dirvish-audio-exts)
+              (member ext dirvish-image-exts)
+              (member ext dirvish-media-exts))
+      `(shell . ("mediainfo" ,file))))
+
+  (add-to-list 'dirvish-preview-dispatchers 'mediainfo))
 
 (use-package! dired-archieve
   :after dired
