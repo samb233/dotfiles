@@ -16,8 +16,8 @@
 ;;      directory (for easy access to its source code).
 
 (setq frame-title-format "Editor Macross")
+
 (setq evil-disable-insert-state-bindings t)
-(pushnew! default-frame-alist '(width . 170) '(height . 50))
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh

@@ -87,10 +87,11 @@
   (setq +popup-margin-width nil)
 #+end_src
 
-** region
-配置 region 的颜色
+** border
 #+begin_src emacs-lisp
-  ;; (set-face-attribute 'region nil :foreground 'unspecified :weight 'bold)
+  (set-face-attribute 'vertical-border nil :background 'unspecified)
+  (add-hook! 'server-after-make-frame-hook :append
+    (set-face-attribute 'vertical-border nil :background 'unspecified))
 #+end_src
 
 * 按键

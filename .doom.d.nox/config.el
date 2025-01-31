@@ -35,7 +35,9 @@
 ;; 防止 doom 的 popup 方法影响主窗口
 (setq +popup-margin-width nil)
 
-;; (set-face-attribute 'region nil :foreground 'unspecified :weight 'bold)
+(set-face-attribute 'vertical-border nil :background 'unspecified)
+(add-hook! 'server-after-make-frame-hook :append
+  (set-face-attribute 'vertical-border nil :background 'unspecified))
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
