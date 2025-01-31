@@ -40,7 +40,7 @@
                  (vc-mode ("  "
                            ,(nerd-icons-octicon "nf-oct-git_branch" :v-adjust 0.0)
                            vc-mode " "))
-                 ""
+                 " "
                  +modeline-encoding
                  "  "))
 

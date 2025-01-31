@@ -25,13 +25,17 @@
 
 (setq display-line-numbers-type 'relative)
 
-(setq doom-theme 'modus-vivendi)
+(setq doom-theme 'doom-tomorrow-day)
 
 (use-package! doom-light-modeline-enhance)
-(setq +modeline-height 20
-      +modeline-bar-width 4)
+(setq +modeline-height 20)
 (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 (remove-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
+
+;; 防止 doom 的 popup 方法影响主窗口
+(setq +popup-margin-width nil)
+
+;; (set-face-attribute 'region nil :foreground 'unspecified :weight 'bold)
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -150,6 +154,13 @@
 (setq project-find-functions '(project-projectile project-try-vc))
 (setq xref-search-program 'ripgrep)
 
+(after! persp-mode
+  (setq persp-init-frame-behaviour nil)
+  (setq +workspaces-on-switch-project-behavior nil)
+  (map! :leader
+        "TAB n" #'+workspace/new-named
+        "TAB N" #'+workspace/new))
+
 (after! recentf
   (setq recentf-max-saved-items 1000
         recentf-auto-cleanup 'mode)
@@ -177,6 +188,9 @@
 (evil-define-key 'normal 'evil-mc-key-map
   "Q" #'evil-mc-undo-all-cursors)
 
+(after! evil-mc
+  (setq evil-mc-enable-bar-cursor nil))
+
 (use-package! doom-lookup-other-window
   :config
   (map! :nv "g D" #'+lookup/definition-other-window
@@ -203,7 +217,7 @@
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+  (set-face-attribute 'eglot-highlight-symbol-face nil :underline t)
   (push :inlayHintProvider eglot-ignored-server-capabilities)
   (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
@@ -236,7 +250,9 @@
         :i "C-l" #'corfu-complete
         :i "C-g" #'corfu-quit)
   (map! :i "C-S-p" #'cape-file)
-  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit))
+  (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
+  (set-face-attribute 'corfu-current nil :background "#cde1f8"))
+
 
 (after! corfu-popupinfo
   (setq corfu-popupinfo-delay nil))
@@ -263,12 +279,19 @@
 
   (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
 
+(setq flymake-margin-indicator-position 'right-margin)
+(setq flymake-margin-indicators-string
+   `((error ,(nerd-icons-faicon "nf-fa-remove_sign") compilation-error)
+     (warning ,(nerd-icons-faicon "nf-fa-warning") compilation-warning)
+     (note ,(nerd-icons-faicon "nf-fa-circle_info") compilation-info)))
+
 (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
         eldoc-echo-area-use-multiline-p nil
         eldoc-echo-area-prefer-doc-buffer t)
+  (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
   (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 
 (use-package dabbrev
@@ -382,6 +405,16 @@
 (setq org-directory "~/Notes")
 
 (after! org
+  (custom-set-faces
+   '(org-level-1 ((t (:foreground "#4271ae" :weight ultra-bold))))
+   '(org-level-2 ((t (:foreground "#8959a8" :weight ultra-bold))))
+   '(org-level-3 ((t (:foreground "#718c00" :weight ultra-bold))))
+   '(org-level-4 ((t (:foreground "#eab700" :weight ultra-bold))))
+   '(org-level-5 ((t (:foreground "#c82829" :weight normal))))
+   '(org-level-6 ((t (:foreground "#70c0ba" :weight normal))))
+   '(org-level-7 ((t (:foreground "#b77ee0" :weight normal))))
+   '(org-level-8 ((t (:foreground "#9ec400" :weight normal)))))
+
   (setq org-src-preserve-indentation nil
         org-image-actual-width 1280
         org-hide-emphasis-markers t
@@ -442,6 +475,18 @@
 
 (add-hook! 'markdown-mode-hook (setq-local markdown-fontify-code-blocks-natively t))
 (after! markdown-mode
+
+  (custom-set-faces
+   '(markdown-code-face ((t (:background "#f5f5f5"))))
+   '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
+   '(markdown-header-face-1 ((t (:inherit markdown-header-face :foreground "#4271ae" :weight bold))))
+   '(markdown-header-face-2 ((t (:inherit markdown-header-face :foreground "#8959a8" :weight bold))))
+   '(markdown-header-face-3 ((t (:inherit markdown-header-face :foreground "#718c00" :weight bold))))
+   '(markdown-header-face-4 ((t (:inherit markdown-header-face :foreground "#eab700" :weight bold))))
+   '(markdown-header-face-5 ((t (:inherit markdown-header-face :foreground "#c82829" :weight normal))))
+   '(markdown-header-face-6 ((t (:inherit markdown-header-face :foreground "#70c0ba" :weight normal))))
+   '(markdown-header-face-7 ((t (:inherit markdown-header-face :foreground "#b77ee0" :weight normal)))))
+
   (setq markdown-fontify-whole-heading-line nil)
   (setq markdown-fontify-code-blocks-natively t)
   (setq markdown-max-image-size '(640 . 480))
@@ -550,6 +595,15 @@
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
+(use-package! colorful-mode
+  :commands (colorful-mode
+             global-colorful-mode)
+  :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+            (add-to-list 'global-colorful-modes mode)))
+
+(map! :leader
+      :desc "toggle colorful mode" "t s" #'colorful-mode)
+
 (use-package! tabspaces
   :hook (doom-init-ui . tabspaces-mode)
   :commands (tabspaces-switch-or-create-workspace
@@ -601,15 +655,6 @@
 
 (map! :leader
       :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
-
-(use-package! colorful-mode
-  :commands (colorful-mode
-             global-colorful-mode)
-  :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
-            (add-to-list 'global-colorful-modes mode)))
-
-(map! :leader
-      :desc "toggle colorful mode" "t s" #'colorful-mode)
 
 (use-package symbol-overlay
   :diminish

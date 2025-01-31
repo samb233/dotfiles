@@ -68,17 +68,29 @@
 
 ** 主题
 #+begin_src emacs-lisp
-  (setq doom-theme 'modus-vivendi)
+  (setq doom-theme 'doom-tomorrow-day)
 #+end_src
 
 ** modeline
 自定义 doom 的 +light modeline
 #+begin_src emacs-lisp
   (use-package! doom-light-modeline-enhance)
-  (setq +modeline-height 20
-        +modeline-bar-width 4)
+  (setq +modeline-height 20)
   (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
   (remove-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
+#+end_src
+
+** margin 设置
+当使用 terminal 时，需要配置一下 margin
+#+begin_src emacs-lisp
+  ;; 防止 doom 的 popup 方法影响主窗口
+  (setq +popup-margin-width nil)
+#+end_src
+
+** region
+配置 region 的颜色
+#+begin_src emacs-lisp
+  ;; (set-face-attribute 'region nil :foreground 'unspecified :weight 'bold)
 #+end_src
 
 * 按键
@@ -245,6 +257,16 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
   (setq xref-search-program 'ripgrep)
 #+end_src
 
+** workspace
+#+begin_src emacs-lisp
+  (after! persp-mode
+    (setq persp-init-frame-behaviour nil)
+    (setq +workspaces-on-switch-project-behavior nil)
+    (map! :leader
+          "TAB n" #'+workspace/new-named
+          "TAB N" #'+workspace/new))
+#+end_src
+
 ** recentf
 设置recentf最大储存项
 doom默认的200个也太少了，至少1000吧
@@ -287,6 +309,9 @@ doom默认的200个也太少了，至少1000吧
 
   (evil-define-key 'normal 'evil-mc-key-map
     "Q" #'evil-mc-undo-all-cursors)
+
+  (after! evil-mc
+    (setq evil-mc-enable-bar-cursor nil))
 #+end_src
 
 ** lookup
@@ -327,7 +352,7 @@ doom默认的200个也太少了，至少1000吧
           :desc "LSP reconnect" "c L" #'eglot-shutdown
           :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-    ;; (set-face-attribute 'eglot-highlight-symbol-face nil :background "#d6d4d4")
+    (set-face-attribute 'eglot-highlight-symbol-face nil :underline t)
     (push :inlayHintProvider eglot-ignored-server-capabilities)
     (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 #+end_src
@@ -373,7 +398,9 @@ modeline设置，不在modeline上显示eglot任何信息
           :i "C-l" #'corfu-complete
           :i "C-g" #'corfu-quit)
     (map! :i "C-S-p" #'cape-file)
-    (add-hook! 'evil-insert-state-exit-hook #'corfu-quit))
+    (add-hook! 'evil-insert-state-exit-hook #'corfu-quit)
+    (set-face-attribute 'corfu-current nil :background "#cde1f8"))
+
 
   (after! corfu-popupinfo
     (setq corfu-popupinfo-delay nil))
@@ -412,6 +439,15 @@ modeline设置，不在modeline上显示eglot任何信息
     (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
 #+end_src
 
+外观设置
+#+begin_src emacs-lisp
+  (setq flymake-margin-indicator-position 'right-margin)
+  (setq flymake-margin-indicators-string
+     `((error ,(nerd-icons-faicon "nf-fa-remove_sign") compilation-error)
+       (warning ,(nerd-icons-faicon "nf-fa-warning") compilation-warning)
+       (note ,(nerd-icons-faicon "nf-fa-circle_info") compilation-info)))
+#+end_src
+
 在org-src时自动检测错误
 #+begin_src emacs-lisp
   (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
@@ -425,6 +461,7 @@ modeline设置，不在modeline上显示eglot任何信息
     (setq eldoc-echo-area-display-truncation-message nil
           eldoc-echo-area-use-multiline-p nil
           eldoc-echo-area-prefer-doc-buffer t)
+    (set-face-attribute 'eldoc-highlight-function-argument nil :background "#cde1f8")
     (set-popup-rule! "^\\*eldoc*" :size 0.15 :modeline nil :quit t))
 #+end_src
 
@@ -592,6 +629,16 @@ vterm与doom的适配
   (setq org-directory "~/Notes")
 
   (after! org
+    (custom-set-faces
+     '(org-level-1 ((t (:foreground "#4271ae" :weight ultra-bold))))
+     '(org-level-2 ((t (:foreground "#8959a8" :weight ultra-bold))))
+     '(org-level-3 ((t (:foreground "#718c00" :weight ultra-bold))))
+     '(org-level-4 ((t (:foreground "#eab700" :weight ultra-bold))))
+     '(org-level-5 ((t (:foreground "#c82829" :weight normal))))
+     '(org-level-6 ((t (:foreground "#70c0ba" :weight normal))))
+     '(org-level-7 ((t (:foreground "#b77ee0" :weight normal))))
+     '(org-level-8 ((t (:foreground "#9ec400" :weight normal)))))
+
     (setq org-src-preserve-indentation nil
           org-image-actual-width 1280
           org-hide-emphasis-markers t
@@ -688,6 +735,18 @@ org-roam默认将文件堆在一个文件夹下我是不太喜欢的。
 #+begin_src emacs-lisp
   (add-hook! 'markdown-mode-hook (setq-local markdown-fontify-code-blocks-natively t))
   (after! markdown-mode
+
+    (custom-set-faces
+     '(markdown-code-face ((t (:background "#f5f5f5"))))
+     '(markdown-header-delimiter-face ((t (:foreground "#616161" :height 0.9))))
+     '(markdown-header-face-1 ((t (:inherit markdown-header-face :foreground "#4271ae" :weight bold))))
+     '(markdown-header-face-2 ((t (:inherit markdown-header-face :foreground "#8959a8" :weight bold))))
+     '(markdown-header-face-3 ((t (:inherit markdown-header-face :foreground "#718c00" :weight bold))))
+     '(markdown-header-face-4 ((t (:inherit markdown-header-face :foreground "#eab700" :weight bold))))
+     '(markdown-header-face-5 ((t (:inherit markdown-header-face :foreground "#c82829" :weight normal))))
+     '(markdown-header-face-6 ((t (:inherit markdown-header-face :foreground "#70c0ba" :weight normal))))
+     '(markdown-header-face-7 ((t (:inherit markdown-header-face :foreground "#b77ee0" :weight normal)))))
+
     (setq markdown-fontify-whole-heading-line nil)
     (setq markdown-fontify-code-blocks-natively t)
     (setq markdown-max-image-size '(640 . 480))
@@ -848,6 +907,18 @@ apheleia更新后可以删除push ruff的代码
     (sis-global-context-mode t))
 #+end_src
 
+** 色彩显示
+#+begin_src emacs-lisp
+  (use-package! colorful-mode
+    :commands (colorful-mode
+               global-colorful-mode)
+    :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
+              (add-to-list 'global-colorful-modes mode)))
+
+  (map! :leader
+        :desc "toggle colorful mode" "t s" #'colorful-mode)
+#+end_src
+
 ** tabspaces
 加强tabbar，管理工作区buffer
 #+begin_src emacs-lisp
@@ -911,18 +982,6 @@ apheleia更新后可以删除push ruff的代码
 
   (map! :leader
         :desc "Bookmark Tab" "v m" #'tab-bookmark-save)
-#+end_src
-
-** 色彩显示
-#+begin_src emacs-lisp
-  (use-package! colorful-mode
-    :commands (colorful-mode
-               global-colorful-mode)
-    :config (dolist (mode '(html-mode php-mode help-mode helpful-mode))
-              (add-to-list 'global-colorful-modes mode)))
-
-  (map! :leader
-        :desc "toggle colorful mode" "t s" #'colorful-mode)
 #+end_src
 
 ** symbol-overlay
