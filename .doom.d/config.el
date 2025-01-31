@@ -15,15 +15,12 @@
 
 (setq uniquify-buffer-name-style 'forward)
 
-;; (setq native-comp-jit-compilation nil)
+(setq native-comp-jit-compilation nil)
 
 (setq word-wrap-by-category t)
 
-;; (setq x-gtk-use-native-input nil)
-
 (setq doom-font (font-spec :family "iosevka nerd font mono" :size 11.0))
 (setq doom-emoji-font (font-spec :family "Noto Color Emoji"))
-;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
 (defun my-cjk-font()
@@ -50,15 +47,11 @@
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
-
-(use-package! ultra-scroll
-  :init
-  (setq scroll-conservatively 101
-        scroll-margin 0)
-  :config
-  (ultra-scroll-mode 1))
-
-;; (pixel-scroll-precision-mode t)
+(setq mouse-wheel-scroll-amount
+      '(3
+        ((shift) . hscroll)
+        ((meta))
+        ((control) . text-scale)))
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -307,21 +300,22 @@
 
 (setq completion-ignore-case t)
 
+(remove-hook 'dired-mode-hook #'+vc-gutter-enable-maybe-h)
+
 (after! dired
-    (setq dired-recursive-deletes 'always
-          delete-by-moving-to-trash t)
-    (setq dired-switches-in-mode-line 0
-          dired-listing-switches
-          "-l --almost-all --human-readable --group-directories-first --no-group --time-style \"+%Y-%m-%d %H:%M:%S\"")
-    (setq dired-omit-files
-        (concat "\\`[.][.]?\\'"
-                "\\|^\\.DS_Store\\'"
-                "\\|^\\.project\\(?:ile\\)?\\'"
-                "\\|^\\.\\(?:svn\\|git\\)\\'"
-                "\\|^\\.ccls-cache\\'"
-                "\\|\\(?:\\.js\\)?\\.meta\\'"
-                "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'"))
-)
+  (setq dired-recursive-deletes 'always
+        delete-by-moving-to-trash t)
+  (setq dired-switches-in-mode-line 0
+        dired-listing-switches
+        "-l --almost-all --human-readable --group-directories-first --no-group --time-style \"+%Y-%m-%d %H:%M:%S\"")
+  (setq dired-omit-files
+      (concat "\\`[.][.]?\\'"
+              "\\|^\\.DS_Store\\'"
+              "\\|^\\.project\\(?:ile\\)?\\'"
+              "\\|^\\.\\(?:svn\\|git\\)\\'"
+              "\\|^\\.ccls-cache\\'"
+              "\\|\\(?:\\.js\\)?\\.meta\\'"
+              "\\|\\.\\(?:elc\\|o\\|pyo\\|swp\\|class\\)\\'")))
 
 (use-package! dirvish
   :custom
@@ -339,6 +333,7 @@
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
+  (push 'git-msg dirvish-attributes)
   (setq dirvish-use-mode-line nil
         dirvish-default-layout '(0 0 0.5)
         dirvish-hide-cursor '(dirvish dirvish-side dired)
@@ -354,6 +349,10 @@
           (("xls" "xlsx") . ("et" "%f"))
           (("pdf") . ("evince" "%f"))
           (("epub") . ("koodo-reader" "%f")))))
+
+(after! dirvish-vc
+  (set-face-attribute 'dirvish-vc-added-state nil :foreground "#a9ba66")
+  (set-face-attribute 'dirvish-vc-edited-state nil :foreground "#f2d366"))
 
 (add-hook! 'dirvish-setup-hook
   (use-package! dirvish-video-mediainfo-enhance))
@@ -372,13 +371,6 @@
 
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
-
-(after! diff-hl-dired
-  (set-face-attribute 'diff-hl-dired-unknown nil :background "#ffffff" :foreground "#ffffff")
-  (set-face-attribute 'diff-hl-dired-ignored nil :background "#c0bfbf" :foreground "#c0bfbf")
-  (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
-  (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
-  (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
 
 (defun dirvish-unfocus ()
   (interactive)
@@ -410,8 +402,7 @@
   (setq vterm-timer-delay    0.02
         vterm-max-scrollback 20000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
-  )
+  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0"))
 
 ;; (setq +popup-margin-width nil)
 ;; (add-hook! 'doom-first-buffer-hook
@@ -619,31 +610,9 @@
 (add-hook 'yaml-mode-hook #'turn-off-smartparens-mode nil t)
 (add-hook 'yaml-mode-hook #'electric-pair-local-mode nil t)
 
-(use-package! rime
-  :init
-  (setq rime-user-data-dir "~/.local/share/fcitx5/rime/")
-  :custom
-  (default-input-method "rime")
-  :config
-  (setq rime-show-candidate 'posframe
-        rime-posframe-style 'simple
-        rime-show-preedit 'inline)
-  (setq rime-posframe-properties (list :font "霞鹜文楷等宽"
-                                       :border-width 3
-                                       :border-color "#cde1f8"
-                                       :left-fringe 10))
-  (map! :i "C-SPC" #'toggle-input-method)
-  (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified)
-  (set-face-attribute 'rime-default-face nil :background "#fdfdfd")
-  (add-hook! 'input-method-activate-hook
-    (defun rime-inside-minibuffer-change-background ()
-      (when (minibufferp)
-        (face-remap-add-relative 'rime-default-face '(:background "#f1f1f1"))))))
-
 (use-package! sis
   :config
-  ;; (sis-ism-lazyman-config "1" "2" 'fcitx5)
-  (sis-ism-lazyman-config nil "rime" 'native)
+  (sis-ism-lazyman-config "1" "2" 'fcitx5)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
@@ -757,7 +726,7 @@
   (fanyi-providers '(;; 海词
                      fanyi-haici-provider
                      ;; 有道同义词词典
-                     fanyi-youdao-thesaurus-provider
+                     ;; fanyi-youdao-thesaurus-provider
                      ;; Etymonline
                      ;; fanyi-etymon-provider
                      ;; Longman
