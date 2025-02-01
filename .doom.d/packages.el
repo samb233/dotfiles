@@ -56,7 +56,7 @@
 (unpin! vundo undo-fu-session)
 
 ;; 输入法管理
-(package! sis)
+(package! sis :pin "fa12ae71e96dc3eb620db301c7e16ea1d15cc4c9")
 
 ;; Org-Mode
 (package! org-appear)

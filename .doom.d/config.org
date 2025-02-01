@@ -88,11 +88,35 @@
   (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
   (remove-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
 
-  (add-hook! 'doom-init-ui-hook (set-face-attribute 'mode-line nil :background "#eef4f9"))
+  (add-hook! 'doom-init-ui-hook
+    (progn
+      (set-face-attribute 'mode-line nil :background "#eef4f9")
+      (set-face-attribute 'doom-themes-visual-bell nil :background "#ffe4e1")))
 
   (after! solaire-mode
     (dolist (face '(mode-line mode-line-inactive))
       (setf (alist-get face solaire-mode-remap-alist) nil)))
+#+end_src
+
+blink on error
+refer: https://github.com/doomemacs/themes/issues/733
+#+begin_src emacs-lisp
+  (defun my-doom-themes-visual-bell-fn ()
+    "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
+    (let ((buf (current-buffer))
+          (cookies (mapcar (lambda (face)
+                             (face-remap-add-relative face 'doom-themes-visual-bell))
+                           (if (facep 'mode-line-active)
+                               '(mode-line-active solaire-mode-line-active-face)
+                             '(mode-line solaire-mode-line-face)))))
+      (force-mode-line-update)
+      (run-with-timer 0.15 nil
+                      `(lambda ()
+                        (with-current-buffer ',buf
+                          (mapc #'face-remap-remove-relative ',cookies)
+                          (force-mode-line-update))))))
+  (advice-add #'doom-themes-visual-bell-fn :override #'my-doom-themes-visual-bell-fn)
+  (doom-themes-visual-bell-config)
 #+end_src
 
 * 按键
