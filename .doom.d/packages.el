@@ -56,16 +56,20 @@
 (unpin! vundo undo-fu-session)
 
 ;; 输入法管理
-(package! sis :pin "fa12ae71e96dc3eb620db301c7e16ea1d15cc4c9")
+(package! sis)
 
 ;; Org-Mode
 (package! org-appear)
 
 ;; 工具包
+(package! rime)
 (package! fanyi)
 (package! drag-stuff)
 (package! eglot-booster
   :recipe (:host github :repo "jdtsmith/eglot-booster"
+           :files ("*")))
+(package! ultra-scroll
+  :recipe (:host github :repo "jdtsmith/ultra-scroll"
            :files ("*")))
 (package! colorful-mode)
 (package! symbol-overlay)
@@ -77,6 +81,7 @@
 (package! tabspaces)
 
 ;; 不需要这些功能，取消使用
+(package! solaire-mode :disable t)
 (package! undo-fu :disable t)
 (package! evil-escape :disable t)
 (package! tide :disable t)

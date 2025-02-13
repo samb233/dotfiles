@@ -92,30 +92,6 @@
     (progn
       (set-face-attribute 'mode-line nil :background "#eef4f9")
       (set-face-attribute 'doom-themes-visual-bell nil :background "#ffe4e1")))
-
-  (after! solaire-mode
-    (dolist (face '(mode-line mode-line-inactive))
-      (setf (alist-get face solaire-mode-remap-alist) nil)))
-#+end_src
-
-blink on error
-refer: https://github.com/doomemacs/themes/issues/733
-#+begin_src emacs-lisp
-  (defun my-doom-themes-visual-bell-fn ()
-    "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
-    (let ((buf (current-buffer))
-          (cookies (mapcar (lambda (face)
-                             (face-remap-add-relative face 'doom-themes-visual-bell))
-                           (if (facep 'mode-line-active)
-                               '(mode-line-active solaire-mode-line-active-face)
-                             '(mode-line solaire-mode-line-face)))))
-      (force-mode-line-update)
-      (run-with-timer 0.15 nil
-                      `(lambda ()
-                        (with-current-buffer ',buf
-                          (mapc #'face-remap-remove-relative ',cookies)
-                          (force-mode-line-update))))))
-  (advice-add #'doom-themes-visual-bell-fn :override #'my-doom-themes-visual-bell-fn)
   (doom-themes-visual-bell-config)
 #+end_src
 
@@ -129,6 +105,13 @@ refer: https://github.com/doomemacs/themes/issues/733
           ((shift) . hscroll)
           ((meta))
           ((control) . text-scale)))
+
+  ;; (use-package! ultra-scroll
+  ;;   :init
+  ;;   (setq scroll-conservatively 101
+  ;;         scroll-margin 0)
+  ;;   :config
+  ;;   (ultra-scroll-mode 1))
 
   (map! :n "<mouse-8>" #'better-jumper-jump-backward
         :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -580,7 +563,7 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+begin_src emacs-lisp
   (defun my-open-explorer()
     (interactive)
-    (call-process-shell-command "dolphin ." nil 0))
+    (call-process-shell-command "nautilus ." nil 0))
 
   (map! [f9] #'my-open-explorer
         :leader "o e" #'my-open-explorer)
@@ -886,14 +869,13 @@ apheleia更新后可以删除push ruff的代码
 
 设置vspreview，vsbench等命令
 #+begin_src emacs-lisp
-  ;; (setenv "QT_QPA_PLATFORM" "wayland")
-
   (defun vspreview()
     "Vapoursynth preview this script."
     (interactive)
-    (async-shell-command
-     (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
-     "*vspreview*"))
+    (with-environment-variables (("QT_QPA_PLATFORM" "xcb"))
+      (async-shell-command
+       (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
+       "*vspreview*")))
 
   (defun vsbench()
     "Vapoursynth bench this script."
@@ -903,9 +885,9 @@ apheleia更新后可以删除push ruff的代码
      "*vsbench*"))
 
   (map! :map python-mode-map
-          :localleader
-          "p" #'vspreview
-          "b" #'vsbench)
+        :localleader
+        "p" #'vspreview
+        "b" #'vsbench)
 #+end_src
 
 设置窗口popup
@@ -935,12 +917,41 @@ apheleia更新后可以删除push ruff的代码
 #+end_src
 
 * 工具包
+** 输入法
+#+begin_src emacs-lisp
+  (defun rime-lib-finalize ())
+  (add-hook 'kill-emacs-hook #'rime-lib-finalize)
+
+  (use-package! rime
+    :init
+    (setq rime-user-data-dir "~/.local/share/fcitx5/rime/")
+    :custom
+    (default-input-method "rime")
+    :config
+    (setq rime-show-candidate 'posframe
+          rime-posframe-style 'horizontal
+          rime-show-preedit t)
+    (setq rime-posframe-properties (list :font "霞鹜文楷等宽"
+                                         :border-width 3
+                                         :border-color "#cde1f8"
+                                         :left-fringe 10))
+    (map! :i "C-SPC" #'toggle-input-method)
+    (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified)
+    (set-face-attribute 'rime-default-face nil :background "#fdfdfd")
+
+    (add-hook! 'input-method-activate-hook
+      (defun rime-inside-minibuffer-change-background ()
+        (when (minibufferp)
+          (face-remap-add-relative 'rime-default-face '(:background "#f1f1f1"))))))
+#+end_src
+
 ** 输入法切换
 使用sis实现中英文输入法自动切换自动切换。
 #+begin_src emacs-lisp
   (use-package! sis
     :config
-    (sis-ism-lazyman-config "1" "2" 'fcitx5)
+    ;; (sis-ism-lazyman-config "1" "2" 'fcitx5)
+    (sis-ism-lazyman-config nil "rime" 'native)
     (sis-global-respect-mode t)
     (sis-global-context-mode t))
 #+end_src

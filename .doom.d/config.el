@@ -43,26 +43,6 @@
   (progn
     (set-face-attribute 'mode-line nil :background "#eef4f9")
     (set-face-attribute 'doom-themes-visual-bell nil :background "#ffe4e1")))
-
-(after! solaire-mode
-  (dolist (face '(mode-line mode-line-inactive))
-    (setf (alist-get face solaire-mode-remap-alist) nil)))
-
-(defun my-doom-themes-visual-bell-fn ()
-  "Blink the mode-line red briefly. Set `ring-bell-function' to this to use it."
-  (let ((buf (current-buffer))
-        (cookies (mapcar (lambda (face)
-                           (face-remap-add-relative face 'doom-themes-visual-bell))
-                         (if (facep 'mode-line-active)
-                             '(mode-line-active solaire-mode-line-active-face)
-                           '(mode-line solaire-mode-line-face)))))
-    (force-mode-line-update)
-    (run-with-timer 0.15 nil
-                    `(lambda ()
-                      (with-current-buffer ',buf
-                        (mapc #'face-remap-remove-relative ',cookies)
-                        (force-mode-line-update))))))
-(advice-add #'doom-themes-visual-bell-fn :override #'my-doom-themes-visual-bell-fn)
 (doom-themes-visual-bell-config)
 
 (setq mouse-wheel-progressive-speed nil
@@ -72,6 +52,13 @@
         ((shift) . hscroll)
         ((meta))
         ((control) . text-scale)))
+
+;; (use-package! ultra-scroll
+;;   :init
+;;   (setq scroll-conservatively 101
+;;         scroll-margin 0)
+;;   :config
+;;   (ultra-scroll-mode 1))
 
 (map! :n "<mouse-8>" #'better-jumper-jump-backward
       :n "<mouse-9>" #'better-jumper-jump-forward)
@@ -387,7 +374,7 @@
 
 (defun my-open-explorer()
   (interactive)
-  (call-process-shell-command "dolphin ." nil 0))
+  (call-process-shell-command "nautilus ." nil 0))
 
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
@@ -596,14 +583,13 @@
 ;;   )
 ;; (add-hook 'python-mode-local-vars-hook #'my-vscp-init -10)
 
-;; (setenv "QT_QPA_PLATFORM" "wayland")
-
 (defun vspreview()
   "Vapoursynth preview this script."
   (interactive)
-  (async-shell-command
-   (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
-   "*vspreview*"))
+  (with-environment-variables (("QT_QPA_PLATFORM" "xcb"))
+    (async-shell-command
+     (format "~/Env/vapoursynth/bin/python3 -m vspreview %s" (shell-quote-argument buffer-file-name))
+     "*vspreview*")))
 
 (defun vsbench()
   "Vapoursynth bench this script."
@@ -613,9 +599,9 @@
    "*vsbench*"))
 
 (map! :map python-mode-map
-        :localleader
-        "p" #'vspreview
-        "b" #'vsbench)
+      :localleader
+      "p" #'vspreview
+      "b" #'vsbench)
 
 (set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
 (set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
@@ -630,9 +616,35 @@
 (add-hook 'yaml-mode-hook #'turn-off-smartparens-mode nil t)
 (add-hook 'yaml-mode-hook #'electric-pair-local-mode nil t)
 
+(defun rime-lib-finalize ())
+(add-hook 'kill-emacs-hook #'rime-lib-finalize)
+
+(use-package! rime
+  :init
+  (setq rime-user-data-dir "~/.local/share/fcitx5/rime/")
+  :custom
+  (default-input-method "rime")
+  :config
+  (setq rime-show-candidate 'posframe
+        rime-posframe-style 'horizontal
+        rime-show-preedit t)
+  (setq rime-posframe-properties (list :font "霞鹜文楷等宽"
+                                       :border-width 3
+                                       :border-color "#cde1f8"
+                                       :left-fringe 10))
+  (map! :i "C-SPC" #'toggle-input-method)
+  (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified)
+  (set-face-attribute 'rime-default-face nil :background "#fdfdfd")
+
+  (add-hook! 'input-method-activate-hook
+    (defun rime-inside-minibuffer-change-background ()
+      (when (minibufferp)
+        (face-remap-add-relative 'rime-default-face '(:background "#f1f1f1"))))))
+
 (use-package! sis
   :config
-  (sis-ism-lazyman-config "1" "2" 'fcitx5)
+  ;; (sis-ism-lazyman-config "1" "2" 'fcitx5)
+  (sis-ism-lazyman-config nil "rime" 'native)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
