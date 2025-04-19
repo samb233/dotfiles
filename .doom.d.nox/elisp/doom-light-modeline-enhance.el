@@ -20,10 +20,6 @@
                                 flymake-mode)
                        (flymake--mode-line-counters))))
 
-(def-modeline-var! +modeline-rime
-                   '(:eval
-                     (rime-lighter)))
-
 (def-modeline! :custom
                '(" "
                  +modeline-tab-name
@@ -32,8 +28,7 @@
                  +modeline-buffer-identification
                  " "
                  +modeline-flymake
-                 +modeline-position
-                 +modeline-rime)
+                 +modeline-position)
                `(""
                  mode-line-misc-info
                  +modeline-modes

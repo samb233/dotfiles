@@ -19,6 +19,17 @@
 
 (setq word-wrap-by-category t)
 
+(defun +tty-display-truncation-and-wrap-indicator-as-whitespace ()
+    (when (not (char-table-p buffer-display-table))
+        (setq buffer-display-table (make-display-table)))
+    (set-display-table-slot buffer-display-table 'truncation 32)
+    (set-display-table-slot buffer-display-table 'wrap 32))
+
+
+(add-hook 'prog-mode-hook #'+tty-display-truncation-and-wrap-indicator-as-whitespace)
+(add-hook 'text-mode-hook #'+tty-display-truncation-and-wrap-indicator-as-whitespace)
+(add-hook 'conf-mode-hook #'+tty-display-truncation-and-wrap-indicator-as-whitespace)
+
 (after! xclip
   (setq xclip-program "wl-copy"
         xclip-method (quote wl-copy)))
@@ -31,6 +42,13 @@
 (setq +modeline-height 20)
 (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 (remove-hook '+popup-buffer-mode-hook #'+popup-unset-modeline-on-disable-h)
+
+(add-hook! 'server-after-make-frame-hook
+  (progn
+    (set-face-attribute 'mode-line nil :background "#eef4f9")
+    (set-face-attribute 'doom-themes-visual-bell nil :background "#ffe4e1")))
+
+(doom-themes-visual-bell-config)
 
 ;; 防止 doom 的 popup 方法影响主窗口
 (setq +popup-margin-width nil)
@@ -113,8 +131,8 @@
       "s t" nil
       "h g" nil)
 
-(evil-ex-define-cmd "q" 'kill-this-buffer)
-(evil-ex-define-cmd "Q" 'kill-this-buffer)
+(evil-ex-define-cmd "q" 'kill-current-buffer)
+(evil-ex-define-cmd "Q" 'kill-current-buffer)
 (evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
 
@@ -361,8 +379,7 @@
     :require ("mediainfo")
     (when (or (member ext dirvish-video-exts)
               (member ext dirvish-audio-exts)
-              (member ext dirvish-image-exts)
-              (member ext dirvish-media-exts))
+              (member ext dirvish-image-exts))
       `(shell . ("mediainfo" ,file))))
 
   (add-to-list 'dirvish-preview-dispatchers 'mediainfo))
@@ -394,7 +411,7 @@
         vterm-max-scrollback 20000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
   (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
-  )
+  (remove-hook 'vterm-mode-hook #'doom-mark-buffer-as-real-h))
 
 (add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
 
@@ -631,6 +648,8 @@
   (tabspaces-session nil)
   (tabspaces-session-auto-restore nil)
   :config
+  (add-hook! 'server-after-make-frame-hook
+             (tab-rename "Default"))
   (map! :n "[ TAB" #'tab-previous
         :n "] TAB" #'tab-next
         :leader
