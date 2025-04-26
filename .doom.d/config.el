@@ -15,7 +15,7 @@
 
 (setq uniquify-buffer-name-style 'forward)
 
-(setq native-comp-jit-compilation nil)
+;; (setq native-comp-jit-compilation nil)
 
 (setq word-wrap-by-category t)
 
@@ -134,8 +134,8 @@
       "s t" nil
       "h g" nil)
 
-(evil-ex-define-cmd "q" 'kill-this-buffer)
-(evil-ex-define-cmd "Q" 'kill-this-buffer)
+(evil-ex-define-cmd "q" 'kill-current-buffer)
+(evil-ex-define-cmd "Q" 'kill-current-buffer)
 (evil-ex-define-cmd "qa" 'evil-quit)
 (evil-ex-define-cmd "W" 'save-buffer)
 
@@ -276,21 +276,7 @@
 (after! flymake
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
   (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
-  (setq flymake-no-changes-timeout nil)
-
-  ;; make eglot compatible with flymake-no-changes-timeout=nil
-  (cl-defmethod eglot-handle-notification :after
-    (_server (_method (eql textDocument/publishDiagnostics)) &key uri
-             &allow-other-keys)
-    (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
-      (with-current-buffer buffer
-        (if (and (eq nil flymake-no-changes-timeout)
-                 (not (buffer-modified-p)))
-            (flymake-start t)))))
-
-  (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
-
-(setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
+  (setq flymake-no-changes-timeout 0.3))
 
 (after! eldoc
   (setq eldoc-echo-area-display-truncation-message nil
@@ -350,11 +336,11 @@
         dirvish-open-with-programs
         `((,dirvish-audio-exts . ("mpv" "%f"))
           (,dirvish-video-exts . ("mpv" "%f"))
-          (,dirvish-image-exts . ("loupe" "%f"))
+          (,dirvish-image-exts . ("gwenview" "%f"))
           (("doc" "docx") . ("wps" "%f"))
           (("ppt" "pptx") . ("wpp" "%f"))
           (("xls" "xlsx") . ("et" "%f"))
-          (("pdf") . ("evince" "%f"))
+          (("pdf") . ("okular" "%f"))
           (("epub") . ("koodo-reader" "%f")))))
 
 (after! dirvish-vc
@@ -374,34 +360,10 @@
 
 (defun my-open-explorer()
   (interactive)
-  (call-process-shell-command "nautilus ." nil 0))
+  (call-process-shell-command "dolphin ." nil 0))
 
 (map! [f9] #'my-open-explorer
       :leader "o e" #'my-open-explorer)
-
-(defun dirvish-unfocus ()
-  (interactive)
-  (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
-
-(defun dirvish-focus ()
-  (interactive)
-  (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
-
-(defun dirvish-focus-change (&rest w)
-  (let* ((sw (frame-selected-window))
-         (sb (window-buffer sw))
-         (ow (old-selected-window))
-         (ob (window-buffer ow)))
-    (progn
-      (with-current-buffer sb
-        (when (eq major-mode #'dired-mode)
-          (dirvish-focus)))
-      (with-current-buffer ob
-        (when (eq major-mode #'dired-mode)
-          (dirvish-unfocus))))))
-
-(add-hook! 'dired-mode-hook
-  (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
 
 (setq vterm-always-compile-module t)
 (setq vterm-buffer-name-string "*vterm: %s*")
@@ -409,7 +371,8 @@
   (setq vterm-timer-delay    0.02
         vterm-max-scrollback 20000)
   (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0"))
+  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
+  (remove-hook 'vterm-mode-hook #'doom-mark-buffer-as-real-h))
 
 ;; (setq +popup-margin-width nil)
 ;; (add-hook! 'doom-first-buffer-hook
@@ -621,7 +584,7 @@
 
 (use-package! rime
   :init
-  (setq rime-user-data-dir "~/.local/share/fcitx5/rime/")
+  (setq rime-user-data-dir "~/.doom.d/rime/")
   :custom
   (default-input-method "rime")
   :config
@@ -633,7 +596,7 @@
                                        :border-color "#cde1f8"
                                        :left-fringe 10))
   (map! :i "C-SPC" #'toggle-input-method)
-  (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified)
+  (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified :foreground "#4d4d4c")
   (set-face-attribute 'rime-default-face nil :background "#fdfdfd")
 
   (add-hook! 'input-method-activate-hook

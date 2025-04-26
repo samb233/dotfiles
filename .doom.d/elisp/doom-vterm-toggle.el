@@ -59,8 +59,7 @@ Returns the vterm buffer."
              (unless (eq major-mode 'vterm-mode)
                (vterm-mode))
              (setq-local doom-vterm--id buffer-name)
-             (setq-local vterm-buffer-name-string nil))))
-       (get-buffer buffer-name)))))
+             (setq-local vterm-buffer-name-string nil))))))))
 
 (defun doom-vterm--configure-project-root-and-display (arg display-fn)
   "Sets the environment variable PROOT and displays a terminal using `display-fn`.

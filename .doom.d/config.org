@@ -44,7 +44,7 @@
 ** native-comp
 关闭native-comp
 #+begin_src emacs-lisp
-  (setq native-comp-jit-compilation nil)
+  ;; (setq native-comp-jit-compilation nil)
 #+end_src
 
 ** word-wrap
@@ -209,8 +209,8 @@
 ** evil-cmd
 设置:q命令只关闭buffer，不关闭emacs，关闭时，输入:qa
 #+begin_src emacs-lisp
-  (evil-ex-define-cmd "q" 'kill-this-buffer)
-  (evil-ex-define-cmd "Q" 'kill-this-buffer)
+  (evil-ex-define-cmd "q" 'kill-current-buffer)
+  (evil-ex-define-cmd "Q" 'kill-current-buffer)
   (evil-ex-define-cmd "qa" 'evil-quit)
   (evil-ex-define-cmd "W" 'save-buffer)
 #+end_src
@@ -426,24 +426,7 @@ modeline设置，不在modeline上显示eglot任何信息
   (after! flymake
     (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
     (set-popup-rule! "^\\*Flymake diagnostics" :size 0.2 :modeline nil :quit t :select nil)
-    (setq flymake-no-changes-timeout nil)
-
-    ;; make eglot compatible with flymake-no-changes-timeout=nil
-    (cl-defmethod eglot-handle-notification :after
-      (_server (_method (eql textDocument/publishDiagnostics)) &key uri
-               &allow-other-keys)
-      (when-let ((buffer (find-buffer-visiting (eglot-uri-to-path uri))))
-        (with-current-buffer buffer
-          (if (and (eq nil flymake-no-changes-timeout)
-                   (not (buffer-modified-p)))
-              (flymake-start t)))))
-
-    (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2))
-#+end_src
-
-在org-src时自动检测错误
-#+begin_src emacs-lisp
-  (setq-hook! 'org-src-mode-hook flymake-no-changes-timeout 0.2)
+    (setq flymake-no-changes-timeout 0.3))
 #+end_src
 
 ** eldoc
@@ -525,11 +508,11 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           dirvish-open-with-programs
           `((,dirvish-audio-exts . ("mpv" "%f"))
             (,dirvish-video-exts . ("mpv" "%f"))
-            (,dirvish-image-exts . ("loupe" "%f"))
+            (,dirvish-image-exts . ("gwenview" "%f"))
             (("doc" "docx") . ("wps" "%f"))
             (("ppt" "pptx") . ("wpp" "%f"))
             (("xls" "xlsx") . ("et" "%f"))
-            (("pdf") . ("evince" "%f"))
+            (("pdf") . ("okular" "%f"))
             (("epub") . ("koodo-reader" "%f")))))
 #+end_src
 
@@ -563,38 +546,10 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
 #+begin_src emacs-lisp
   (defun my-open-explorer()
     (interactive)
-    (call-process-shell-command "nautilus ." nil 0))
+    (call-process-shell-command "dolphin ." nil 0))
 
   (map! [f9] #'my-open-explorer
         :leader "o e" #'my-open-explorer)
-#+end_src
-
-** dirvish focus
-当 dired window 没被选中时，取消 dirvish 的高亮
-#+begin_src emacs-lisp
-  (defun dirvish-unfocus ()
-    (interactive)
-    (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
-
-  (defun dirvish-focus ()
-    (interactive)
-    (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
-
-  (defun dirvish-focus-change (&rest w)
-    (let* ((sw (frame-selected-window))
-           (sb (window-buffer sw))
-           (ow (old-selected-window))
-           (ob (window-buffer ow)))
-      (progn
-        (with-current-buffer sb
-          (when (eq major-mode #'dired-mode)
-            (dirvish-focus)))
-        (with-current-buffer ob
-          (when (eq major-mode #'dired-mode)
-            (dirvish-unfocus))))))
-
-  (add-hook! 'dired-mode-hook
-    (add-hook 'window-selection-change-functions #'dirvish-focus-change 0 t))
 #+end_src
 
 * 终端
@@ -606,7 +561,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (setq vterm-timer-delay    0.02
           vterm-max-scrollback 20000)
     (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-    (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0"))
+    (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
+    (remove-hook 'vterm-mode-hook #'doom-mark-buffer-as-real-h))
 #+end_src
 
 vterm与doom的适配
@@ -924,7 +880,7 @@ apheleia更新后可以删除push ruff的代码
 
   (use-package! rime
     :init
-    (setq rime-user-data-dir "~/.local/share/fcitx5/rime/")
+    (setq rime-user-data-dir "~/.doom.d/rime/")
     :custom
     (default-input-method "rime")
     :config
@@ -936,7 +892,7 @@ apheleia更新后可以删除push ruff的代码
                                          :border-color "#cde1f8"
                                          :left-fringe 10))
     (map! :i "C-SPC" #'toggle-input-method)
-    (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified)
+    (set-face-attribute 'rime-preedit-face nil :height 110 :inverse-video 'unspecified :foreground "#4d4d4c")
     (set-face-attribute 'rime-default-face nil :background "#fdfdfd")
 
     (add-hook! 'input-method-activate-hook
