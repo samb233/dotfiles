@@ -1,24 +1,21 @@
 export TERM=xterm-256color
-export GOROOT="${HOME}/.g/go"
-export GOPATH="${HOME}/.go"
-export PATH="${HOME}/.g/go/bin:${HOME}/.go/bin:$PATH"
+export PATH="${HOME}/Env/bin:$PATH"
+
+# go
+export G_EXPERIMENTAL=true
+export G_HOME="${HOME}/Env/go"
 export G_MIRROR=https://mirrors.aliyun.com/golang/
 
-export EDITOR=nvim
-export VISUAL=nvim
+export GOROOT="${HOME}/Env/go/go"
+export GOPATH="${HOME}/Env/go/path"
+export PATH="${HOME}/Env/go/go/bin:${HOME}/Env/go/path/bin:$PATH"
 
-
-export PATH="${HOME}/.local/bin:$PATH"
-
-# 配置 GOPROXY 环境变量
-export GOPROXY=https://goproxy.cn
-
+export GOPROXY="https://goproxy.cn,direct"
+export CGO_ENABLED=0
 
 # rust
-. "$HOME/.cargo/env"
-# 用于更新 toolchain
 export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
-# 用于更新 rustup
 export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
-
-
+export RUSTUP_HOME="${HOME}/Env/rust/rustup"
+export CARGO_HOME="${HOME}/Env/rust/cargo"
+export PATH="${HOME}/Env/rust/cargo/bin:$PATH"
