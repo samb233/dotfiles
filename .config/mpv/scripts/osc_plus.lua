@@ -1,6 +1,6 @@
 --[[
 SOURCE_ https://github.com/mpv-player/mpv/blob/master/player/lua/osc.lua
-COMMIT_ fcc67cc6c1bfec01f328fb9ba20e0ee9f559dad7
+COMMIT_ c84bb1ce67f2dd3adb974c49a66d28c0cf55d39d
 文档_ https://github.com/hooke007/MPV_lazy/discussions/18
 
 改进版本的OSC，不兼容其它OSC类脚本（实现全部功能需搭配 新缩略图引擎 thumbfast ）
@@ -44,52 +44,53 @@ local utils = require "mp.utils"
 -- 用户选项的默认值
 -- 应在 osc_plus.conf 中修改
 local user_opts = {
-    showwindowed = true,                 -- show OSC when windowed?
-    showfullscreen = true,               -- show OSC when fullscreen?
-    idlescreen = true,                   -- show mpv logo on idle
-    scalewindowed = 1,                   -- scaling of the controller when windowed
-    scalefullscreen = 1,                 -- scaling of the controller when fullscreen
-    scaleforcedwindow = 2,               -- scaling when rendered on a forced window
-    vidscale = true,                     -- scale the controller with the video?
+    showwindowed = true,
+    showfullscreen = true,
+    idlescreen = true,
+    scalewindowed = 1,
+    scalefullscreen = 1,
+    scaleforcedwindow = 2,
+    vidscale = true,
     valign = 0.8,                        -- <-1...1> 垂直对齐，1 为底部（不影响 bottombox 布局）
     halign = 0,                          -- <-1...1> 水平对齐，1 为右侧（不影响 bottombox 布局）
-    barmargin = 0,                       -- vertical margin of top/bottombar
+    barmargin = 0,
     boxalpha = 80,                       -- <0...255> 背景透明度，255 为完全透明（不影响 bottombox 布局）
-    hidetimeout = 500,                   -- duration in ms until the OSC hides if no mouse movement. enforced non-negative for the user, but internally negative is "always-on".
-    fadeduration = 200,                  -- duration of fade out in ms, 0 = no fade
+    hidetimeout = 500,
+    fadeduration = 200,
     deadzonesize = 1,                    -- <0...1> 显隐逻辑，原版为 0.5
-    minmousemove = 0,                    -- minimum amount of pixels the mouse has to move between ticks to make the OSC show up
-    iamaprogrammer = false,              -- use native mpv values and disable OSC internal track list management (and some functions that depend on it)
+    minmousemove = 0,
+    iamaprogrammer = false,
     layout = "bottombar",                -- <bottombar|topbar|bottombox|box|slimbox> 布局类型。此版新增 bottombox
-    seekbarstyle = "bar",                -- bar, diamond or knob
-    seekbarhandlesize = 0.6,             -- size ratio of the diamond and knob handle
-    seekrangestyle = "inverted",         -- bar, line, slider, inverted or none
-    seekrangeseparate = true,            -- whether the seekranges overlay on the bar-style seekbar
-    seekrangealpha = 200,                -- transparency of seekranges
+    seekbarstyle = "bar",
+    seekbarhandlesize = 0.6,
+    seekrangestyle = "inverted",
+    seekrangeseparate = true,
+    seekrangealpha = 200,
     seekbarkeyframes = true,             -- 是否在拖动时间轴时使用关键帧（现不受全局 --hr-seek 的控制）
-    title = "${media-title}",            -- string compatible with property-expansion to be shown as OSC title
-    tooltipborder = 1,                   -- border of tooltip in bottom/topbar
+    scrollcontrols = true,
+    title = "${media-title}",
+    tooltipborder = 1,
     timetotal = true,                    -- 是否显示总时间（否为剩余时间） 原版为 false
     remaining_playtime = false,          -- 是否显示基于速度计算的剩余时间 原版为 true
-    timems = false,                      -- display timecodes with milliseconds?
-    tcspace = 100,                       -- timecode spacing (compensate font size estimation)
-    visibility = "auto",                 -- only used at init to set visibility_mode(...)
+    timems = false,
+    tcspace = 100,
+    visibility = "auto",
     boxmaxchars = 150,                   -- box 类布局下的标题字符数限制（原版为 80 ）
-    boxvideo = false,                    -- apply osc_param.video_margins to video
-    windowcontrols = "auto",             -- whether to show window controls
-    windowcontrols_alignment = "right",  -- which side to show window controls on
-    greenandgrumpy = false,              -- disable santa hat
-    livemarkers = true,                  -- update seekbar chapter markers on duration change
-    chapters_osd = true,                 -- whether to show chapters OSD on next/prev
-    playlist_osd = true,                 -- whether to show playlist OSD on next/prev
-    chapter_fmt = "章节：%s",            -- chapter print format for seekbar-hover. "no" to disable
-    unicodeminus = false,                -- whether to use the Unicode minus sign character
+    boxvideo = false,
+    windowcontrols = "auto",
+    windowcontrols_alignment = "right",
+    windowcontrols_title = "${media-title}",
+    greenandgrumpy = false,
+    livemarkers = true,
+    chapters_osd = true,
+    playlist_osd = true,
+    chapter_fmt = "章节：%s",
+    unicodeminus = false,
 
     -- 以下为此版本的独占选项
 
     scale_shift = 1,                     -- 全局界面的缩放补偿系数
     playing_msg = "",                    -- 类似 https://mpv.io/manual/master/#options-osd-playing-msg
-    wctitle = "${media-title}",          -- 无边框的上方标题
     sub_title = "",                      -- bottombox布局的右侧子标题
     sub_title2 = "对比[${contrast}]  明度[${brightness}]  伽马[${gamma}]  饱和[${saturation}]  色相[${hue}]",
                                          -- bottombox布局的临时右侧子标题
@@ -186,6 +187,7 @@ local state = {
     input_enabled = true,
     showhide_enabled = false,
     windowcontrols_buttons = false,
+    windowcontrols_title = false,
     dmx_cache = 0,
     using_video_margins = false,
     border = true,
@@ -480,10 +482,10 @@ function set_track(type, next)
 
     mp.commandv("set", type, new_track_mpv)
 
-        if new_track_osc == 0 then
+    if new_track_osc == 0 then
         show_message(nicetypes[type] .. "轨：<禁用>")
     else
-        show_message(nicetypes[type]  .. "轨："
+        show_message(nicetypes[type] .. "轨："
             .. new_track_osc .. "/" .. #tracks_osc[type]
             .. " [".. (tracks_osc[type][new_track_osc].lang or "未知") .."] "
             .. (tracks_osc[type][new_track_osc].title or ""))
@@ -506,7 +508,7 @@ end
 function window_controls_enabled()
     val = user_opts.windowcontrols
     if val == "auto" then
-        return not state.border or state.fullscreen  -- 全屏时启用osc顶部控件
+        return not (state.border and state.title_bar) or state.fullscreen  -- 全屏时启用osc顶部控件
     else
         return val ~= "no"
     end
@@ -1068,10 +1070,7 @@ function show_message(text, duration)
     -- may slow down massively on huge input
     text = string.sub(text, 0, 4000)
 
-    -- replace actual linebreaks with ASS linebreaks
-    text = string.gsub(text, "\n", "\\N")
-
-    state.message_text = text
+    state.message_text = mp.command_native({"escape-ass", text})
 
     if not state.message_hide_timer then
         state.message_hide_timer = mp.add_timeout(0, request_tick)
@@ -1277,10 +1276,9 @@ function window_controls(topbar)
     -- Window Title -- 无边框的窗口标题
     ne = new_element("wctitle", "button")
     ne.content = function ()
-        local title = mp.command_native({"expand-text", user_opts.wctitle}) -- 独立于无边框的标题
-        -- escape ASS, and strip newlines and trailing slashes
-        title = title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
-        return not (title == "") and title or "mpv"
+        local title = mp.command_native({"expand-text", user_opts.windowcontrols_title})
+        title = title:gsub("\n", " ")
+        return title ~= "" and mp.command_native({"escape-ass", title}) or "mpv"
     end
     local left_pad = 5
     local right_pad = 10
@@ -1293,7 +1291,7 @@ function window_controls(topbar)
         titlebox_left + left_pad, wc_geo.y - wc_geo.h,
         titlebox_right - right_pad , wc_geo.y + wc_geo.h)
 
-    add_area("window-controls-title",
+    add_area("window-controls-title_osc_plus",
              titlebox_left, 0, titlebox_right, wc_geo.h)
 end
 
@@ -2111,9 +2109,8 @@ function osc_init()
     ne.content = function ()
         local title = state.forced_title or
                       mp.command_native({"expand-text", user_opts.title})
-        -- escape ASS, and strip newlines and trailing slashes
-        title = title:gsub("\\n", " "):gsub("\\$", ""):gsub("{","\\{")
-        return not (title == "") and title or "mpv"
+        title = title:gsub("\n", " ")
+        return title ~= "" and mp.command_native({"escape-ass", title}) or "mpv"
     end
 
     ne.eventresponder["mbtn_left_up"] = function ()
@@ -2297,10 +2294,12 @@ function osc_init()
     ne.eventresponder["shift+mbtn_left_down"] =
         function () show_message(get_tracklist("audio"), 2) end
 
-    ne.eventresponder["wheel_up_press"] =
-        function () set_track("audio", -1) end
-    ne.eventresponder["wheel_down_press"] =
-        function () set_track("audio", 1) end
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] =
+            function () set_track("audio", -1) end
+        ne.eventresponder["wheel_down_press"] =
+            function () set_track("audio", 1) end
+    end
 
     --cy_sub --全局字幕按钮增强
     ne = new_element("cy_sub", "button")
@@ -2326,10 +2325,12 @@ function osc_init()
     ne.eventresponder["shift+mbtn_left_down"] =
         function () show_message(get_tracklist("sub"), 2) end
 
-    ne.eventresponder["wheel_up_press"] =
-        function () set_track("sub", -1) end
-    ne.eventresponder["wheel_down_press"] =
-        function () set_track("sub", 1) end
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] =
+            function () set_track("sub", -1) end
+        ne.eventresponder["wheel_down_press"] =
+            function () set_track("sub", 1) end
+    end
 
     --tog_fs --切换全屏/窗口化
     ne = new_element("tog_fs", "button")
@@ -2428,17 +2429,19 @@ function osc_init()
     ne.eventresponder["reset"] =
         function (element) element.state.lastseek = nil end
 
-    ne.eventresponder["wheel_up_press"] = function ()
-        if user_opts.seekbar_scrollseek == "fast" then mp.commandv("seek", -0.1, "keyframes")
-        elseif user_opts.seekbar_scrollseek == "second" then mp.commandv("seek", -1, "exact")
-        elseif user_opts.seekbar_scrollseek == "frame" then mp.commandv("frame-back-step")
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] = function ()
+            if user_opts.seekbar_scrollseek == "fast" then mp.commandv("seek", -0.1, "keyframes")
+            elseif user_opts.seekbar_scrollseek == "second" then mp.commandv("seek", -1, "exact")
+            elseif user_opts.seekbar_scrollseek == "frame" then mp.commandv("frame-back-step")
+            end
         end
-    end
 
-    ne.eventresponder["wheel_down_press"] = function ()
-        if user_opts.seekbar_scrollseek == "fast" then mp.commandv("seek", 0.1, "keyframes")
-        elseif user_opts.seekbar_scrollseek == "second" then mp.commandv("seek", 1, "exact")
-        elseif user_opts.seekbar_scrollseek == "frame" then mp.commandv("frame-step")
+        ne.eventresponder["wheel_down_press"] = function ()
+            if user_opts.seekbar_scrollseek == "fast" then mp.commandv("seek", 0.1, "keyframes")
+            elseif user_opts.seekbar_scrollseek == "second" then mp.commandv("seek", 1, "exact")
+            elseif user_opts.seekbar_scrollseek == "frame" then mp.commandv("frame-step")
+            end
         end
     end
 
@@ -2529,10 +2532,12 @@ function osc_init()
     ne.eventresponder["mbtn_left_up"] =
         function () mp.commandv("cycle", "mute") end
 
-    ne.eventresponder["wheel_up_press"] =
-        function () mp.commandv("osd-auto", "add", "volume", 1) end
-    ne.eventresponder["wheel_down_press"] =
-        function () mp.commandv("osd-auto", "add", "volume", -1) end
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] =
+            function () mp.commandv("osd-auto", "add", "volume", 1) end
+        ne.eventresponder["wheel_down_press"] =
+            function () mp.commandv("osd-auto", "add", "volume", -1) end
+    end
 
     -- bottombox的统计信息按钮 联动内置的 stats.lua
     ne = new_element("lua_stats", "button")
@@ -2543,10 +2548,12 @@ function osc_init()
     ne.eventresponder["mbtn_right_up"] =
         function () mp.commandv("script-binding", "display-page-4") end
 
-    ne.eventresponder["wheel_up_press"] =
-        function () mp.commandv("script-binding", "display-page-1") end
-    ne.eventresponder["wheel_down_press"] =
-        function () mp.commandv("script-binding", "display-page-2") end
+    if user_opts.scrollcontrols then
+        ne.eventresponder["wheel_up_press"] =
+            function () mp.commandv("script-binding", "display-page-1") end
+        ne.eventresponder["wheel_down_press"] =
+            function () mp.commandv("script-binding", "display-page-2") end
+    end
 
     -- load layout
     layouts[user_opts.layout]()
@@ -2856,8 +2863,20 @@ function render()
         end
     end
 
-    if osc_param.areas["window-controls-title"] then
-        for _,cords in ipairs(osc_param.areas["window-controls-title"]) do
+    if osc_param.areas["window-controls-title_osc_plus"] then
+        for _,cords in ipairs(osc_param.areas["window-controls-title_osc_plus"]) do
+            if state.osc_visible then -- activate only when OSC is actually visible
+                set_virt_mouse_area(cords.x1, cords.y1, cords.x2, cords.y2, "window-controls-title_osc_plus")
+            end
+            if state.osc_visible ~= state.windowcontrols_title then
+                if state.osc_visible then
+                    mp.enable_key_bindings("window-controls-title_osc_plus", "allow-vo-dragging")
+                else
+                    mp.disable_key_bindings("window-controls-title_osc_plus", "allow-vo-dragging")
+                end
+                state.windowcontrols_title = state.osc_visible
+            end
+
             if mouse_hit_coords(cords.x1, cords.y1, cords.x2, cords.y2) then
                 mouse_over_osc = true
             end
@@ -3128,7 +3147,7 @@ function update_duration_watch()
 
     if want_watch ~= duration_watched then
         if want_watch then
-            mp.observe_property("duration", nil, on_duration)
+            mp.observe_property("duration", "native", on_duration)
         else
             mp.unobserve_property(on_duration)
         end
@@ -3143,8 +3162,8 @@ mp.register_event("shutdown", shutdown)
 mp.register_event("start-file", request_init)
 if user_opts.showonstart then mp.register_event("file-loaded", show_osc) end -- 暂停相关
 if user_opts.showonseek then mp.register_event("seek", show_osc) end         -- 暂停相关
-mp.observe_property("track-list", nil, request_init)
-mp.observe_property("playlist", nil, request_init)
+mp.observe_property("track-list", "native", request_init)
+mp.observe_property("playlist", "native", request_init)
 mp.observe_property("chapter-list", "native", function(_, list)
     list = list or {}  -- safety, shouldn't return nil
     table.sort(list, function(a, b) return a.time < b.time end)
@@ -3178,6 +3197,12 @@ mp.observe_property("fullscreen", "bool",
 mp.observe_property("border", "bool",
     function(name, val)
         state.border = val
+        request_init_resize()
+    end
+)
+mp.observe_property("title-bar", "bool",
+    function(name, val)
+        state.title_bar = val
         request_init_resize()
     end
 )
@@ -3393,3 +3418,4 @@ end)
 
 set_virt_mouse_area(0, 0, 0, 0, "input_osc_plus")
 set_virt_mouse_area(0, 0, 0, 0, "window-controls_osc_plus")
+set_virt_mouse_area(0, 0, 0, 0, "window-controls-title_osc_plus")
