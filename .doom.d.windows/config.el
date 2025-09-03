@@ -54,25 +54,20 @@
 (setq doom-theme 'doom-tomorrow-day)
 
 (use-package! doom-light-modeline-enhance)
-(setq +modeline-height 24
+(setq +modeline-height 20
       +modeline-bar-width 4)
 (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 
 (add-hook! 'doom-init-ui-hook (set-face-attribute 'mode-line nil :background "#eef4f9"))
 
-(after! solaire-mode
-  (dolist (face '(mode-line mode-line-inactive))
-    (setf (alist-get face solaire-mode-remap-alist) nil)))
+(add-hook! 'doom-init-ui-hook
+  (progn
+    (set-face-attribute 'mode-line nil :background "#eef4f9")
+    (set-face-attribute 'doom-themes-visual-bell nil :background "#ffe4e1")))
+(doom-themes-visual-bell-config)
 
 (setq mouse-wheel-progressive-speed nil
       scroll-preserve-screen-position nil)
-
-(use-package! ultra-scroll
-  :init
-  (setq scroll-conservatively 101
-        scroll-margin 0)
-  :config
-  (ultra-scroll-mode 1))
 
 (setq mouse-wheel-scroll-amount
       '(3
@@ -214,6 +209,7 @@
 (advice-add #'find-file :after #'recenter-advice)
 (advice-add #'evil-goto-line :after #'recenter-advice)
 (advice-add #'org-roam-node-find :after #'recenter-advice)
+(advice-add #'+lookup--jump-to :after #'recenter-advice)
 
 (map! :n "m" #'evil-mc-make-and-goto-next-match
       :n "M" #'evil-mc-make-and-goto-prev-match
@@ -242,7 +238,8 @@
 (after! eglot
   (setq eglot-events-buffer-size 0)
   (setq eglot-send-changes-idle-time 0.2)
-  (setq eglot-stay-out-of '(yasnippet))
+  ;; (setq eglot-stay-out-of '(yasnippet))
+  (setq eglot-code-action-indicator "")
   (map! :map 'eglot-mode-map
         :nv "g D" nil
         :leader
@@ -250,8 +247,11 @@
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
   (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-  (push :inlayHintProvider eglot-ignored-server-capabilities)
-  (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
+  ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
+
+  (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9)
+  ;; (add-hook 'eglot-inlay-hints-mode-hook #'revert-buffer)
+  )
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -260,10 +260,6 @@
 (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 
 (setq +lsp-defer-shutdown nil)
-
-(use-package! eglot-booster
-  :after eglot
-  :config (eglot-booster-mode))
 
 (defvar +eglot-server-num-limit 8)
 
@@ -309,7 +305,7 @@
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
 (setq thing-at-point-file-name-chars
-      (concat thing-at-point-file-name-chars " ・()（）Z-a！+&"))
+      (concat thing-at-point-file-name-chars " ・()（）Z-a！+&「」"))
 
 (after! flymake
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
@@ -383,21 +379,18 @@
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
   (setq dirvish-use-mode-line nil
+        dirvish-use-header-line nil
+        dirvish-window-fringe 4
         dirvish-hide-details '(dirvish-side)
         dirvish-hide-cursor '(dirvish dirvish-side dired)
         dirvish-default-layout '(0 0 0.5)
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-header-line-format
-        '(:left (path) :right (yank sort index " "))
-        dirvish-open-with-programs
-        `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-          (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-          (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
-          (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
-          (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
-          (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
-          (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-          (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f")))))
+        '(:left (path) :right (yank sort index " "))))
+
+(after! dirvish-vc
+  (set-face-attribute 'dirvish-vc-added-state nil :foreground "#a9ba66")
+  (set-face-attribute 'dirvish-vc-edited-state nil :foreground "#f2d366"))
 
 (setenv "PATH" (concat "d:/Env/media/poppler/bin/;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\media\\poppler\\bin")
@@ -406,8 +399,8 @@
 (setenv "PATH" (concat "d:/Env/media/mtn/;" (getenv "PATH")))
 (add-to-list 'exec-path "d:\\Env\\media\\mtn")
 
-(after! dirvish
-  (use-package! dirvish-windows))
+;; (after! dirvish
+;;   (use-package! dirvish-windows))
 
 (add-hook! 'dirvish-setup-hook
   (use-package! dirvish-video-mediainfo-enhance))
@@ -418,23 +411,6 @@
   (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
-
-(if (eq system-type 'windows-nt)
-    (after! diff-hl
-      ;; turn off diff-hl async to prevent crash
-      (setq diff-hl-update-async nil)
-      (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
-      (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
-     
-      (advice-remove 'diff-hl-update #'+vc-gutter--debounce-threads-a)
-      (advice-remove 'diff-hl-update-once #'+vc-gutter--only-tick-on-success-a)
-
-      (defun +diff-hl-update-exit-insert-state nil
-        (if diff-hl-mode
-            (add-hook 'evil-insert-state-exit-hook #'diff-hl-update)
-          (remove-hook 'evil-insert-state-exit-hook #'diff-hl-update)))
-
-      (add-hook 'diff-hl-mode-hook #'+diff-hl-update-exit-insert-state)))
 
 (defun dirvish-unfocus ()
   (interactive)

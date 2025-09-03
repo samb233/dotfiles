@@ -109,15 +109,17 @@
 自定义 doom 的 +light modeline
 #+begin_src emacs-lisp
   (use-package! doom-light-modeline-enhance)
-  (setq +modeline-height 24
+  (setq +modeline-height 20
         +modeline-bar-width 4)
   (remove-hook '+popup-buffer-mode-hook #'+popup-set-modeline-on-enable-h)
 
   (add-hook! 'doom-init-ui-hook (set-face-attribute 'mode-line nil :background "#eef4f9"))
 
-  (after! solaire-mode
-    (dolist (face '(mode-line mode-line-inactive))
-      (setf (alist-get face solaire-mode-remap-alist) nil)))
+  (add-hook! 'doom-init-ui-hook
+    (progn
+      (set-face-attribute 'mode-line nil :background "#eef4f9")
+      (set-face-attribute 'doom-themes-visual-bell nil :background "#ffe4e1")))
+  (doom-themes-visual-bell-config)
 #+end_src
 
 * 按键
@@ -126,13 +128,6 @@
 #+begin_src emacs-lisp
   (setq mouse-wheel-progressive-speed nil
         scroll-preserve-screen-position nil)
-
-  (use-package! ultra-scroll
-    :init
-    (setq scroll-conservatively 101
-          scroll-margin 0)
-    :config
-    (ultra-scroll-mode 1))
 
   (setq mouse-wheel-scroll-amount
         '(3
@@ -336,6 +331,7 @@ doom默认的200个也太少了，至少1000吧
   (advice-add #'find-file :after #'recenter-advice)
   (advice-add #'evil-goto-line :after #'recenter-advice)
   (advice-add #'org-roam-node-find :after #'recenter-advice)
+  (advice-add #'+lookup--jump-to :after #'recenter-advice)
 #+end_src
 
 ** evil-mc
@@ -383,7 +379,8 @@ doom默认的200个也太少了，至少1000吧
   (after! eglot
     (setq eglot-events-buffer-size 0)
     (setq eglot-send-changes-idle-time 0.2)
-    (setq eglot-stay-out-of '(yasnippet))
+    ;; (setq eglot-stay-out-of '(yasnippet))
+    (setq eglot-code-action-indicator "")
     (map! :map 'eglot-mode-map
           :nv "g D" nil
           :leader
@@ -391,8 +388,11 @@ doom默认的200个也太少了，至少1000吧
           :desc "LSP reconnect" "c L" #'eglot-shutdown
           :desc "LSP rename" "c n" #'eglot-rename)
     (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
-    (push :inlayHintProvider eglot-ignored-server-capabilities)
-    (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
+    ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
+
+    (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9)
+    ;; (add-hook 'eglot-inlay-hints-mode-hook #'revert-buffer)
+    )
 #+end_src
 
 modeline设置，不在modeline上显示eglot任何信息
@@ -407,14 +407,6 @@ modeline设置，不在modeline上显示eglot任何信息
 设置 doom 不延迟退出 eglot
 #+begin_src emacs-lisp
   (setq +lsp-defer-shutdown nil)
-#+end_src
-
-** 使用eglot-booster
-使eglot运行速度变快的魔法: https://github.com/blahgeek/emacs-lsp-booster
-#+begin_src emacs-lisp
-  (use-package! eglot-booster
-    :after eglot
-    :config (eglot-booster-mode))
 #+end_src
 
 ** 限制eglot的进程数量
@@ -474,7 +466,7 @@ modeline设置，不在modeline上显示eglot任何信息
 补全文件名时，允许文件名中存在空格
 #+begin_src emacs-lisp
   (setq thing-at-point-file-name-chars
-        (concat thing-at-point-file-name-chars " ・()（）Z-a！+&"))
+        (concat thing-at-point-file-name-chars " ・()（）Z-a！+&「」"))
 #+end_src
 
 ** flymake
@@ -578,21 +570,20 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
           dirvish-side-auto-close t
           dirvish-side-display-alist `((side . right) (slot . -1)))
     (setq dirvish-use-mode-line nil
+          dirvish-use-header-line nil
+          dirvish-window-fringe 4
           dirvish-hide-details '(dirvish-side)
           dirvish-hide-cursor '(dirvish dirvish-side dired)
           dirvish-default-layout '(0 0 0.5)
           dirvish-path-separators (list "  ~" "   " "/")
           dirvish-header-line-format
-          '(:left (path) :right (yank sort index " "))
-          dirvish-open-with-programs
-          `((,dirvish-audio-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-            (,dirvish-video-exts . ("D:/Applications/mpv/mpv.exe" "%f"))
-            (,dirvish-image-exts . ("D:/Applications/xnviewmp/xnviewmp.exe" "%f"))
-            (("doc" "docx") . ("C:/Program Files/Microsoft Office/root/Office16/WINWORD.EXE" "%f"))
-            (("ppt" "pptx") . ("C:/Program Files/Microsoft Office/root/Office16/POWERPNT.EXE" "%f"))
-            (("xls" "xlsx") . ("C:/Program Files/Microsoft Office/root/Office16/EXCEL.EXE" "%f"))
-            (("pdf") . ("C:/Program Files/SumatraPDF/SumatraPDF.exe" "%f"))
-            (("epub") . ("D:/Applications/koodo/Koodo Reader.exe" "%f")))))
+          '(:left (path) :right (yank sort index " "))))
+#+end_src
+
+#+begin_src emacs-lisp
+  (after! dirvish-vc
+    (set-face-attribute 'dirvish-vc-added-state nil :foreground "#a9ba66")
+    (set-face-attribute 'dirvish-vc-edited-state nil :foreground "#f2d366"))
 #+end_src
 
 ** dirvish Windows适配
@@ -607,8 +598,8 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
   (setenv "PATH" (concat "d:/Env/media/mtn/;" (getenv "PATH")))
   (add-to-list 'exec-path "d:\\Env\\media\\mtn")
 
-  (after! dirvish
-    (use-package! dirvish-windows))
+  ;; (after! dirvish
+  ;;   (use-package! dirvish-windows))
 #+end_src
 
 ** dirvish mediainfo预览优化
@@ -628,28 +619,6 @@ Dirvish真是接近完美的文件管理器。除了鼠标操作比较难受外�
     (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
     (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
     (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
-#+end_src
-
-取消设置diff-hl-update-async
-此选项会导致windows上crash
-在进行版本更新后再次测试是否crash
-#+begin_src emacs-lisp
-  (if (eq system-type 'windows-nt)
-      (after! diff-hl
-        ;; turn off diff-hl async to prevent crash
-        (setq diff-hl-update-async nil)
-        (remove-hook 'diff-hl-mode-hook #'diff-hl-flydiff-mode)
-        (remove-hook 'diff-hl-flydiff-mode-hook #'+vc-gutter-init-flydiff-mode-h)
-       
-        (advice-remove 'diff-hl-update #'+vc-gutter--debounce-threads-a)
-        (advice-remove 'diff-hl-update-once #'+vc-gutter--only-tick-on-success-a)
-
-        (defun +diff-hl-update-exit-insert-state nil
-          (if diff-hl-mode
-              (add-hook 'evil-insert-state-exit-hook #'diff-hl-update)
-            (remove-hook 'evil-insert-state-exit-hook #'diff-hl-update)))
-
-        (add-hook 'diff-hl-mode-hook #'+diff-hl-update-exit-insert-state)))
 #+end_src
 
 ** dirvish focus

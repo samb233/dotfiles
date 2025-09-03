@@ -64,12 +64,6 @@
 ;; 工具包
 (package! fanyi)
 (package! drag-stuff)
-(package! ultra-scroll
-  :recipe (:host github :repo "jdtsmith/ultra-scroll"
-           :files ("*")))
-(package! eglot-booster
-  :recipe (:host github :repo "jdtsmith/eglot-booster"
-           :files ("*")))
 (package! symbol-overlay)
 (package! colorful-mode)
 
@@ -80,6 +74,7 @@
 (package! tabspaces)
 
 ;; 不需要这些功能，取消使用
+(package! solaire-mode :disable t)
 (package! undo-fu :disable t)
 (package! evil-escape :disable t)
 (package! tide :disable t)
