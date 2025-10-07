@@ -1,5 +1,39 @@
 ;;; elisp/dirvish-video-mediainfo-enhance.el -*- lexical-binding: t; -*-
 
+;; (dirvish-define-preview video-mtn-2 (file ext preview-window)
+;;   "Preview video files on MS-Windows.
+;; Require: `mtn' (executable)"
+;;   :require ("echo")
+;;   (when (member ext dirvish-video-exts)
+;;     (let* ((width (dirvish-media--img-size preview-window))
+;;            (height (dirvish-media--img-size preview-window 'height))
+;;            (cache (dirvish--img-thumb-name file width ".jpg"))
+;;            (path (dirvish--get-parent-path cache)))
+;;       (if (file-exists-p cache)
+;;           `(shell . ("echo" ,file))
+;;         `(shell . ("echo" "not exist cache" ,cache "file: " ,file))))))
+;; ;; (delq "video-mtn" 'dirvish-preview-dispatchers)
+;; (add-to-list 'dirvish-preview-dispatchers 'video-mtn-2)
+;; ;; (setq 'dirvish-preview-dispatchers '(video-mtn-2 image gif audio epub archive font pdf))
+
+(dirvish-define-preview video-mtn-test (file ext preview-window)
+  "Preview video files on MS-Windows.
+Require: `mtn' (executable)"
+  :require (dirvish-mtn-program)
+  (when (member ext dirvish-video-exts)
+    (let* ((width (dirvish-media--img-size preview-window))
+           (height (dirvish-media--img-size preview-window 'height))
+           (cache (dirvish--img-thumb-name file width ".jpg"))
+           (path (dirvish--get-parent-path cache))
+           (cache-base (file-name-base cache)))
+      (if (file-exists-p cache)
+          `(img . ,(create-image cache nil nil :max-width width :max-height height))
+        `(cache . (,dirvish-mtn-program "-P" "-i" "-c" "1" "-r" "1" "-O" ,path ,file "-x"
+                                        ,cache-base "-o" ".jpg" "-w"
+                                        ,(number-to-string width)))))))
+(setq dirvish-preview-dispatchers '(video-mtn-test image gif audio epub archive font pdf))
+;; (add-to-list 'dirvish-preview-dispatchers 'video-mtn-test)
+
 (setq dirvish-media--info
       "General;(Full-name . \"\"%FileName%\"\")(Format . \"\"%Format%\"\")(File-size . \"\"%FileSize/String1%\"\")(Duration . \"\"%Duration/String3%\"\")\nImage;(Width . \"\"%Width/String%\"\")(Height . \"\"%Height/String%\"\")(Bit-depth . \"\"%BitDepth/String%\"\")(Color-space . \"\"%ColorSpace%\"\")(Chroma-subsampling . \"\"%ChromaSubsampling%\"\")(Compression-mode . \"\"%Compression_Mode/String%\"\")\nVideo;(Resolution . \"\"%Width% x %Height%\"\")(Video-codec . \"\"%Format%\"\")(Framerate . \"\"%FrameRate%\"\")(Video-bitrate . \"\"%BitRate/String%\"\")\nAudio;(Audio-codec . \"\"%Format%\"\")(Audio-bitrate . \"\"%BitRate/String%\"\")(Audio-sampling-rate . \"\"%SamplingRate/String%\"\")(Audio-channels . \"\"%ChannelLayout%\"\")")
 

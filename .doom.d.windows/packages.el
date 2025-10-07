@@ -97,3 +97,9 @@
 (package! go-tag
   :recipe (:host github :repo "samb233/emacs-go-tag"
            :files ("*")))
+
+;; 测试 libvterm 在 windows 下的使用性
+(unpin! vterm)
+(package! vterm
+  :recipe (:host github :repo "TomoeMami/emacs-libvterm"
+           :files ("*")))

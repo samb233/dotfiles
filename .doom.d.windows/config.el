@@ -482,34 +482,31 @@
 
 (map! :leader "v O" #'dired-region)
 
-(setq eshell-banner-message "")
-(use-package! doom-eshell-toggle)
-(map! [f4] #'doom-eshell-toggle-project
-      [S-f4] #'project-eshell
+(setq vterm-always-compile-module t)
+(setq vterm-buffer-name-string "*vterm: %s*")
+(after! vterm
+  (setq vterm-timer-delay    0.02
+        vterm-max-scrollback 20000)
+  (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
+  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
+  (remove-hook 'vterm-mode-hook #'doom-mark-buffer-as-real-h))
+
+;; (setq +popup-margin-width nil)
+;; (add-hook! 'doom-first-buffer-hook
+;;   (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
+
+(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
+
+(use-package! doom-vterm-toggle
+  :commands (doom-vterm-toggle-directory
+             doom-vterm-toggle-project))
+
+(map! :map vterm-mode-map [f4] nil)
+(map! [f4] #'doom-vterm-toggle-project
+      [C-f4] #'doom-vterm-toggle-directory
+      [S-f4] #'+vterm/here
       :leader
-      "o s" #'doom-eshell-toggle-project
-      "o S" #'project-eshell)
-
-(defvar +eshell-aliases
-  '(("q"  "exit")           ; built-in
-    ("f"  "find-file $1")
-    ("ff" "find-file-other-window $1")
-    ("d"  "dired $1")
-    ("bd" "eshell-up $1")
-    ("rg" "rg --color=always $*")
-    ("l"  "ls -lh $*")
-    ("ll" "ls -lah $*")
-    ("git" "git --no-pager $*")
-    ("gg" "magit-status")
-    ("cdp" "cd-to-project")
-    ("clear" "clear-scrollback")) ; more sensible than default
-  "An alist of default eshell aliases, meant to emulate useful shell utilities")
-
-(after! em-alias
-  (setq +eshell--default-aliases eshell-command-aliases-list
-        eshell-command-aliases-list
-        (append eshell-command-aliases-list
-                +eshell-aliases)))
+      "o s" #'doom-vterm-toggle-project)
 
 (defun my-open-windows-terminal-project()
   (interactive)
@@ -523,9 +520,7 @@
    (format "wt -d %s" (shell-quote-argument
                        default-directory)) nil 0))
 
-(map! [f4] #'my-open-windows-terminal-project
-      [S-f4] #'my-open-windows-terminal-directory
-      :leader
+(map! :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
 
