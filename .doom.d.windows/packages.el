@@ -58,6 +58,11 @@
 ;; 输入法管理
 (package! sis)
 
+;; Agent Shell
+(package! shell-maker)
+(package! acp)
+(package! agent-shell)
+
 ;; Org-Mode
 (package! org-appear)
 
@@ -77,29 +82,19 @@
 (package! solaire-mode :disable t)
 (package! undo-fu :disable t)
 (package! evil-escape :disable t)
-(package! tide :disable t)
 (package! pipenv :disable t)
-(package! anaconda-mode :disable t)
 (package! flymake-popon :disable t)
 
 ;; Windows 下加载 gpg 非常慢
-(package! epa :disable t)
+;; (package! epa :disable t)
 
 ;; 过于老旧，取消使用
 (package! gorepl-mode :disable t)
 (package! ob-go :disable t)
-(package! go-guru :disable t)
-(package! go-eldoc :disable t)
 
 ;; 默认的go-tag在我的配置下会有一些问题
 ;; 使用我自己的go-tag
 (unpin! go-tag)
 (package! go-tag
   :recipe (:host github :repo "samb233/emacs-go-tag"
-           :files ("*")))
-
-;; 测试 libvterm 在 windows 下的使用性
-(unpin! vterm)
-(package! vterm
-  :recipe (:host github :repo "TomoeMami/emacs-libvterm"
            :files ("*")))

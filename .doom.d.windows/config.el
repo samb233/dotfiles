@@ -305,7 +305,7 @@
 (setq-hook! 'minibuffer-setup-hook corfu-auto-prefix 2)
 
 (setq thing-at-point-file-name-chars
-      (concat thing-at-point-file-name-chars " ・()（）Z-a！+&「」"))
+      (concat thing-at-point-file-name-chars " ・()（）Z-a！+&「」'"))
 
 (after! flymake
   (set-popup-rule! "^\\*format-all-errors*" :size 0.15 :select nil :modeline nil :quit t)
@@ -412,28 +412,28 @@
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
 
-(defun dirvish-unfocus ()
-  (interactive)
-  (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
+;; (defun dirvish-unfocus ()
+;;   (interactive)
+;;   (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
 
-(defun dirvish-focus ()
-  (interactive)
-  (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
+;; (defun dirvish-focus ()
+;;   (interactive)
+;;   (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
 
-(defun dirvish-focus-change (&rest w)
-  (let* ((cb (current-buffer))
-         (ow (old-selected-window))
-         (ob (window-buffer ow)))
-    (progn
-      (with-current-buffer cb
-        (when (eq major-mode #'dired-mode)
-          (dirvish-focus)))
-      (with-current-buffer ob
-        (when (eq major-mode #'dired-mode)
-          (dirvish-unfocus))))))
+;; (defun dirvish-focus-change (&rest w)
+;;   (let* ((cb (current-buffer))
+;;          (ow (old-selected-window))
+;;          (ob (window-buffer ow)))
+;;     (progn
+;;       (with-current-buffer cb
+;;         (when (eq major-mode #'dired-mode)
+;;           (dirvish-focus)))
+;;       (with-current-buffer ob
+;;         (when (eq major-mode #'dired-mode)
+;;           (dirvish-unfocus))))))
 
-(add-hook! 'dired-mode-hook
-  (add-hook 'window-selection-change-functions #'dirvish-focus-change nil t))
+;; (add-hook! 'dired-mode-hook
+;;   (add-hook 'window-selection-change-functions #'dirvish-focus-change nil t))
 
 (use-package! dired-7z
   :after dired
@@ -449,10 +449,10 @@
   :config
   (map! :map 'dired-mode-map
         :localleader
-        "c" #'dired-copy-file-to-windows-clipboard
+        "C-c" #'dired-copy-file-to-windows-clipboard
+        "C-v" #'dired-paste-file-from-windows-clipboard
         "v" #'dired-file-to-clipboard
-        "p" #'dired-paste-file-from-windows-clipboard
-        "i" #'dired-open-file-properties-windows))
+        "C-i" #'dired-open-file-properties-windows))
 
 (defun my-open-explorer()
   (interactive)
@@ -482,31 +482,35 @@
 
 (map! :leader "v O" #'dired-region)
 
-(setq vterm-always-compile-module t)
-(setq vterm-buffer-name-string "*vterm: %s*")
-(after! vterm
-  (setq vterm-timer-delay    0.02
-        vterm-max-scrollback 20000)
-  (advice-add #'vterm--redraw :after (lambda (&rest args) (evil-refresh-cursor evil-state)))
-  (set-face-attribute 'ansi-color-bright-black nil :foreground "#C0C0C0")
-  (remove-hook 'vterm-mode-hook #'doom-mark-buffer-as-real-h))
-
-;; (setq +popup-margin-width nil)
-;; (add-hook! 'doom-first-buffer-hook
-;;   (remove-hook '+popup-buffer-mode-hook #'+popup-adjust-fringes-h))
-
-(add-hook! 'vterm-mode-hook (setq-local kill-buffer-query-functions nil))
-
-(use-package! doom-vterm-toggle
-  :commands (doom-vterm-toggle-directory
-             doom-vterm-toggle-project))
-
-(map! :map vterm-mode-map [f4] nil)
-(map! [f4] #'doom-vterm-toggle-project
-      [C-f4] #'doom-vterm-toggle-directory
-      [S-f4] #'+vterm/here
+(setq eshell-banner-message "")
+(use-package! doom-eshell-toggle)
+(map! [f4] #'doom-eshell-toggle-project
+      [S-f4] #'project-eshell
       :leader
-      "o s" #'doom-vterm-toggle-project)
+      "o s" #'doom-eshell-toggle-project
+      "o S" #'project-eshell)
+(setq-hook! 'eshell-mode-hook coding-system-for-read 'utf-8)
+
+(defvar +eshell-aliases
+  '(("q"  "exit")           ; built-in
+    ("f"  "find-file $1")
+    ("ff" "find-file-other-window $1")
+    ("d"  "dired $1")
+    ("bd" "eshell-up $1")
+    ("rg" "rg --color=always $*")
+    ("l"  "ls -lh $*")
+    ("ll" "ls -lah $*")
+    ("git" "git --no-pager $*")
+    ("gg" "magit-status")
+    ("cdp" "cd-to-project")
+    ("clear" "clear-scrollback")) ; more sensible than default
+  "An alist of default eshell aliases, meant to emulate useful shell utilities")
+
+(after! em-alias
+  (setq +eshell--default-aliases eshell-command-aliases-list
+        eshell-command-aliases-list
+        (append eshell-command-aliases-list
+                +eshell-aliases)))
 
 (defun my-open-windows-terminal-project()
   (interactive)
@@ -520,7 +524,9 @@
    (format "wt -d %s" (shell-quote-argument
                        default-directory)) nil 0))
 
-(map! :leader
+(map! [f5] #'my-open-windows-terminal-project
+      [S-f5] #'my-open-windows-terminal-directory
+      :leader
       "o t" #'my-open-windows-terminal-project
       "o T" #'my-open-windows-terminal-directory)
 
@@ -528,6 +534,24 @@
       :leader "A" #'async-shell-command)
 
 (set-popup-rule! "^\\*Async Shell Command" :size 0.25 :quit 'current :select t :modeline t)
+
+(use-package! agent-shell
+  :commands (agent-shell
+             agent-shell-qwen-start)
+  :config
+  (use-package! acp)
+  (setq agent-shell-preferred-agent-config (agent-shell-qwen-make-agent-config))
+  (setq agent-shell-header-style nil
+        agent-shell-show-welcome-message nil)
+  (setq agent-shell-buffer-name-format (defun my-agent-shell-buffer-name-format (agent-name project-name)
+                                         (format "*agent-shell:%s @ %s*"
+                                                 (downcase (replace-regexp-in-string " " "-" agent-name))
+                                                 project-name)))
+  (setq agent-shell-qwen-authentication
+        (agent-shell-qwen-make-authentication :login t)))
+
+(set-popup-rule! "^\\*agent-shell" :size 0.4 :quit 'current :select t :modeline t)
+(map! [f6] #'agent-shell)
 
 (setq org-directory "D:/Notes")
 (custom-set-faces
@@ -714,8 +738,8 @@
       :localleader
       "m" #'mediainfo-dired)
 
-(set-popup-rule! "^\\*vspreview*" :size 0.2 :quit t :select nil)
-(set-popup-rule! "^\\*vsbench*" :size 0.2 :quit t :select nil)
+(set-popup-rule! "^\\*vspreview*" :size 0.2 :quit 'current :select nil)
+(set-popup-rule! "^\\*vsbench*" :size 0.2 :quit 'current :select nil)
 (set-popup-rule! "^\\*mediainfo*" :size 0.4 :quit t :select nil)
 
 (after! apheleia
@@ -725,8 +749,8 @@
 (use-package! sis
   :config
   (setq sis-respect-prefix-and-buffer nil)
-  (sis-ism-lazyman-config nil t 'w32)
-  (add-hook! 'after-init-hook #'sis-set-english)
+  ;; (sis-ism-lazyman-config nil t 'w32)
+  ;; (add-hook! 'after-init-hook #'sis-set-english)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
