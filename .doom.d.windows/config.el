@@ -167,7 +167,7 @@
 (add-hook! 'doom-first-buffer-hook #'global-undo-fu-session-mode)
 
 (after! projectile
-  (add-to-list 'projectile-project-root-files "go.mod")
+  (add-to-list 'projectile-project-root-files "go.mod"))
 
 (after! xref
   (setq xref-search-program 'ripgrep))

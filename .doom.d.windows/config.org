@@ -272,7 +272,7 @@ doom配置里，undo-fu-session在undo-fu之后启动。但我不需要undo-fu�
 先从上到下，后从下到上。
 #+begin_src emacs-lisp
   (after! projectile
-    (add-to-list 'projectile-project-root-files "go.mod")
+    (add-to-list 'projectile-project-root-files "go.mod"))
 
   (after! xref
     (setq xref-search-program 'ripgrep))
