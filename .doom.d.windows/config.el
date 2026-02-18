@@ -7,18 +7,8 @@
     (progn
       (setq tramp-mode nil)
       (setenv "LANG" "zh_CN.UTF-8")
-      (setq shell-file-name "bash"
-            explicit-shell-file-name "bash")
-      ;; (setq default-process-coding-system '(utf-8 . utf-8))
-
-      ;; not needed if use utf-8-beta
-      ;; (setq default-process-coding-system '(utf-8 . cp936))
-      ;; (setq file-name-coding-system 'cp936)
       (set-selection-coding-system 'utf-16le-dos))
   (set-selection-coding-system 'utf-8))
-
-(setenv "PATH" (concat "d:/Env/msys2/usr/bin;" (getenv "PATH")))
-(add-to-list 'exec-path "d:\\Env\\msys2\\usr\\bin")
 
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
@@ -40,7 +30,6 @@
 (setq word-wrap-by-category t)
 
 (setq doom-font (font-spec :family "Consolas" :size 11.5))
-;; (setq doom-unicode-font (font-spec :family "BlexMono Nerd Font"))
 (setq doom-variable-pitch-font (font-spec :family "霞鹜文楷等宽"))
 
 (defun my-cjk-font()
@@ -177,21 +166,11 @@
 
 (add-hook! 'doom-first-buffer-hook #'global-undo-fu-session-mode)
 
-(defun projectile-root-default-directory (dir)
-  "Retrieve the root directory of the project at DIR using `default-directory'."
-  default-directory)
-
 (after! projectile
   (add-to-list 'projectile-project-root-files "go.mod")
-  (setq projectile-project-root-functions '(projectile-root-local
-                                            projectile-root-marked
-                                            projectile-root-top-down
-                                            projectile-root-bottom-up
-                                            projectile-root-default-directory
-                                            projectile-root-top-down-recurring)))
 
-(setq project-find-functions '(project-projectile project-try-vc))
-(setq xref-search-program 'ripgrep)
+(after! xref
+  (setq xref-search-program 'ripgrep))
 
 (after! recentf
   (setq recentf-max-saved-items 1000
@@ -246,12 +225,9 @@
         :desc "LSP start/restart" "c l" #'eglot
         :desc "LSP reconnect" "c L" #'eglot-shutdown
         :desc "LSP rename" "c n" #'eglot-rename)
-  (set-popup-rule! "^\\*eglot-help" :size 0.3 :quit t :select nil)
   ;; (push :inlayHintProvider eglot-ignored-server-capabilities)
 
-  (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9)
-  ;; (add-hook 'eglot-inlay-hints-mode-hook #'revert-buffer)
-  )
+  (set-face-attribute 'eglot-inlay-hint-face nil :weight 'bold :height 0.9))
 
 (defun my-remove-eglot-mode-line()
   "Remove `eglot' from mode-line"
@@ -260,25 +236,6 @@
 (add-hook 'eglot-managed-mode-hook #'my-remove-eglot-mode-line)
 
 (setq +lsp-defer-shutdown nil)
-
-(defvar +eglot-server-num-limit 8)
-
-(after! eglot
-  (defun +eglot-get-server-num()
-    (let ((servers (cl-loop for servers
-                            being hash-values of eglot--servers-by-project
-                            append servers))
-          (name (lambda (srv)
-                  (format "%s %s" (eglot-project-nickname srv)
-                          (eglot--major-modes srv)))))
-      (mapcar name servers)))
-
-  (defun +eglot-limit-server-num()
-    (let ((num (length (+eglot-get-server-num))))
-      (when (> num +eglot-server-num-limit)
-        (run-at-time 0.1 nil (lambda () (call-interactively #'eglot-shutdown))))))
-
-  (add-hook 'eglot--managed-mode-hook #'+eglot-limit-server-num))
 
 (after! corfu
   (setq corfu-preselect 'prompt
@@ -378,7 +335,8 @@
   (setq dirvish-side-width 40
         dirvish-side-auto-close t
         dirvish-side-display-alist `((side . right) (slot . -1)))
-  (setq dirvish-use-mode-line nil
+  (setq
+        dirvish-use-mode-line nil
         dirvish-use-header-line nil
         dirvish-window-fringe 4
         dirvish-hide-details '(dirvish-side)
@@ -387,6 +345,8 @@
         dirvish-path-separators (list "  ~" "   " "/")
         dirvish-header-line-format
         '(:left (path) :right (yank sort index " "))))
+
+(setq-hook! 'dired-mode-hook cursor-face-highlight-mode t)
 
 (after! dirvish-vc
   (set-face-attribute 'dirvish-vc-added-state nil :foreground "#a9ba66")
@@ -411,29 +371,6 @@
   (set-face-attribute 'diff-hl-dired-change nil :background "#f2d366")
   (set-face-attribute 'diff-hl-dired-delete nil :background "#c82829")
   (set-face-attribute 'diff-hl-dired-insert nil :background "#a9ba66"))
-
-;; (defun dirvish-unfocus ()
-;;   (interactive)
-;;   (face-remap-add-relative 'dirvish-hl-line '(:background "#d6d4d4")))
-
-;; (defun dirvish-focus ()
-;;   (interactive)
-;;   (face-remap-add-relative 'dirvish-hl-line '(:background "#4271ae")))
-
-;; (defun dirvish-focus-change (&rest w)
-;;   (let* ((cb (current-buffer))
-;;          (ow (old-selected-window))
-;;          (ob (window-buffer ow)))
-;;     (progn
-;;       (with-current-buffer cb
-;;         (when (eq major-mode #'dired-mode)
-;;           (dirvish-focus)))
-;;       (with-current-buffer ob
-;;         (when (eq major-mode #'dired-mode)
-;;           (dirvish-unfocus))))))
-
-;; (add-hook! 'dired-mode-hook
-;;   (add-hook 'window-selection-change-functions #'dirvish-focus-change nil t))
 
 (use-package! dired-7z
   :after dired
@@ -542,7 +479,8 @@
   (use-package! acp)
   (setq agent-shell-preferred-agent-config (agent-shell-qwen-make-agent-config))
   (setq agent-shell-header-style nil
-        agent-shell-show-welcome-message nil)
+        agent-shell-show-welcome-message nil
+        agent-shell-show-config-icons nil)
   (setq agent-shell-buffer-name-format (defun my-agent-shell-buffer-name-format (agent-name project-name)
                                          (format "*agent-shell:%s @ %s*"
                                                  (downcase (replace-regexp-in-string " " "-" agent-name))
@@ -550,7 +488,7 @@
   (setq agent-shell-qwen-authentication
         (agent-shell-qwen-make-authentication :login t)))
 
-(set-popup-rule! "^\\*agent-shell" :size 0.4 :quit 'current :select t :modeline t)
+(set-popup-rule! "^\\*agent-shell" :size 0.4 :quit nil :select t :modeline t)
 (map! [f6] #'agent-shell)
 
 (setq org-directory "D:/Notes")
@@ -749,8 +687,6 @@
 (use-package! sis
   :config
   (setq sis-respect-prefix-and-buffer nil)
-  ;; (sis-ism-lazyman-config nil t 'w32)
-  ;; (add-hook! 'after-init-hook #'sis-set-english)
   (sis-global-respect-mode t)
   (sis-global-context-mode t))
 
@@ -885,38 +821,38 @@
 (map! :leader
       :desc "View Base64 img" "v b" #'base64-img-toggle-region)
 
-(use-package! fringe-scale
-  :init
-  (set-fringe-mode '(8 . 16))
-  :config
-  (fringe-scale-setup))
+;; (use-package! fringe-scale
+;;   :init
+;;   (set-fringe-mode '(8 . 16))
+;;   :config
+;;   (fringe-scale-setup))
 
-(setq builtin-bitmaps
-      ' ((question-mark [#x3c #x7e #xc3 #xc3 #x0c #x18 #x18 #x00 #x18 #x18])
-     (exclamation-mark [#x18 #x18 #x18 #x18 #x18 #x18 #x18 #x00 #x18 #x18])
-     (left-arraw [#x18 #x30 #x60 #xfc #xfc #x60 #x30 #x18])
-     (right-arrow [#x18 #x0c #x06 #x3f #x3f #x06 #x0c #x18])
-     (up-arrow [#x18 #x3c #x7e #xff #x18 #x18 #x18 #x18])
-     (down-arrow [#x18 #x18 #x18 #x18 #xff #x7e #x3c #x18])
-     (left-curly-arrow [#x3c #x7c #xc0 #xe4 #xfc #x7c #x3c #x7c])
-     (right-curly-arrow [#x3c #x3e #x03 #x27 #x3f #x3e #x3c #x3e])
-     (left-triangle [#x03 #x0f #x1f #x3f #x3f #x1f #x0f #x03])
-     (right-triangle [#xc0 #xf0 #xf8 #xfc #xfc #xf8 #xf0 #xc0])
-     (top-left-angle [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #x00])
-     (top-right-angle [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x00])
-     (bottom-left-angle [#x00 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
-     (bottom-right-angle [#x00 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
-     (left-bracket [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
-     (right-bracket [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
-     (filled-rectangle [#xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe])
-     (hollow-rectangle [#xfe #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #xfe])
-     (hollow-square [#x7e #x42 #x42 #x42 #x42 #x7e])
-     (filled-square [#x7e #x7e #x7e #x7e #x7e #x7e])
-     (vertical-bar [#xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0])
-     (horizontal-bar [#xfe #xfe])))
+;; (setq builtin-bitmaps
+;;       ' ((question-mark [#x3c #x7e #xc3 #xc3 #x0c #x18 #x18 #x00 #x18 #x18])
+;;      (exclamation-mark [#x18 #x18 #x18 #x18 #x18 #x18 #x18 #x00 #x18 #x18])
+;;      (left-arraw [#x18 #x30 #x60 #xfc #xfc #x60 #x30 #x18])
+;;      (right-arrow [#x18 #x0c #x06 #x3f #x3f #x06 #x0c #x18])
+;;      (up-arrow [#x18 #x3c #x7e #xff #x18 #x18 #x18 #x18])
+;;      (down-arrow [#x18 #x18 #x18 #x18 #xff #x7e #x3c #x18])
+;;      (left-curly-arrow [#x3c #x7c #xc0 #xe4 #xfc #x7c #x3c #x7c])
+;;      (right-curly-arrow [#x3c #x3e #x03 #x27 #x3f #x3e #x3c #x3e])
+;;      (left-triangle [#x03 #x0f #x1f #x3f #x3f #x1f #x0f #x03])
+;;      (right-triangle [#xc0 #xf0 #xf8 #xfc #xfc #xf8 #xf0 #xc0])
+;;      (top-left-angle [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #x00])
+;;      (top-right-angle [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x00])
+;;      (bottom-left-angle [#x00 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
+;;      (bottom-right-angle [#x00 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
+;;      (left-bracket [#xfc #xfc #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xfc #xfc])
+;;      (right-bracket [#x3f #x3f #x03 #x03 #x03 #x03 #x03 #x03 #x3f #x3f])
+;;      (filled-rectangle [#xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe #xfe])
+;;      (hollow-rectangle [#xfe #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #x82 #xfe])
+;;      (hollow-square [#x7e #x42 #x42 #x42 #x42 #x7e])
+;;      (filled-square [#x7e #x7e #x7e #x7e #x7e #x7e])
+;;      (vertical-bar [#xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0 #xc0])
+;;      (horizontal-bar [#xfe #xfe])))
 
-(dolist (bitmap builtin-bitmaps)
-  (define-fringe-bitmap (car bitmap) (cadr bitmap)))
+;; (dolist (bitmap builtin-bitmaps)
+;;   (define-fringe-bitmap (car bitmap) (cadr bitmap)))
 
 (use-package! flymake-triangle-bitmap
   :after flymake
