@@ -63,6 +63,15 @@
 (package! acp)
 (package! agent-shell)
 
+;; ghostty
+(package! ghostel
+  :recipe (:host github :repo "kiennq/ghostel"
+           :files (:defaults "lisp/*.el")))
+
+(package! evil-ghostel
+  :recipe (:host github :repo "kiennq/ghostel"
+           :files (:defaults "extensions/evil-ghostel/*.el")))
+
 ;; Org-Mode
 (package! org-appear)
 

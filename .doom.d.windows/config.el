@@ -421,9 +421,7 @@
 
 (setq eshell-banner-message "")
 (use-package! doom-eshell-toggle)
-(map! [f4] #'doom-eshell-toggle-project
-      [S-f4] #'project-eshell
-      :leader
+(map! :leader
       "o s" #'doom-eshell-toggle-project
       "o S" #'project-eshell)
 (setq-hook! 'eshell-mode-hook coding-system-for-read 'utf-8)
@@ -448,6 +446,19 @@
         eshell-command-aliases-list
         (append eshell-command-aliases-list
                 +eshell-aliases)))
+
+(use-package! ghostel
+  :commands (ghostel ghostel-mode)
+  :custom
+  (ghostel-shell '("pwsh" "--nologo"))
+  (ghostel-github-release-url "https://github.com/kiennq/ghostel/releases"))
+
+(use-package! evil-ghostel
+  :after (ghostel evil)
+  :hook (ghostel-mode . evil-ghostel-mode))
+
+(map! [f4] #'ghostel-project
+    [S-f4] #'ghostel)
 
 (defun my-open-windows-terminal-project()
   (interactive)
